@@ -1,0 +1,30 @@
+# macOS
+.DS_Store
+
+# Xcode user state
+*.xcuserstate
+xcuserdata/
+
+# Build output
+Derived/
+DerivedData/
+.build/
+
+# Swift Package Manager
+.swiftpm/
+
+# Tuist
+.tuist/
+Tuist/.build/
+*.xcworkspace/.tuist-generated
+*.xcodeproj
+*.xcworkspace
+
+# App packaging
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Secrets / local config
+.env
+.env.*
