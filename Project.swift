@@ -5,7 +5,10 @@ let project = Project(
     packages: [],
     settings: .settings(
         base: [
+            "CODE_SIGN_STYLE": "Automatic",
+            "CURRENT_PROJECT_VERSION": "1",
             "IPHONEOS_DEPLOYMENT_TARGET": "18.0",
+            "MARKETING_VERSION": "0.1.0",
             "SWIFT_VERSION": "6.0"
         ],
         configurations: [
@@ -21,9 +24,14 @@ let project = Project(
             bundleId: "dev.spendmind.app",
             deploymentTargets: .iOS("18.0"),
             infoPlist: .extendingDefault(with: [
-                "UILaunchScreen": [:]
+                "CFBundleShortVersionString": "$(MARKETING_VERSION)",
+                "CFBundleVersion": "$(CURRENT_PROJECT_VERSION)",
+                "UILaunchScreen": [
+                    "UIColorName": "LaunchBackground"
+                ]
             ]),
             sources: ["SpendMind/**"],
+            resources: ["SpendMind/Resources/**"],
             dependencies: [
                 .external(name: "Algorithms"),
                 .external(name: "Collections")
