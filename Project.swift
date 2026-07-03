@@ -24,7 +24,10 @@ let project = Project(
                 "UILaunchScreen": [:]
             ]),
             sources: ["SpendMind/**"],
-            dependencies: []
+            dependencies: [
+                .external(name: "Algorithms"),
+                .external(name: "Collections")
+            ]
         ),
         .target(
             name: "SpendMindTests",
