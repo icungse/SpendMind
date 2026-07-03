@@ -1,8 +1,8 @@
 //
 //  SpendMindUITests.swift
-//  SpendMind
+//  SpendMindTests
 //
-//  Created by OpenCode
+//  Created by Icung on 03/07/26.
 //
 
 import XCTest

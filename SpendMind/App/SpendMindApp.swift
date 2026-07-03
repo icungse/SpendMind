@@ -2,16 +2,19 @@
 //  SpendMindApp.swift
 //  SpendMind
 //
-//  Created by OpenCode
+//  Created by Icung on 03/07/26.
 //
 
 import SwiftUI
 
 @main
 struct SpendMindApp: App {
+    private let dependencies: AppDependencyProviding = DependencyContainer()
+
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(\.dependencies, dependencies)
         }
     }
 }
