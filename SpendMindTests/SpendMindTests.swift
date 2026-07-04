@@ -23,6 +23,10 @@ final class SpendMindTests: XCTestCase {
         XCTAssertTrue(environment.dependencies is MockDependencies)
     }
 
+    func testSwiftDataTestContainerLoads() {
+        XCTAssertNoThrow(try SpendMindModelContainer.test())
+    }
+
     func testRouterPushesAndPopsRoutes() {
         let router = AppRouter()
 

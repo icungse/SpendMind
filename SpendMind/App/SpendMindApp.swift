@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct SpendMindApp: App {
@@ -15,6 +16,7 @@ struct SpendMindApp: App {
         WindowGroup {
             ContentView()
                 .environment(\.dependencies, dependencies)
+                .modelContainer(SpendMindModelContainer.app)
         }
     }
 }
@@ -74,4 +76,5 @@ private struct ContentView: View {
 
 #Preview {
     ContentView()
+        .modelContainer(SpendMindModelContainer.preview)
 }
