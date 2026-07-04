@@ -25,6 +25,7 @@ enum SpendMindModelContainer {
     }
 
     private static func createContainer(isStoredInMemoryOnly: Bool) throws -> ModelContainer {
+        /// empty schema until the first real @Model type exists.
         let schema = Schema([])
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: isStoredInMemoryOnly)
 
