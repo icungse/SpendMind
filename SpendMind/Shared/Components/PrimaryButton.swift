@@ -18,7 +18,7 @@ struct PrimaryButton: View {
             HStack(spacing: AppSpacing.sm) {
                 if isLoading {
                     ProgressView()
-                        .tint(AppColor.background)
+                        .tint(AppColor.textInverse)
                 }
 
                 Text(title)
@@ -26,7 +26,7 @@ struct PrimaryButton: View {
             }
             .frame(maxWidth: .infinity, minHeight: 44)
             .padding(.horizontal, AppSpacing.md)
-            .foregroundStyle(AppColor.background)
+            .foregroundStyle(AppColor.textInverse)
             .background(isDisabled ? AppColor.disabled : AppColor.primary)
             .clipShape(RoundedRectangle(cornerRadius: Radius.medium))
         }

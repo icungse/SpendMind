@@ -16,24 +16,31 @@ enum AppColor {
     static let primary = brandBlue
     static let secondary = brandOrange
 
-    static let background = brandCream
-    static let surface = Color.white
-    static let surfaceAlt = brandLavender.opacity(0.30)
-    static let border = Color.black.opacity(0.10)
+    // ponytail: native dynamic colors cover dark mode; add a theme type only when settings need one.
+    static let background = Color(light: brandCream, dark: Color(hex: 0x121826))
+    static let surface = Color(light: .white, dark: Color(hex: 0x1B2436))
+    static let surfaceAlt = Color(light: brandLavender.opacity(0.30), dark: Color(hex: 0x27324A))
+    static let border = Color(light: .black.opacity(0.10), dark: .white.opacity(0.14))
 
-    static let textPrimary = Color.black.opacity(0.88)
-    static let textSecondary = Color.black.opacity(0.60)
-    static let textInverse = brandCream
-    static let disabled = Color.black.opacity(0.30)
-    static let placeholder = Color.black.opacity(0.40)
+    static let textPrimary = Color(light: .black.opacity(0.88), dark: brandCream)
+    static let textSecondary = Color(light: .black.opacity(0.60), dark: brandCream.opacity(0.72))
+    static let textInverse = Color(light: brandCream, dark: Color(hex: 0x121826))
+    static let disabled = Color(light: .black.opacity(0.30), dark: .white.opacity(0.30))
+    static let placeholder = Color(light: .black.opacity(0.40), dark: .white.opacity(0.45))
 
-    static let success = Color(hex: 0x2E7D32)
-    static let warning = Color(hex: 0xB26A00)
-    static let error = Color(hex: 0xC62828)
-    static let info = Color(hex: 0x2563EB)
+    static let success = Color(light: Color(hex: 0x2E7D32), dark: Color(hex: 0x6DD58C))
+    static let warning = Color(light: Color(hex: 0xB26A00), dark: Color(hex: 0xFFD166))
+    static let error = Color(light: Color(hex: 0xC62828), dark: Color(hex: 0xFF8A80))
+    static let info = Color(light: Color(hex: 0x2563EB), dark: Color(hex: 0x8AB4FF))
 }
 
 private extension Color {
+    init(light: Color, dark: Color) {
+        self.init(uiColor: UIColor { traits in
+            UIColor(traits.userInterfaceStyle == .dark ? dark : light)
+        })
+    }
+
     init(hex: UInt) {
         self.init(
             red: Double((hex >> 16) & 0xFF) / 255,
