@@ -67,5 +67,23 @@ let project = Project(
             sources: ["SpendMindUITests/**"],
             dependencies: [.target(name: "SpendMind")]
         )
+    ],
+    schemes: [
+        .scheme(
+            name: "SpendMind",
+            shared: true,
+            buildAction: .buildAction(targets: ["SpendMind"]),
+            testAction: .targets(
+                [
+                    "SpendMindTests",
+                    "SpendMindUITests"
+                ],
+                options: .options(
+                    coverage: true,
+                    codeCoverageTargets: [.target("SpendMind")]
+                )
+            ),
+            runAction: .runAction(executable: "SpendMind")
+        )
     ]
 )

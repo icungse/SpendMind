@@ -36,6 +36,34 @@ final class SpendMindTests: XCTestCase {
         XCTAssertNoThrow(try SpendMindModelContainer.test())
     }
 
+    func testSpendMindModelContainerAppAndPreview() {
+        // Touch static properties to verify instantiation and ensure code coverage.
+        XCTAssertNotNil(SpendMindModelContainer.preview)
+        XCTAssertNotNil(SpendMindModelContainer.app)
+    }
+
+    @MainActor
+    func testViewApplyIf() {
+        let view = Text("Hello")
+        
+        var appliedTrueExecuted = false
+        let appliedTrue = view.applyIf(true) { original in
+            appliedTrueExecuted = true
+            return original.bold()
+        }
+        
+        var appliedFalseExecuted = false
+        let appliedFalse = view.applyIf(false) { original in
+            appliedFalseExecuted = true
+            return original.bold()
+        }
+        
+        XCTAssertTrue(appliedTrueExecuted)
+        XCTAssertFalse(appliedFalseExecuted)
+        XCTAssertNotNil(appliedTrue)
+        XCTAssertNotNil(appliedFalse)
+    }
+
     func testAppLoggerAcceptsSupportedModes() {
         AppLogger.debug("Debug log")
         AppLogger.error("Error log")
