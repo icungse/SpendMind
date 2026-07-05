@@ -44,6 +44,7 @@ struct SpendMindApp: App {
 }
 
 private struct ContentView: View {
+    @Environment(\.dependencies) private var dependencies
     @Binding var settings: AppSettings
     @State private var router = AppRouter()
     @State private var showSplash = true
@@ -53,7 +54,10 @@ private struct ContentView: View {
 
         Group {
             if showSplash {
-                SplashView(isFinished: $showSplash)
+                SplashView(isFinished: Binding(
+                    get: { !showSplash },
+                    set: { showSplash = !$0 }
+                ))
             } else {
                 NavigationStack(path: $router.path) {
                     rootView
@@ -76,15 +80,19 @@ private struct ContentView: View {
     }
 
     private var rootView: some View {
-        Text(verbatim: AppConstants.appName)
-            .accessibilityAddTraits(.isHeader)
+        DashboardView(
+            viewModel: DashboardViewModel(dateService: dependencies.dateService),
+            settings: $settings
+        )
     }
 
     private func destination(for route: AppRoute) -> some View {
         switch route {
         case .dashboard:
-            Text(verbatim: AppConstants.appName)
-                .accessibilityAddTraits(.isHeader)
+            DashboardView(
+                viewModel: DashboardViewModel(dateService: dependencies.dateService),
+                settings: $settings
+            )
         }
     }
 
