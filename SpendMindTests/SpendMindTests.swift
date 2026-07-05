@@ -34,6 +34,30 @@ final class SpendMindTests: XCTestCase {
         AppLogger.performance("Performance log")
     }
 
+    func testSettingsManagerLoadsDefaults() {
+        let manager = AppSettingsManager(userDefaults: makeTestUserDefaults())
+
+        XCTAssertEqual(manager.load(), .default)
+    }
+
+    func testSettingsManagerPersistsSupportedSettings() {
+        let manager = AppSettingsManager(userDefaults: makeTestUserDefaults())
+        let categoryId = UUID()
+        let settings = AppSettings(
+            theme: .dark,
+            currency: .USD,
+            localeIdentifier: "en_US",
+            isBiometricEnabled: true,
+            isAIEnabled: false,
+            defaultCategoryId: categoryId,
+            isFirstLaunchCompleted: true
+        )
+
+        manager.save(settings)
+
+        XCTAssertEqual(manager.load(), settings)
+    }
+
     func testRouterPushesAndPopsRoutes() {
         let router = AppRouter()
 
@@ -73,5 +97,15 @@ final class SpendMindTests: XCTestCase {
         router.handleDeepLink(url)
 
         XCTAssertEqual(router.path, [.dashboard])
+    }
+
+    private func makeTestUserDefaults() -> UserDefaults {
+        let suiteName = "dev.spendmind.tests.\(UUID().uuidString)"
+        guard let userDefaults = UserDefaults(suiteName: suiteName) else {
+            return .standard
+        }
+
+        userDefaults.removePersistentDomain(forName: suiteName)
+        return userDefaults
     }
 }
