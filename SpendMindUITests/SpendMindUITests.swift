@@ -12,8 +12,8 @@ final class SpendMindUITests: XCTestCase {
     func testLaunches() {
         let app = XCUIApplication()
         app.launch()
-
-        let isTitleVisible = app.staticTexts["SpendMind"].exists
-        XCTAssertTrue(isTitleVisible)
+        
+        let exists = app.staticTexts["Total Balance"].waitForExistence(timeout: 5.0)
+        XCTAssertTrue(exists, "Dashboard was not shown within timeout")
     }
 }
