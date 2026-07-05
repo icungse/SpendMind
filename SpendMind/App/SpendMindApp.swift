@@ -10,50 +10,89 @@ import SwiftData
 
 @main
 struct SpendMindApp: App {
-    private let dependencies: AppDependencyProviding = DependencyContainer()
+    private let dependencies: AppDependencyProviding
+    @State private var settings: AppSettings
+
+    init() {
+        let container = DependencyContainer()
+        self.dependencies = container
+        self._settings = State(initialValue: container.settingsManager.load())
+        
+        AppLogger.debug("SpendMindApp initialized. Theme loaded: \(self.settings.theme)")
+    }
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(settings: $settings)
                 .environment(\.dependencies, dependencies)
-                .modelContainer(SpendMindModelContainer.app)
+                .modelContainer(dependencies.modelContainer)
+                .preferredColorScheme(colorScheme)
+                .onChange(of: settings) { _, newValue in
+                    dependencies.settingsManager.save(newValue)
+                    AppLogger.debug("Settings updated and saved. Theme: \(newValue.theme)")
+                }
+        }
+    }
+
+    private var colorScheme: ColorScheme? {
+        switch settings.theme {
+        case .system: nil
+        case .light: .light
+        case .dark: .dark
         }
     }
 }
 
 private struct ContentView: View {
+    @Environment(\.dependencies) private var dependencies
+    @Binding var settings: AppSettings
     @State private var router = AppRouter()
+    @State private var showSplash = true
 
     var body: some View {
         @Bindable var router = router
 
-        NavigationStack(path: $router.path) {
-            rootView
-                .navigationDestination(for: AppRoute.self) { route in
-                    destination(for: route)
+        Group {
+            if showSplash {
+                SplashView(isFinished: Binding(
+                    get: { !showSplash },
+                    set: { showSplash = !$0 }
+                ))
+            } else {
+                NavigationStack(path: $router.path) {
+                    rootView
+                        .navigationDestination(for: AppRoute.self) { route in
+                            destination(for: route)
+                        }
                 }
-        }
-        .sheet(item: $router.modal) { modal in
-            modalView(for: modal)
-        }
-        .fullScreenCover(item: $router.fullScreenCover) { fullScreenCover in
-            fullScreenCoverView(for: fullScreenCover)
-        }
-        .onOpenURL { url in
-            router.handleDeepLink(url)
+                .transition(.opacity)
+                .sheet(item: $router.modal) { modal in
+                    modalView(for: modal)
+                }
+                .fullScreenCover(item: $router.fullScreenCover) { fullScreenCover in
+                    fullScreenCoverView(for: fullScreenCover)
+                }
+                .onOpenURL { url in
+                    router.handleDeepLink(url)
+                }
+            }
         }
     }
 
     private var rootView: some View {
-        Text(verbatim: AppConstants.appName)
-            .accessibilityAddTraits(.isHeader)
+        DashboardView(
+            viewModel: DashboardViewModel(dateService: dependencies.dateService),
+            settings: $settings
+        )
     }
 
     private func destination(for route: AppRoute) -> some View {
         switch route {
         case .dashboard:
-            Text(verbatim: AppConstants.appName)
-                .accessibilityAddTraits(.isHeader)
+            DashboardView(
+                viewModel: DashboardViewModel(dateService: dependencies.dateService),
+                settings: $settings
+            )
         }
     }
 
@@ -75,6 +114,6 @@ private struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    ContentView(settings: .constant(.default))
         .modelContainer(SpendMindModelContainer.preview)
 }

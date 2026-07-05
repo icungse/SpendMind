@@ -28,10 +28,20 @@ let project = Project(
                 "CFBundleVersion": "$(CURRENT_PROJECT_VERSION)",
                 "UILaunchScreen": [
                     "UIColorName": "LaunchBackground"
+                ],
+                "UIAppFonts": [
+                    "Poppins-Regular.ttf",
+                    "Poppins-Medium.ttf",
+                    "Poppins-SemiBold.ttf",
+                    "Poppins-Bold.ttf",
+                    "Poppins-Black.ttf"
                 ]
             ]),
             sources: ["SpendMind/**"],
-            resources: ["SpendMind/Resources/**"],
+            resources: [
+                "SpendMind/Resources/**",
+                "SpendMind/Shared/Fonts/**"
+            ],
             dependencies: [
                 .external(name: "Algorithms"),
                 .external(name: "Collections")

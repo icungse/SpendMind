@@ -15,12 +15,21 @@ final class SpendMindTests: XCTestCase {
     }
 
     func testDependenciesCanBeMocked() {
-        struct MockDependencies: AppDependencyProviding { }
+        struct MockDependencies: AppDependencyProviding {
+            let settingsManager = AppSettingsManager(userDefaults: UserDefaults())
+            let dateService = DateService()
+            let modelContainer = SpendMindModelContainer.preview
+        }
 
         var environment = EnvironmentValues()
         environment.dependencies = MockDependencies()
 
         XCTAssertTrue(environment.dependencies is MockDependencies)
+    }
+
+    func testDependencyContainerInitializesDefaultDependencies() {
+        let container = DependencyContainer()
+        XCTAssertEqual(container.settingsManager.load(), .default)
     }
 
     func testSwiftDataTestContainerLoads() {
