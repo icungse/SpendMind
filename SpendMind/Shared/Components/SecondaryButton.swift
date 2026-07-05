@@ -24,7 +24,7 @@ struct SecondaryButton: View {
                 Text(title)
                     .appFont(.button)
             }
-            .frame(maxWidth: .infinity, minHeight: 44)
+            .frame(maxWidth: .infinity, minHeight: AppConstants.Layout.minimumControlHeight)
             .padding(.horizontal, AppSpacing.md)
             .foregroundStyle(isDisabled ? AppColor.disabled : AppColor.primary)
             .overlay {

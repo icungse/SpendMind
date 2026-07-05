@@ -141,7 +141,7 @@ final class SpendMindTests: XCTestCase {
 
     func testRouterHandlesDashboardDeepLink() {
         let router = AppRouter()
-        guard let url = URL(string: "spendmind://dashboard") else {
+        guard let url = URL(string: "\(AppConstants.DeepLink.scheme)://\(AppConstants.DeepLink.dashboardHost)") else {
             return XCTFail("Expected valid dashboard URL.")
         }
 
