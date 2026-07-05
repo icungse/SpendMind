@@ -88,6 +88,27 @@ final class SpendMindTests: XCTestCase {
         XCTAssertEqual(service.dateIntervalOfMonth(containing: date), DateInterval(start: startOfMonth, end: startOfNextMonth))
     }
 
+    func testStringExtensionsNormalizeBlankInput() {
+        XCTAssertEqual("  coffee  \n".trimmed, "coffee")
+        XCTAssertNil(" \n\t ".nilIfBlank)
+        XCTAssertEqual("Groceries".nilIfBlank, "Groceries")
+    }
+
+    func testDecimalExtensionFormatsCurrency() {
+        let value = Decimal(12.5).formattedCurrency(code: "USD", locale: Locale(identifier: "en_US"))
+
+        XCTAssertEqual(value, "$12.50")
+    }
+
+    func testDateExtensionsUseProvidedCalendar() {
+        let calendar = makeTestCalendar()
+        let date = makeDate(year: 2026, month: 7, day: 5, calendar: calendar)
+        let sameDay = makeDate(year: 2026, month: 7, day: 5, hour: 12, calendar: calendar)
+
+        XCTAssertTrue(date.isSameDay(as: sameDay, calendar: calendar))
+        XCTAssertEqual(sameDay.startOfDay(calendar: calendar), date)
+    }
+
     func testRouterPushesAndPopsRoutes() {
         let router = AppRouter()
 
@@ -145,7 +166,7 @@ final class SpendMindTests: XCTestCase {
         return calendar
     }
 
-    private func makeDate(year: Int, month: Int, day: Int, calendar: Calendar) -> Date {
-        DateComponents(calendar: calendar, timeZone: calendar.timeZone, year: year, month: month, day: day).date ?? Date()
+    private func makeDate(year: Int, month: Int, day: Int, hour: Int = 0, calendar: Calendar) -> Date {
+        DateComponents(calendar: calendar, timeZone: calendar.timeZone, year: year, month: month, day: day, hour: hour).date ?? Date()
     }
 }

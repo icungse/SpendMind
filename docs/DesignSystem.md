@@ -1,925 +1,219 @@
 # DesignSystem.md
-**Project:** SpendMind iOS
-**Phase:** 2 — Design System
+
+**Project:** SpendMind iOS  
+**Phase:** 2 - Design System  
 **Version:** 1.0
 
 ---
 
 # Goal
 
-Phase 2 focuses on building a scalable, reusable, and fully native Design System before implementing any application features.
+Keep UI consistent with the smallest shared design system that exists today.
 
-Everything in the app must use this design system.
-
-No hardcoded colors.
-
-No hardcoded fonts.
-
-No hardcoded spacing.
-
-No direct SF Symbols.
-
-No inline styling.
-
-Views only consume Design System components.
+Use shared tokens and components before adding new styling or new components.
 
 ---
 
-# Architecture
+# Current Implementation
 
-```
-Presentation
-│
-├── DesignSystem
-│     ├── Colors
-│     ├── Typography
-│     ├── Icons
-│     ├── Spacing
-│     ├── Radius
-│     ├── Shadows
-│     ├── Components
-│     ├── Animations
-│     ├── Extensions
-│     └── Theme
-│
-├── Screens
-│
-└── Shared UI
+The current design system lives in:
+
+```text
+SpendMind/Shared/
+├── DesignSystem/
+│   ├── AppColor.swift
+│   ├── AppSpacing.swift
+│   ├── AppShadow.swift
+│   ├── Radius.swift
+│   └── Typography.swift
+└── Components/
+    ├── Card.swift
+    ├── EmptyState.swift
+    ├── LoadingView.swift
+    ├── PrimaryButton.swift
+    ├── SecondaryButton.swift
+    └── SectionHeader.swift
 ```
 
 ---
 
-# Folder Structure
+# Tokens
 
-```
-Sources/
-
-Presentation/
-
-    DesignSystem/
-
-        Colors/
-            ColorPalette.swift
-            SemanticColors.swift
-
-        Typography/
-            Typography.swift
-            FontStyle.swift
-
-        Icons/
-            AppIcon.swift
-
-        Spacing/
-            Spacing.swift
-
-        Radius/
-            Radius.swift
-
-        Shadow/
-            Shadow.swift
-
-        Components/
-
-            Buttons/
-                PrimaryButton.swift
-                SecondaryButton.swift
-                IconButton.swift
-
-            TextField/
-                AppTextField.swift
-
-            Card/
-                CardView.swift
-
-            Chips/
-                Chip.swift
-
-            Avatar/
-                Avatar.swift
-
-            Divider/
-                Divider.swift
-
-            Loading/
-                LoadingView.swift
-
-            EmptyState/
-                EmptyState.swift
-
-            Tag/
-                Tag.swift
-
-            BottomSheet/
-                BottomSheet.swift
-
-            Navigation/
-                NavigationBar.swift
-
-        Animation/
-            Animation.swift
-
-        Theme/
-            Theme.swift
-
-        Preview/
-```
-
----
-
-# Design Tokens
-
-Everything comes from Tokens.
-
-Never use literal values.
-
-Wrong
+Use these types directly:
 
 ```swift
-.padding(16)
-.foregroundColor(.blue)
-.cornerRadius(12)
+AppColor.primary
+AppSpacing.md
+Radius.medium
+Typography.headline
+AppShadow.small
 ```
 
-Correct
+Prefer:
 
 ```swift
-.padding(.md)
-.foregroundColor(.primary)
-.cornerRadius(.medium)
+Text("Balance")
+    .appFont(.headline)
+    .foregroundStyle(AppColor.textPrimary)
+    .padding(AppSpacing.md)
+```
+
+Avoid:
+
+```swift
+Text("Balance")
+    .font(.system(size: 17))
+    .foregroundStyle(.blue)
+    .padding(16)
 ```
 
 ---
 
-# Color Palette
+# Colors
 
-Only define raw colors once.
+`AppColor` provides:
 
-Example
+- Brand colors: `brandBlue`, `brandLavender`, `brandCream`, `brandOrange`
+- Semantic colors: `primary`, `secondary`, `background`, `surface`, `surfaceAlt`, `border`
+- Text colors: `textPrimary`, `textSecondary`, `textInverse`, `disabled`, `placeholder`
+- Feedback colors: `success`, `warning`, `error`, `info`
 
-```swift
-enum Palette {
-
-    static let blue500
-    static let blue600
-
-    static let green500
-
-    static let red500
-
-    static let gray50
-    static let gray100
-    static let gray900
-
-}
-```
-
-No screen should ever access Palette directly.
+Dark mode is handled inside `AppColor` where needed.
 
 ---
 
-# Semantic Colors
+# Spacing
 
-Views consume semantic colors only.
-
-Example
+`AppSpacing` provides:
 
 ```swift
-Color.primary
-
-Color.secondary
-
-Color.background
-
-Color.surface
-
-Color.border
-
-Color.success
-
-Color.warning
-
-Color.error
-
-Color.info
-
-Color.textPrimary
-
-Color.textSecondary
-
-Color.disabled
-
-Color.placeholder
+none, xxs, xs, sm, base, md, relaxed, lg, xl, xxl, xxxl, huge
 ```
 
-Dark Mode handled automatically.
+Use tokens instead of literal spacing values.
 
 ---
 
 # Typography
 
-Only predefined typography styles.
-
-```
-LargeTitle
-
-Title1
-
-Title2
-
-Title3
-
-Headline
-
-Body
-
-BodyBold
-
-Callout
-
-Caption
-
-Caption2
-
-Footnote
-
-Button
-
-Label
-```
-
-Usage
+Use `.appFont(_:)` with `Typography`:
 
 ```swift
-Text("Balance")
-    .appFont(.headline)
+.largeTitle, .title1, .title2, .title3, .headline, .body, .bodyBold,
+.callout, .caption, .caption2, .footnote, .button, .label
 ```
 
-Never
+The current implementation maps to native SwiftUI fonts.
+
+---
+
+# Radius And Shadow
+
+Use `Radius` for corner radii:
 
 ```swift
-.font(.system(size:17))
+none, small, medium, large, xl, pill
 ```
 
----
-
-# Font Rules
-
-Preferred
-
-SF Pro
-
-Future
-
-Allow custom fonts through Theme.
-
----
-
-# Spacing Scale
-
-Use 8pt grid.
-
-```
-0
-
-2
-
-4
-
-8
-
-12
-
-16
-
-20
-
-24
-
-32
-
-40
-
-48
-
-64
-```
-
-Expose as
+Use `.appShadow(_:)` with `AppShadow`:
 
 ```swift
-Spacing.xs
-Spacing.sm
-Spacing.md
-Spacing.lg
-Spacing.xl
-```
-
-Usage
-
-```swift
-.padding(Spacing.md)
+small, medium, large, floating
 ```
 
 ---
 
-# Radius
+# Components
 
-```
-None
+Current reusable components:
 
-Small
+- `PrimaryButton`: full-width primary action with loading and disabled states
+- `SecondaryButton`: full-width outlined action with loading and disabled states
+- `Card`: padded surface with border and small shadow
+- `EmptyState`: title, optional message, optional primary action
+- `LoadingView`: progress indicator with optional title
+- `SectionHeader`: title with optional subtitle
 
-Medium
-
-Large
-
-XL
-
-Pill
-```
-
-Example
-
-```swift
-.cornerRadius(Radius.medium)
-```
-
----
-
-# Shadow
-
-Predefined shadows.
-
-```
-Small
-
-Medium
-
-Large
-
-Floating
-```
-
-Never create inline shadows.
-
-Wrong
-
-```swift
-.shadow(radius:8)
-```
-
-Correct
-
-```swift
-.shadow(.medium)
-```
-
----
-
-# Icons
-
-Wrap every SF Symbol.
-
-Never expose raw symbol names.
-
-Wrong
-
-```swift
-Image(systemName:"plus")
-```
-
-Correct
-
-```swift
-AppIcon.plus
-```
-
-Benefits
-
-- Easy replacement
-
-- Consistency
-
-- Future custom icons
-
----
-
-# Button Components
-
-## Primary Button
-
-Used for
-
-Main CTA
-
-Supports
-
-- loading
-- disabled
-- icon
-- full width
-
-API
-
-```swift
-PrimaryButton(
-    title:
-    action:
-)
-```
-
----
-
-## Secondary Button
-
-Outlined
-
----
-
-## Text Button
-
-No background.
-
----
-
-## Icon Button
-
-Square
-
-Circle
-
-Filled
-
-Outlined
-
----
-
-# TextField
-
-Reusable.
-
-Supports
-
-- placeholder
-
-- secure
-
-- currency
-
-- number
-
-- multiline
-
-- validation
-
-- prefix
-
-- suffix
-
-- error
-
-- helper text
-
-- focus state
-
----
-
-# Card
-
-Reusable Card component.
-
-Supports
-
-```
-padding
-
-shadow
-
-border
-
-radius
-
-tap
-```
-
----
-
-# List Item
-
-Reusable.
-
-Supports
-
-Leading
-
-Title
-
-Subtitle
-
-Trailing
-
-Disclosure
-
-Badge
-
-Icon
-
----
-
-# Chips
-
-Variants
-
-```
-Selected
-
-Unselected
-
-Disabled
-```
-
----
-
-# Tags
-
-Variants
-
-```
-Income
-
-Expense
-
-AI
-
-Budget
-
-Warning
-
-Success
-```
-
----
-
-# Avatar
-
-Supports
-
-```
-Image
-
-Placeholder
-
-Initials
-
-Size
-```
-
----
-
-# Divider
-
-Horizontal
-
-Vertical
-
-Inset
-
----
-
-# Empty State
-
-Reusable.
-
-Contains
-
-```
-Illustration
-
-Title
-
-Subtitle
-
-Button
-```
-
----
-
-# Loading
-
-Variants
-
-```
-Spinner
-
-Skeleton
-
-Shimmer
-```
-
----
-
-# Bottom Sheet
-
-Reusable.
-
-Supports
-
-```
-Height
-
-Drag
-
-Dismiss
-
-Actions
-
-Scrollable
-```
-
----
-
-# Navigation Bar
-
-Custom wrapper.
-
-Supports
-
-```
-Title
-
-Large Title
-
-Leading
-
-Trailing
-
-Search
-```
-
----
-
-# Toast
-
-Reusable.
-
-Variants
-
-```
-Success
-
-Error
-
-Info
-
-Warning
-```
-
----
-
-# Alert
-
-Custom Alert.
-
-Never use UIKit alert directly unless necessary.
-
----
-
-# Animations
-
-Centralized.
-
-```
-Fast
-
-Normal
-
-Slow
-
-Spring
-
-Bounce
-```
-
-Usage
-
-```swift
-.withAnimation(.appSpring)
-```
-
----
-
-# Accessibility
-
-Every component must support
-
-VoiceOver
-
-Dynamic Type
-
-High Contrast
-
-Reduce Motion
-
-Minimum touch area
-
-44x44
-
-Accessibility labels
-
-Accessibility hints
-
----
-
-# Dark Mode
-
-Mandatory.
-
-Every component must support
-
-```
-Light
-
-Dark
-```
-
-No exceptions.
+All current components have SwiftUI previews.
 
 ---
 
 # Localization
 
-No hardcoded strings.
+Component text APIs use `LocalizedStringKey` where applicable.
 
-Wrong
-
-```swift
-Text("Add Expense")
-```
-
-Correct
-
-```swift
-L10n.addExpense
-```
+Feature screens should pass localized strings or localization-ready keys.
 
 ---
 
-# Preview
+# Accessibility
 
-Every reusable component must include Preview.
+Current components include basic accessibility labels or grouped accessibility where useful.
 
-Example
-
-```
-#Preview {
-
-    PrimaryButton()
-
-}
-```
+Every new interactive component must include an accessibility label.
 
 ---
 
-# Component States
+# Future Components
 
-Each reusable component must preview
+These are not implemented yet and are not current acceptance criteria:
 
-Default
+- Icon wrapper
+- App text field
+- List item
+- Chips and tags
+- Avatar
+- Divider
+- Toast and alert
+- Bottom sheet
+- Custom navigation bar
+- Theme layer
+- Animation tokens
 
-Pressed
-
-Disabled
-
-Loading
-
-Error
-
-Selected
-
-Dark Mode
-
-Dynamic Type
-
-RTL (future)
+Add them only when a real screen needs them.
 
 ---
 
-# Performance
+# Rules
 
-Views should be lightweight.
-
-Avoid nested GeometryReader.
-
-Avoid AnyView.
-
-Avoid unnecessary redraws.
-
----
-
-# Naming Convention
-
-Good
-
-```
-PrimaryButton
-
-ExpenseCard
-
-BalanceView
-
-EmptyTransactionView
-```
-
-Bad
-
-```
-Button1
-
-Card2
-
-NewView
-
-CustomView
-```
+- Use existing tokens before adding new ones.
+- Use existing components before creating new components.
+- Add a new component when it is used twice or clearly needed by an accepted task.
+- Keep component APIs small.
+- Add a preview for every reusable component.
+- Do not add theme or icon infrastructure until a screen needs it.
 
 ---
 
-# Reusability Rules
+# Current Deliverables
 
-A component should become reusable when
+Implemented:
 
-- used twice
+- Color tokens
+- Typography tokens
+- Spacing tokens
+- Radius tokens
+- Shadow tokens
+- Primary and secondary buttons
+- Card
+- Empty state
+- Loading view
+- Section header
+- SwiftUI previews for current components
+- Basic dark mode support through `AppColor`
 
-OR
+Not implemented yet:
 
-- expected to be reused
+- Icon wrapper
+- Text field
+- List item
+- Chips and tags
+- Avatar
+- Divider
+- Toast and alert
+- Bottom sheet
+- Custom navigation bar
+- Theme layer
+- Animation tokens
 
-Never duplicate UI.
-
----
-
-# Theme Support
-
-Future support
-
-```
-Default Theme
-
-Dark Theme
-
-Premium Theme
-
-Seasonal Theme
-```
-
-No screen should know theme implementation.
-
----
-
-# Acceptance Criteria
-
-- No hardcoded colors.
-- No hardcoded spacing.
-- No hardcoded fonts.
-- No direct SF Symbols.
-- All UI uses semantic tokens.
-- Every component supports Dark Mode.
-- Every component has SwiftUI Preview.
-- Components are reusable and documented.
-- Accessibility requirements are satisfied.
-- Localization-ready architecture is in place.
-- Theme layer can evolve without changing feature screens.
-
----
-
-# Deliverables
-
-At the end of Phase 2, the following should exist:
-
-- ✅ Color Palette
-- ✅ Semantic Colors
-- ✅ Typography System
-- ✅ Spacing Tokens
-- ✅ Radius Tokens
-- ✅ Shadow Tokens
-- ✅ Icon Wrapper
-- ✅ Primary/Secondary/Icon Buttons
-- ✅ AppTextField
-- ✅ Card Component
-- ✅ List Item Component
-- ✅ Chip & Tag Components
-- ✅ Avatar Component
-- ✅ Divider Component
-- ✅ Empty State Component
-- ✅ Loading Components
-- ✅ Toast & Alert Components
-- ✅ Bottom Sheet Component
-- ✅ Custom Navigation Bar
-- ✅ Theme Infrastructure
-- ✅ Animation Tokens
-- ✅ SwiftUI Preview Coverage
-- ✅ Accessibility Compliance
-- ✅ Dark Mode Support
-- ✅ Localization-ready Components
-
-Phase 2 is complete only when every new screen can be assembled exclusively from these reusable components, with no ad hoc styling or duplicated UI code.
+<!-- ponytail: this document describes current code, not a wishlist. Add sections when matching code exists. -->
