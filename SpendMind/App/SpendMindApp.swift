@@ -46,24 +46,32 @@ struct SpendMindApp: App {
 private struct ContentView: View {
     @Binding var settings: AppSettings
     @State private var router = AppRouter()
+    @State private var showSplash = true
 
     var body: some View {
         @Bindable var router = router
 
-        NavigationStack(path: $router.path) {
-            rootView
-                .navigationDestination(for: AppRoute.self) { route in
-                    destination(for: route)
+        Group {
+            if showSplash {
+                SplashView(isFinished: $showSplash)
+            } else {
+                NavigationStack(path: $router.path) {
+                    rootView
+                        .navigationDestination(for: AppRoute.self) { route in
+                            destination(for: route)
+                        }
                 }
-        }
-        .sheet(item: $router.modal) { modal in
-            modalView(for: modal)
-        }
-        .fullScreenCover(item: $router.fullScreenCover) { fullScreenCover in
-            fullScreenCoverView(for: fullScreenCover)
-        }
-        .onOpenURL { url in
-            router.handleDeepLink(url)
+                .transition(.opacity)
+                .sheet(item: $router.modal) { modal in
+                    modalView(for: modal)
+                }
+                .fullScreenCover(item: $router.fullScreenCover) { fullScreenCover in
+                    fullScreenCoverView(for: fullScreenCover)
+                }
+                .onOpenURL { url in
+                    router.handleDeepLink(url)
+                }
+            }
         }
     }
 
