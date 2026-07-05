@@ -71,10 +71,10 @@ final class AppRouter {
     }
 
     func handleDeepLink(_ url: URL) {
-        guard url.scheme == "spendmind" else { return }
+        guard url.scheme == AppConstants.DeepLink.scheme else { return }
 
         switch url.host {
-        case "dashboard":
+        case AppConstants.DeepLink.dashboardHost:
             popToRoot()
             push(.dashboard)
         default:

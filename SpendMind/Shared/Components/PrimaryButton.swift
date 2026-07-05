@@ -24,7 +24,7 @@ struct PrimaryButton: View {
                 Text(title)
                     .appFont(.button)
             }
-            .frame(maxWidth: .infinity, minHeight: 44)
+            .frame(maxWidth: .infinity, minHeight: AppConstants.Layout.minimumControlHeight)
             .padding(.horizontal, AppSpacing.md)
             .foregroundStyle(AppColor.textInverse)
             .background(isDisabled ? AppColor.disabled : AppColor.primary)

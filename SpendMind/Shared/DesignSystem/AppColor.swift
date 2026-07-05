@@ -32,19 +32,3 @@ enum AppColor {
     static let error = Color(light: Color(hex: 0xC62828), dark: Color(hex: 0xFF8A80))
     static let info = Color(light: Color(hex: 0x2563EB), dark: Color(hex: 0x8AB4FF))
 }
-
-private extension Color {
-    init(light: Color, dark: Color) {
-        self.init(uiColor: UIColor { traits in
-            UIColor(traits.userInterfaceStyle == .dark ? dark : light)
-        })
-    }
-
-    init(hex: UInt) {
-        self.init(
-            red: Double((hex >> 16) & 0xFF) / 255,
-            green: Double((hex >> 8) & 0xFF) / 255,
-            blue: Double(hex & 0xFF) / 255
-        )
-    }
-}

@@ -8,12 +8,12 @@
 import OSLog
 
 enum AppLogger {
-    private static let subsystem = "dev.spendmind.app"
+    private static let subsystem = AppConstants.bundleIdentifier
 
-    private static let debugLogger = Logger(subsystem: subsystem, category: "Debug")
-    private static let errorLogger = Logger(subsystem: subsystem, category: "Error")
-    private static let analyticsLogger = Logger(subsystem: subsystem, category: "Analytics")
-    private static let performanceLogger = Logger(subsystem: subsystem, category: "Performance")
+    private static let debugLogger = Logger(subsystem: subsystem, category: AppConstants.Logging.debug)
+    private static let errorLogger = Logger(subsystem: subsystem, category: AppConstants.Logging.error)
+    private static let analyticsLogger = Logger(subsystem: subsystem, category: AppConstants.Logging.analytics)
+    private static let performanceLogger = Logger(subsystem: subsystem, category: AppConstants.Logging.performance)
 
     static func debug(_ message: String) {
         debugLogger.debug("\(message, privacy: .public)")

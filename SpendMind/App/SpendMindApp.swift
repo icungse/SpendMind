@@ -45,14 +45,14 @@ private struct ContentView: View {
     }
 
     private var rootView: some View {
-        Text(verbatim: "SpendMind")
+        Text(verbatim: AppConstants.appName)
             .accessibilityAddTraits(.isHeader)
     }
 
     private func destination(for route: AppRoute) -> some View {
         switch route {
         case .dashboard:
-            Text(verbatim: "SpendMind")
+            Text(verbatim: AppConstants.appName)
                 .accessibilityAddTraits(.isHeader)
         }
     }
@@ -60,7 +60,7 @@ private struct ContentView: View {
     private func modalView(for modal: AppModal) -> some View {
         switch modal {
         case .placeholder:
-            Text(verbatim: "SpendMind")
+            Text(verbatim: AppConstants.appName)
                 .accessibilityAddTraits(.isHeader)
         }
     }
@@ -68,7 +68,7 @@ private struct ContentView: View {
     private func fullScreenCoverView(for fullScreenCover: AppFullScreenCover) -> some View {
         switch fullScreenCover {
         case .placeholder:
-            Text(verbatim: "SpendMind")
+            Text(verbatim: AppConstants.appName)
                 .accessibilityAddTraits(.isHeader)
         }
     }
