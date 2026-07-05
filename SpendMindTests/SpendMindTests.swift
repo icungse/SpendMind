@@ -7,6 +7,7 @@
 
 import XCTest
 import SwiftUI
+import SwiftData
 @testable import SpendMind
 
 final class SpendMindTests: XCTestCase {
@@ -16,9 +17,9 @@ final class SpendMindTests: XCTestCase {
 
     func testDependenciesCanBeMocked() {
         struct MockDependencies: AppDependencyProviding {
-            let settingsManager = AppSettingsManager(userDefaults: UserDefaults())
-            let dateService = DateService()
-            let modelContainer = SpendMindModelContainer.preview
+            let settingsManager: any AppSettingsManagerProtocol = AppSettingsManager(userDefaults: UserDefaults())
+            let dateService: any DateServiceProtocol = DateService()
+            let modelContainer: ModelContainer = SpendMindModelContainer.preview
         }
 
         var environment = EnvironmentValues()
@@ -201,6 +202,18 @@ final class SpendMindTests: XCTestCase {
         router.handleDeepLink(url)
 
         XCTAssertEqual(router.path, [.dashboard])
+    }
+
+    @MainActor
+    func testDashboardViewModelWithMockServices() async {
+        let mockDateService = MockDateService()
+        mockDateService.stubbedStartOfDay = Date(timeIntervalSince1970: 10000)
+        
+        let viewModel = DashboardViewModel(dateService: mockDateService)
+        await viewModel.loadDashboardData(currency: .USD)
+        
+        XCTAssertTrue(mockDateService.startOfDayCalled)
+        XCTAssertEqual(viewModel.recentTransactions.count, 3)
     }
 
     private func makeTestUserDefaults() -> UserDefaults {

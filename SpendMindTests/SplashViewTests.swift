@@ -2,7 +2,7 @@
 //  SplashViewTests.swift
 //  SpendMindTests
 //
-//  Created by Antigravity on 05/07/26.
+//  Created by Icung on 05/07/26.
 //
 
 import XCTest

@@ -9,19 +9,19 @@ import SwiftUI
 import SwiftData
 
 protocol AppDependencyProviding: Sendable {
-    var settingsManager: AppSettingsManager { get }
-    var dateService: DateService { get }
+    var settingsManager: any AppSettingsManagerProtocol { get }
+    var dateService: any DateServiceProtocol { get }
     var modelContainer: ModelContainer { get }
 }
 
 struct DependencyContainer: AppDependencyProviding {
-    let settingsManager: AppSettingsManager
-    let dateService: DateService
+    let settingsManager: any AppSettingsManagerProtocol
+    let dateService: any DateServiceProtocol
     let modelContainer: ModelContainer
 
     init(
-        settingsManager: AppSettingsManager = AppSettingsManager(),
-        dateService: DateService = DateService(),
+        settingsManager: any AppSettingsManagerProtocol = AppSettingsManager(),
+        dateService: any DateServiceProtocol = DateService(),
         modelContainer: ModelContainer = SpendMindModelContainer.app
     ) {
         self.settingsManager = settingsManager

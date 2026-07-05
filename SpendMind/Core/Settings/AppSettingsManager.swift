@@ -7,7 +7,12 @@
 
 import Foundation
 
-struct AppSettingsManager: @unchecked Sendable {
+protocol AppSettingsManagerProtocol: Sendable {
+    func load() -> AppSettings
+    func save(_ settings: AppSettings)
+}
+
+struct AppSettingsManager: AppSettingsManagerProtocol, @unchecked Sendable {
     private let userDefaults: UserDefaults
 
     init(userDefaults: UserDefaults = .standard) {

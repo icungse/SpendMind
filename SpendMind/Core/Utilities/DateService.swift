@@ -7,7 +7,26 @@
 
 import Foundation
 
-struct DateService: Sendable {
+protocol DateServiceProtocol: Sendable {
+    func relativeString(for date: Date) -> String
+    func format(_ date: Date, dateStyle: DateFormatter.Style, timeStyle: DateFormatter.Style) -> String
+    func isToday(_ date: Date) -> Bool
+    func startOfDay(for date: Date) -> Date
+    func startOfMonth(for date: Date) -> Date
+    func dateIntervalOfMonth(containing date: Date) -> DateInterval?
+}
+
+extension DateServiceProtocol {
+    func format(
+        _ date: Date,
+        dateStyle: DateFormatter.Style = .medium,
+        timeStyle: DateFormatter.Style = .none
+    ) -> String {
+        format(date, dateStyle: dateStyle, timeStyle: timeStyle)
+    }
+}
+
+struct DateService: DateServiceProtocol, Sendable {
     private let calendar: Calendar
     private let locale: Locale
     private let now: @Sendable () -> Date

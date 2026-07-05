@@ -2,7 +2,7 @@
 //  DashboardViewModel.swift
 //  SpendMind
 //
-//  Created by Antigravity on 05/07/26.
+//  Created by Icung on 05/07/26.
 //
 
 import Foundation
@@ -34,9 +34,9 @@ final class DashboardViewModel {
     private(set) var currencyCode: String = "IDR"
     private(set) var isLoading: Bool = false
 
-    private let dateService: DateService
+    private let dateService: any DateServiceProtocol
 
-    init(dateService: DateService = DateService()) {
+    init(dateService: any DateServiceProtocol = DateService()) {
         self.dateService = dateService
     }
 
