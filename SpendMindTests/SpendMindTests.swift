@@ -27,6 +27,13 @@ final class SpendMindTests: XCTestCase {
         XCTAssertNoThrow(try SpendMindModelContainer.test())
     }
 
+    func testAppLoggerAcceptsSupportedModes() {
+        AppLogger.debug("Debug log")
+        AppLogger.error("Error log")
+        AppLogger.analytics("Analytics log")
+        AppLogger.performance("Performance log")
+    }
+
     func testRouterPushesAndPopsRoutes() {
         let router = AppRouter()
 
