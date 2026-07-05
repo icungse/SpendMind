@@ -34,6 +34,22 @@ final class SpendMindTests: XCTestCase {
         AppLogger.performance("Performance log")
     }
 
+    func testAppErrorProvidesLocalizedDescription() {
+        XCTAssertEqual(AppError.validation("Amount is required.").errorDescription, "Amount is required.")
+    }
+
+    func testAppErrorWrapKeepsExistingAppError() {
+        let error = AppError.database("Database unavailable.")
+
+        XCTAssertEqual(AppError.wrap(error), error)
+    }
+
+    func testAppErrorWrapConvertsUnknownError() {
+        let error = NSError(domain: "SpendMindTests", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed."])
+
+        XCTAssertEqual(AppError.wrap(error), .unknown("Failed."))
+    }
+
     func testSettingsManagerLoadsDefaults() {
         let manager = AppSettingsManager(userDefaults: makeTestUserDefaults())
 
