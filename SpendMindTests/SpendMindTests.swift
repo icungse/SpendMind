@@ -27,6 +27,67 @@ final class SpendMindTests: XCTestCase {
         XCTAssertNoThrow(try SpendMindModelContainer.test())
     }
 
+    func testAppLoggerAcceptsSupportedModes() {
+        AppLogger.debug("Debug log")
+        AppLogger.error("Error log")
+        AppLogger.analytics("Analytics log")
+        AppLogger.performance("Performance log")
+    }
+
+    func testSettingsManagerLoadsDefaults() {
+        let manager = AppSettingsManager(userDefaults: makeTestUserDefaults())
+
+        XCTAssertEqual(manager.load(), .default)
+    }
+
+    func testSettingsManagerPersistsSupportedSettings() {
+        let manager = AppSettingsManager(userDefaults: makeTestUserDefaults())
+        let categoryId = UUID()
+        let settings = AppSettings(
+            theme: .dark,
+            currency: .USD,
+            localeIdentifier: "en_US",
+            isBiometricEnabled: true,
+            isAIEnabled: false,
+            defaultCategoryId: categoryId,
+            isFirstLaunchCompleted: true
+        )
+
+        manager.save(settings)
+
+        XCTAssertEqual(manager.load(), settings)
+    }
+
+    func testDateServiceReturnsRelativeDate() {
+        let calendar = makeTestCalendar()
+        let now = makeDate(year: 2026, month: 7, day: 5, calendar: calendar)
+        let yesterday = makeDate(year: 2026, month: 7, day: 4, calendar: calendar)
+        let service = DateService(calendar: calendar, locale: Locale(identifier: "en_US_POSIX"), now: { now })
+
+        XCTAssertFalse(service.relativeString(for: yesterday).isEmpty)
+    }
+
+    func testDateServiceFormatsDate() {
+        let calendar = makeTestCalendar()
+        let date = makeDate(year: 2026, month: 1, day: 15, calendar: calendar)
+        let service = DateService(calendar: calendar, locale: Locale(identifier: "en_US_POSIX"))
+
+        XCTAssertEqual(service.format(date), "Jan 15, 2026")
+    }
+
+    func testDateServiceCalendarUtilities() {
+        let calendar = makeTestCalendar()
+        let date = makeDate(year: 2026, month: 7, day: 5, calendar: calendar)
+        let startOfMonth = makeDate(year: 2026, month: 7, day: 1, calendar: calendar)
+        let startOfNextMonth = makeDate(year: 2026, month: 8, day: 1, calendar: calendar)
+        let service = DateService(calendar: calendar, locale: Locale(identifier: "en_US_POSIX"), now: { date })
+
+        XCTAssertTrue(service.isToday(date))
+        XCTAssertEqual(service.startOfDay(for: date), date)
+        XCTAssertEqual(service.startOfMonth(for: date), startOfMonth)
+        XCTAssertEqual(service.dateIntervalOfMonth(containing: date), DateInterval(start: startOfMonth, end: startOfNextMonth))
+    }
+
     func testRouterPushesAndPopsRoutes() {
         let router = AppRouter()
 
@@ -66,5 +127,25 @@ final class SpendMindTests: XCTestCase {
         router.handleDeepLink(url)
 
         XCTAssertEqual(router.path, [.dashboard])
+    }
+
+    private func makeTestUserDefaults() -> UserDefaults {
+        let suiteName = "dev.spendmind.tests.\(UUID().uuidString)"
+        guard let userDefaults = UserDefaults(suiteName: suiteName) else {
+            return .standard
+        }
+
+        userDefaults.removePersistentDomain(forName: suiteName)
+        return userDefaults
+    }
+
+    private func makeTestCalendar() -> Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0) ?? .gmt
+        return calendar
+    }
+
+    private func makeDate(year: Int, month: Int, day: Int, calendar: Calendar) -> Date {
+        DateComponents(calendar: calendar, timeZone: calendar.timeZone, year: year, month: month, day: day).date ?? Date()
     }
 }
