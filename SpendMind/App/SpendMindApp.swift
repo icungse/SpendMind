@@ -10,18 +10,41 @@ import SwiftData
 
 @main
 struct SpendMindApp: App {
-    private let dependencies: AppDependencyProviding = DependencyContainer()
+    private let dependencies: AppDependencyProviding
+    @State private var settings: AppSettings
+
+    init() {
+        let container = DependencyContainer()
+        self.dependencies = container
+        self._settings = State(initialValue: container.settingsManager.load())
+        
+        AppLogger.debug("SpendMindApp initialized. Theme loaded: \(self.settings.theme)")
+    }
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(settings: $settings)
                 .environment(\.dependencies, dependencies)
-                .modelContainer(SpendMindModelContainer.app)
+                .modelContainer(dependencies.modelContainer)
+                .preferredColorScheme(colorScheme)
+                .onChange(of: settings) { _, newValue in
+                    dependencies.settingsManager.save(newValue)
+                    AppLogger.debug("Settings updated and saved. Theme: \(newValue.theme)")
+                }
+        }
+    }
+
+    private var colorScheme: ColorScheme? {
+        switch settings.theme {
+        case .system: nil
+        case .light: .light
+        case .dark: .dark
         }
     }
 }
 
 private struct ContentView: View {
+    @Binding var settings: AppSettings
     @State private var router = AppRouter()
 
     var body: some View {
@@ -75,6 +98,6 @@ private struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    ContentView(settings: .constant(.default))
         .modelContainer(SpendMindModelContainer.preview)
 }

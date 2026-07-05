@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct AppSettingsManager {
+struct AppSettingsManager: @unchecked Sendable {
     private let userDefaults: UserDefaults
 
     init(userDefaults: UserDefaults = .standard) {

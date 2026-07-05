@@ -7,15 +7,15 @@
 
 import Foundation
 
-struct DateService {
+struct DateService: Sendable {
     private let calendar: Calendar
     private let locale: Locale
-    private let now: () -> Date
+    private let now: @Sendable () -> Date
 
     init(
         calendar: Calendar = .current,
         locale: Locale = .current,
-        now: @escaping () -> Date = Date.init
+        now: @escaping @Sendable () -> Date = Date.init
     ) {
         self.calendar = calendar
         self.locale = locale
