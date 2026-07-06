@@ -17,7 +17,7 @@ struct SpendMindApp: App {
         let container = DependencyContainer()
         self.dependencies = container
         self._settings = State(initialValue: container.settingsManager.load())
-        
+
         AppLogger.debug("SpendMindApp initialized. Theme loaded: \(self.settings.theme)")
     }
 

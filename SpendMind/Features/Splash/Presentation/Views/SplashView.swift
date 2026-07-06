@@ -9,23 +9,23 @@ import SwiftUI
 
 struct SplashView: View {
     @Binding var isFinished: Bool
-    
+
     @State private var iconScale: CGFloat = 0.5
     @State private var iconOpacity: Double = 0.0
     @State private var textOpacity: Double = 0.0
     @State private var textOffset: CGFloat = 20
     @State private var glowOpacity: Double = 0.0
-    
+
     private let animationDuration: Double = 1.8
 
     var body: some View {
         ZStack {
             AppColor.background
                 .ignoresSafeArea()
-            
+
             VStack(spacing: AppSpacing.md) {
                 Spacer()
-                
+
                 ZStack {
                     Circle()
                         .fill(AppColor.brandLavender.opacity(0.3))
@@ -33,7 +33,7 @@ struct SplashView: View {
                         .blur(radius: 20)
                         .scaleEffect(iconScale * 1.2)
                         .opacity(glowOpacity)
-                    
+
                     Image("logo")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
@@ -43,13 +43,13 @@ struct SplashView: View {
                         .opacity(iconOpacity)
                         .accessibilityLabel("SpendMind Logo")
                 }
-                
+
                 VStack(spacing: AppSpacing.xs) {
                     Text(verbatim: AppConstants.appName)
                         .appFont(.largeTitle)
                         .foregroundStyle(AppColor.textPrimary)
                         .accessibilityAddTraits(.isHeader)
-                    
+
                     Text("Local. Private. Smart.")
                         .appFont(.footnote)
                         .foregroundStyle(AppColor.textSecondary)
@@ -57,7 +57,7 @@ struct SplashView: View {
                 }
                 .opacity(textOpacity)
                 .offset(y: textOffset)
-                
+
                 Spacer()
             }
             .padding()
@@ -66,22 +66,19 @@ struct SplashView: View {
             startAnimation()
         }
     }
-    
+
     private func startAnimation() {
-        // Step 1: Icon spring scale and fade in
         withAnimation(.spring(response: 0.8, dampingFraction: 0.6, blendDuration: 0)) {
             iconScale = 1.0
             iconOpacity = 1.0
         }
         
-        // Step 2: Glow pulse and text fade/slide up
         withAnimation(.easeOut(duration: 0.6).delay(0.3)) {
             glowOpacity = 0.8
             textOpacity = 1.0
             textOffset = 0
         }
         
-        // Step 3: Dismiss splash and transition to main app
         DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration) {
             withAnimation(.easeInOut(duration: 0.4)) {
                 isFinished = true

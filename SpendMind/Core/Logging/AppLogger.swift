@@ -22,7 +22,7 @@ enum AppLogger {
     static func error(_ message: String) {
         errorLogger.error("\(message, privacy: .public)")
     }
-    
+
     static func analytics(_ message: String) {
         /**
          -- local category only --

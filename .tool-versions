@@ -1,0 +1,3 @@
+# lock tuist version for local development and CI consistency
+tuist 4.200.5
+swiftlint 0.65.0

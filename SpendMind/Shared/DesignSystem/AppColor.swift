@@ -15,7 +15,7 @@ enum AppColor {
 
     static let primary = brandBlue
     static let secondary = brandOrange
-    
+
     static let background = Color(light: brandCream, dark: Color(hex: 0x121826))
     static let surface = Color(light: .white, dark: Color(hex: 0x1B2436))
     static let surfaceAlt = Color(light: brandLavender.opacity(0.30), dark: Color(hex: 0x27324A))
