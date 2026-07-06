@@ -10,18 +10,18 @@ import SwiftUI
 @testable import SpendMind
 
 final class SnapshotTests: XCTestCase {
-    
+
     @MainActor
     func testPrimaryButtonSnapshot() {
         let view = PrimaryButton(title: "Add Expense") { }
             .padding()
             .background(Color.white)
             .frame(width: 300)
-        
+
         // assert UI layout and design system color compatibility.
         assertSnapshot(matching: view, named: "PrimaryButton_default")
     }
-    
+
     @MainActor
     func testCardSnapshot() {
         let view = Card {
@@ -37,7 +37,7 @@ final class SnapshotTests: XCTestCase {
         .padding()
         .background(Color.white)
         .frame(width: 300)
-        
+
         assertSnapshot(matching: view, named: "Card_default")
     }
 }

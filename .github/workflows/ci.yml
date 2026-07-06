@@ -1,0 +1,33 @@
+name: CI
+
+# simple PR acceptance pipeline (Build, Test, Lint) on branch main/developer
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  ci:
+    name: Build, Test, and Lint
+    runs-on: macos-15
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: 'latest-stable'
+
+      - name: Set up Mise (Tuist)
+        uses: jdx/mise-action@v2
+
+      - name: Install Dependencies
+        run: tuist install
+
+      - name: Lint Source Code
+        run: swiftlint lint
+
+      - name: Build and Test
+        run: tuist test SpendMind

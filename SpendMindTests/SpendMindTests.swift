@@ -46,19 +46,19 @@ final class SpendMindTests: XCTestCase {
     @MainActor
     func testViewApplyIf() {
         let view = Text("Hello")
-        
+
         var appliedTrueExecuted = false
         let appliedTrue = view.applyIf(true) { original in
             appliedTrueExecuted = true
             return original.bold()
         }
-        
+
         var appliedFalseExecuted = false
         let appliedFalse = view.applyIf(false) { original in
             appliedFalseExecuted = true
             return original.bold()
         }
-        
+
         XCTAssertTrue(appliedTrueExecuted)
         XCTAssertFalse(appliedFalseExecuted)
         XCTAssertNotNil(appliedTrue)
@@ -208,10 +208,10 @@ final class SpendMindTests: XCTestCase {
     func testDashboardViewModelWithMockServices() async {
         let mockDateService = MockDateService()
         mockDateService.stubbedStartOfDay = Date(timeIntervalSince1970: 10000)
-        
+
         let viewModel = DashboardViewModel(dateService: mockDateService)
         await viewModel.loadDashboardData(currency: .USD)
-        
+
         XCTAssertTrue(mockDateService.startOfDayCalled)
         XCTAssertEqual(viewModel.recentTransactions.count, 3)
     }

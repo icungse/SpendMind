@@ -6,6 +6,7 @@
 //
 
 import SwiftData
+import Foundation
 
 enum SpendMindModelContainer {
     static let app: ModelContainer = makeContainer(isStoredInMemoryOnly: false)
@@ -28,6 +29,12 @@ enum SpendMindModelContainer {
         /// empty schema until the first real @Model type exists.
         let schema = Schema([])
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: isStoredInMemoryOnly)
+
+        if !isStoredInMemoryOnly {
+            if let appSupportURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
+                try FileManager.default.createDirectory(at: appSupportURL, withIntermediateDirectories: true, attributes: nil)
+            }
+        }
 
         return try ModelContainer(for: schema, configurations: [configuration])
     }

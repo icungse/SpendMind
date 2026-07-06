@@ -1,0 +1,24 @@
+# configure swiftlint to be clean and pragmatic
+included:
+  - SpendMind
+  - SpendMindTests
+  - SpendMindUITests
+
+excluded:
+  - Tuist
+  - Derived
+  - .build
+
+disabled_rules:
+  - line_length
+  - function_body_length
+  - type_body_length
+  - multiple_closures_with_trailing_closure
+
+identifier_name:
+  min_length: 2 # allow 2-character names like xs, sm, md, lg, xl
+  excluded:
+    - x
+    - y
+    - id
+    - ai

@@ -28,13 +28,13 @@ struct DashboardView: View {
                 ScrollView {
                     VStack(spacing: AppSpacing.relaxed) {
                         headerView
-                        
+
                         overviewCard
-                        
+
                         budgetCard
-                        
+
                         suggestionsSection
-                        
+
                         recentTransactionsSection
 
                         Spacer()
@@ -46,7 +46,7 @@ struct DashboardView: View {
                     await viewModel.loadDashboardData(currency: settings.currency)
                 }
             }
-            
+
             quickAddButton
         }
         .navigationTitle(AppConstants.appName)
@@ -86,13 +86,13 @@ struct DashboardView: View {
                 Text("Welcome Back")
                     .appFont(.caption)
                     .foregroundStyle(AppColor.textSecondary)
-                
+
                 Text("Your Financial Mind")
                     .appFont(.title2)
                     .foregroundStyle(AppColor.textPrimary)
             }
             Spacer()
-            
+
             HStack(spacing: AppSpacing.xs) {
                 Circle()
                     .fill(AppColor.success)
@@ -116,7 +116,7 @@ struct DashboardView: View {
                     Text("Total Balance")
                         .appFont(.caption)
                         .foregroundStyle(AppColor.textSecondary)
-                    
+
                     Text(viewModel.balance.formattedCurrency(code: viewModel.currencyCode))
                         .appFont(.largeTitle)
                         .foregroundStyle(AppColor.primary)
@@ -131,7 +131,7 @@ struct DashboardView: View {
                         Label("Income", systemImage: "arrow.down.left.circle.fill")
                             .appFont(.caption2)
                             .foregroundStyle(AppColor.success)
-                        
+
                         Text(viewModel.totalIncome.formattedCurrency(code: viewModel.currencyCode))
                             .appFont(.headline)
                             .foregroundStyle(AppColor.textPrimary)
@@ -148,7 +148,7 @@ struct DashboardView: View {
                         Label("Expenses", systemImage: "arrow.up.right.circle.fill")
                             .appFont(.caption2)
                             .foregroundStyle(AppColor.secondary)
-                        
+
                         Text(viewModel.totalExpense.formattedCurrency(code: viewModel.currencyCode))
                             .appFont(.headline)
                             .foregroundStyle(AppColor.textPrimary)
@@ -174,7 +174,7 @@ struct DashboardView: View {
                     ? NSDecimalNumber(decimal: viewModel.budgetSpent / viewModel.budgetLimit).doubleValue
                     : 0.0
                 )
-                
+
                 VStack(spacing: AppSpacing.xs) {
                     GeometryReader { geo in
                         ZStack(alignment: .leading) {
@@ -205,14 +205,14 @@ struct DashboardView: View {
             }
         }
     }
-    
+
     private var suggestionsSection: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
             HStack(spacing: AppSpacing.xs) {
                 Image(systemName: "sparkles")
                     .foregroundStyle(AppColor.brandLavender)
                     .symbolEffect(.bounce, options: .repeating)
-                
+
                 SectionHeader(title: "AI Financial Suggestions")
             }
 
@@ -224,12 +224,12 @@ struct DashboardView: View {
                             .frame(width: 24, height: 24)
                             .background(AppColor.surfaceAlt)
                             .clipShape(Circle())
-                        
+
                         Text(suggestion)
                             .appFont(.footnote)
                             .foregroundStyle(AppColor.textPrimary)
                             .lineLimit(2)
-                        
+
                         Spacer()
                     }
                     .padding(AppSpacing.sm)
@@ -267,7 +267,7 @@ struct DashboardView: View {
                                 Text(transaction.merchant)
                                     .appFont(.bodyBold)
                                     .foregroundStyle(AppColor.textPrimary)
-                                
+
                                 Text(transaction.categoryName)
                                     .appFont(.caption)
                                     .foregroundStyle(AppColor.textSecondary)
@@ -281,7 +281,7 @@ struct DashboardView: View {
                                 .foregroundStyle(transaction.isExpense ? AppColor.textPrimary : AppColor.success)
                         }
                         .padding(.vertical, AppSpacing.sm)
-                        
+
                         if transaction != viewModel.recentTransactions.last {
                             Divider()
                                 .background(AppColor.border)
@@ -330,7 +330,7 @@ struct DashboardView: View {
                     title: "Transaction Creation",
                     message: "This is a placeholder for the Transaction entry screen. In future tasks, this will allow adding new transactions to SwiftData."
                 )
-                
+
                 PrimaryButton(title: "Dismiss") {
                     showingQuickAdd = false
                 }
