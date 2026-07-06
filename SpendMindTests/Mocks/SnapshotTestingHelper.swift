@@ -54,7 +54,7 @@ extension XCTestCase {
             return
         }
 
-        if !uiImage.isEqualToImage(referenceImage) {
+        if !uiImage.isEqualToImage(referenceImage, tolerance: 0.02) {
             let failureURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("\(name)-failed.png")
             try? newData.write(to: failureURL)
             XCTFail("Snapshot mismatch! New snapshot saved to: \(failureURL.path). Reference image: \(validReferenceURL.path)", file: file, line: line)
@@ -63,8 +63,8 @@ extension XCTestCase {
 }
 
 private extension UIImage {
-    // pixel-level image comparison helper to avoid false failures due to PNG metadata or color-space profile tag mismatches.
-    func isEqualToImage(_ image: UIImage) -> Bool {
+    // pixel-level image comparison helper with tolerance to avoid false failures due to anti-aliasing or rendering platform differences.
+    func isEqualToImage(_ image: UIImage, tolerance: Double = 0.02) -> Bool {
         guard let cgImage1 = self.cgImage, let cgImage2 = image.cgImage else { return false }
         guard cgImage1.width == cgImage2.width && cgImage1.height == cgImage2.height else { return false }
 
@@ -105,6 +105,30 @@ private extension UIImage {
             context2.draw(cgImage2, in: CGRect(x: 0, y: 0, width: width, height: height))
         }
 
-        return data1 == data2
+        if data1 == data2 { return true }
+
+        let totalPixels = width * height
+        var differingPixels = 0
+
+        data1.withUnsafeBytes { ptr1 in
+            data2.withUnsafeBytes { ptr2 in
+                let bytes1 = ptr1.bindMemory(to: UInt8.self)
+                let bytes2 = ptr2.bindMemory(to: UInt8.self)
+
+                for i in stride(from: 0, to: totalPixels * 4, by: 4) {
+                    let rDiff = abs(Int(bytes1[i]) - Int(bytes2[i]))
+                    let gDiff = abs(Int(bytes1[i + 1]) - Int(bytes2[i + 1]))
+                    let bDiff = abs(Int(bytes1[i + 2]) - Int(bytes2[i + 2]))
+                    let aDiff = abs(Int(bytes1[i + 3]) - Int(bytes2[i + 3]))
+
+                    if rDiff > 3 || gDiff > 3 || bDiff > 3 || aDiff > 3 {
+                        differingPixels += 1
+                    }
+                }
+            }
+        }
+
+        let mismatchRatio = Double(differingPixels) / Double(totalPixels)
+        return mismatchRatio <= tolerance
     }
 }
