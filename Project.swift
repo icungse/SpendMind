@@ -55,6 +55,7 @@ let project = Project(
             deploymentTargets: .iOS("18.0"),
             infoPlist: .default,
             sources: ["SpendMindTests/**"],
+            resources: ["SpendMindTests/__Snapshots__/**"],
             dependencies: [.target(name: "SpendMind")]
         ),
         .target(
@@ -66,6 +67,27 @@ let project = Project(
             infoPlist: .default,
             sources: ["SpendMindUITests/**"],
             dependencies: [.target(name: "SpendMind")]
+        )
+    ],
+    schemes: [
+        .scheme(
+            name: "SpendMind",
+            shared: true,
+            buildAction: .buildAction(targets: ["SpendMind"]),
+            testAction: .targets(
+                [
+                    "SpendMindTests",
+                    "SpendMindUITests"
+                ],
+                arguments: .arguments(environmentVariables: [
+                    "PROJECT_DIR": "$(PROJECT_DIR)"
+                ]),
+                options: .options(
+                    coverage: true,
+                    codeCoverageTargets: [.target("SpendMind")]
+                )
+            ),
+            runAction: .runAction(executable: "SpendMind")
         )
     ]
 )

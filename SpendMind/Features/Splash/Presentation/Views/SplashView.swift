@@ -2,7 +2,7 @@
 //  SplashView.swift
 //  SpendMind
 //
-//  Created by Antigravity on 05/07/26.
+//  Created by Icung on 05/07/26.
 //
 
 import SwiftUI

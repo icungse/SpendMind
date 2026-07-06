@@ -7,6 +7,7 @@
 
 import XCTest
 import SwiftUI
+import SwiftData
 @testable import SpendMind
 
 final class SpendMindTests: XCTestCase {
@@ -16,9 +17,9 @@ final class SpendMindTests: XCTestCase {
 
     func testDependenciesCanBeMocked() {
         struct MockDependencies: AppDependencyProviding {
-            let settingsManager = AppSettingsManager(userDefaults: UserDefaults())
-            let dateService = DateService()
-            let modelContainer = SpendMindModelContainer.preview
+            let settingsManager: any AppSettingsManagerProtocol = AppSettingsManager(userDefaults: UserDefaults())
+            let dateService: any DateServiceProtocol = DateService()
+            let modelContainer: ModelContainer = SpendMindModelContainer.preview
         }
 
         var environment = EnvironmentValues()
@@ -34,6 +35,34 @@ final class SpendMindTests: XCTestCase {
 
     func testSwiftDataTestContainerLoads() {
         XCTAssertNoThrow(try SpendMindModelContainer.test())
+    }
+
+    func testSpendMindModelContainerAppAndPreview() {
+        // Touch static properties to verify instantiation and ensure code coverage.
+        XCTAssertNotNil(SpendMindModelContainer.preview)
+        XCTAssertNotNil(SpendMindModelContainer.app)
+    }
+
+    @MainActor
+    func testViewApplyIf() {
+        let view = Text("Hello")
+        
+        var appliedTrueExecuted = false
+        let appliedTrue = view.applyIf(true) { original in
+            appliedTrueExecuted = true
+            return original.bold()
+        }
+        
+        var appliedFalseExecuted = false
+        let appliedFalse = view.applyIf(false) { original in
+            appliedFalseExecuted = true
+            return original.bold()
+        }
+        
+        XCTAssertTrue(appliedTrueExecuted)
+        XCTAssertFalse(appliedFalseExecuted)
+        XCTAssertNotNil(appliedTrue)
+        XCTAssertNotNil(appliedFalse)
     }
 
     func testAppLoggerAcceptsSupportedModes() {
@@ -173,6 +202,18 @@ final class SpendMindTests: XCTestCase {
         router.handleDeepLink(url)
 
         XCTAssertEqual(router.path, [.dashboard])
+    }
+
+    @MainActor
+    func testDashboardViewModelWithMockServices() async {
+        let mockDateService = MockDateService()
+        mockDateService.stubbedStartOfDay = Date(timeIntervalSince1970: 10000)
+        
+        let viewModel = DashboardViewModel(dateService: mockDateService)
+        await viewModel.loadDashboardData(currency: .USD)
+        
+        XCTAssertTrue(mockDateService.startOfDayCalled)
+        XCTAssertEqual(viewModel.recentTransactions.count, 3)
     }
 
     private func makeTestUserDefaults() -> UserDefaults {
