@@ -55,6 +55,7 @@ let project = Project(
             deploymentTargets: .iOS("18.0"),
             infoPlist: .default,
             sources: ["SpendMindTests/**"],
+            resources: ["SpendMindTests/__Snapshots__/**"],
             dependencies: [.target(name: "SpendMind")]
         ),
         .target(
@@ -78,6 +79,9 @@ let project = Project(
                     "SpendMindTests",
                     "SpendMindUITests"
                 ],
+                arguments: .arguments(environmentVariables: [
+                    "PROJECT_DIR": "$(PROJECT_DIR)"
+                ]),
                 options: .options(
                     coverage: true,
                     codeCoverageTargets: [.target("SpendMind")]
