@@ -17,7 +17,6 @@ Requirements:
 mise install
 tuist install
 tuist generate
-open SpendMind.xcworkspace
 ```
 
 ## Build
@@ -60,6 +59,15 @@ SpendMind/
 |-- docs/
 |-- .github/workflows/ci.yml
 ```
+
+## Docs
+
+- `docs/Architecture.md`: app architecture and boundaries.
+- `docs/DataModel.md`: local data model and persistence rules.
+- `docs/CodingGuidelines.md`: Swift and project coding standards.
+- `docs/FolderStructure.md`: expected project layout.
+- `docs/DesignSystem.md`: current design tokens and components.
+- `docs/AIEngine.md`: on-device AI direction.
 
 ## License
 
