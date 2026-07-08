@@ -13,7 +13,7 @@ enum AppTheme: String {
     case dark
 }
 
-enum CurrencyCode: String {
+enum CurrencyCode: String, Codable {
     case IDR
     case USD
     case SGD
