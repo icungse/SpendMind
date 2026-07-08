@@ -18,6 +18,12 @@ struct SpendMindApp: App {
         self.dependencies = container
         self._settings = State(initialValue: container.settingsManager.load())
 
+        do {
+            try SpendMindModelContainer.seedDefaultCategoriesIfNeeded(in: container.modelContainer.mainContext)
+        } catch {
+            AppLogger.error("Failed to seed default categories: \(error.localizedDescription)")
+        }
+
         AppLogger.debug("SpendMindApp initialized. Theme loaded: \(self.settings.theme)")
     }
 

@@ -26,7 +26,7 @@ enum SpendMindModelContainer {
     }
 
     private static func createContainer(isStoredInMemoryOnly: Bool) throws -> ModelContainer {
-        let schema = Schema([Expense.self])
+        let schema = Schema([Category.self, Expense.self])
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: isStoredInMemoryOnly)
 
         if !isStoredInMemoryOnly {
@@ -37,4 +37,33 @@ enum SpendMindModelContainer {
 
         return try ModelContainer(for: schema, configurations: [configuration])
     }
+
+    static func seedDefaultCategoriesIfNeeded(in context: ModelContext) throws {
+        var descriptor = FetchDescriptor<Category>(predicate: #Predicate { $0.isSystem })
+        descriptor.fetchLimit = 1
+
+        guard try context.fetch(descriptor).isEmpty else {
+            return
+        }
+
+        for name in defaultCategoryNames {
+            context.insert(Category(name: name, icon: "tag", colorHex: "#5B7FFF", isSystem: true))
+        }
+
+        try context.save()
+    }
+
+    private static let defaultCategoryNames = [
+        "Food",
+        "Transportation",
+        "Shopping",
+        "Entertainment",
+        "Bills",
+        "Health",
+        "Education",
+        "Travel",
+        "Salary",
+        "Investment",
+        "Miscellaneous"
+    ]
 }

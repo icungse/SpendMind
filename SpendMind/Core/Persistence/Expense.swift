@@ -23,6 +23,7 @@ final class Expense {
     var latitude: Double?
     var longitude: Double?
     var isDeleted: Bool
+    @Relationship var category: Category?
     
     init(
         id: UUID = UUID(),
@@ -37,7 +38,8 @@ final class Expense {
         locationName: String? = nil,
         latitude: Double? = nil,
         longitude: Double? = nil,
-        isDeleted: Bool = false
+        isDeleted: Bool = false,
+        category: Category? = nil
     ) {
         self.id = id
         self.amount = amount
@@ -52,5 +54,6 @@ final class Expense {
         self.latitude = latitude
         self.longitude = longitude
         self.isDeleted = isDeleted
+        self.category = category
     }
 }
