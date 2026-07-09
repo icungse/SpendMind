@@ -10,12 +10,12 @@ import XCTest
 
 @MainActor
 final class ExpenseRepositoryTests: XCTestCase {
-    func testExpenseRepositoryCanBeMocked() {
+    func testExpenseRepositoryCanBeMocked() throws {
         let expense = Expense(amount: 12, expenseDate: Date())
         let mock = MockExpenseRepository(expenses: [expense])
         let repository: any ExpenseRepository = mock
 
-        XCTAssertEqual(repository.getExpense(id: expense.id)?.amount, 12)
+        XCTAssertEqual(try repository.getExpense(id: expense.id)?.amount, 12)
     }
 }
 
@@ -26,11 +26,11 @@ private final class MockExpenseRepository: ExpenseRepository {
         self.expenses = expenses
     }
 
-    func createExpense(_ expense: Expense) {
+    func createExpense(_ expense: Expense) throws {
         expenses.append(expense)
     }
 
-    func updateExpense(_ expense: Expense) {
+    func updateExpense(_ expense: Expense) throws {
         guard let index = expenses.firstIndex(where: { $0.id == expense.id }) else {
             return
         }
@@ -38,19 +38,19 @@ private final class MockExpenseRepository: ExpenseRepository {
         expenses[index] = expense
     }
 
-    func deleteExpense(id: UUID) {
+    func deleteExpense(id: UUID) throws {
         expenses.removeAll { $0.id == id }
     }
 
-    func getExpense(id: UUID) -> Expense? {
+    func getExpense(id: UUID) throws -> Expense? {
         expenses.first { $0.id == id }
     }
 
-    func getExpenses() -> [Expense] {
+    func getExpenses() throws -> [Expense] {
         expenses
     }
 
-    func getExpensesByMonth(_ month: Date) -> [Expense] {
+    func getExpensesByMonth(_ month: Date) throws -> [Expense] {
         expenses.filter {
             Calendar.current.isDate($0.expenseDate, equalTo: month, toGranularity: .month)
             && Calendar.current.isDate($0.expenseDate, equalTo: month, toGranularity: .year)
