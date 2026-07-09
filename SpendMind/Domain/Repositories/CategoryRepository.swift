@@ -5,7 +5,7 @@
 //  Created by Icung on 09/07/26.
 //
 
-// ponytail: reuse the current Category type; split domain/persistence models when Data mappers exist.
+// reuse the current Category type; split domain/persistence models when Data mappers exist.
 protocol CategoryRepository {
     func getCategories() throws -> [Category]
     func getDefaultCategories() throws -> [Category]
