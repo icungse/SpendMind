@@ -561,18 +561,14 @@ TransactionRepositoryImpl
 
 ## Protocols
 
-Always end with:
-
-```
-Protocol
-```
+Use clear capability names without a `Protocol` suffix unless an existing Apple or project API requires disambiguation.
 
 Example
 
 ```
-AIAnalyzerProtocol
-StorageProtocol
-BudgetRepositoryProtocol
+ExpenseRepository
+AIAnalyzer
+Storage
 ```
 
 ---
