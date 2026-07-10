@@ -89,13 +89,16 @@ struct ExpenseListView: View {
 
             Spacer()
 
-            Text(expense.amount.formattedCurrency(code: currency.rawValue))
-                .appFont(.headline)
-                .foregroundStyle(AppColor.textPrimary)
-                .lineLimit(1)
-        }
-        .padding(.vertical, AppSpacing.xs)
-        .accessibilityElement(children: .combine)
+        // shared row gets primitive values, not the SwiftData model.
+        return ExpenseRow(
+            title: expense.merchant ?? expense.note,
+            categoryName: expense.category?.name ?? "Uncategorized",
+            categoryIcon: expense.category?.icon ?? "creditcard.fill",
+            categoryColor: categoryColor,
+            date: expense.expenseDate,
+            amount: expense.amount,
+            currencyCode: currency.rawValue
+        )
     }
 }
 
