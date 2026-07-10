@@ -33,6 +33,21 @@ final class CategoryTests: XCTestCase {
             "Miscellaneous"
         ])
         XCTAssertTrue(categories.allSatisfy { $0.isSystem })
+        XCTAssertEqual(categories.first { $0.name == "Food" }?.icon, "fork.knife")
+        XCTAssertEqual(categories.first { $0.name == "Transportation" }?.icon, "car.fill")
+        XCTAssertFalse(categories.allSatisfy { $0.icon == "tag" })
+    }
+
+    func testDefaultCategoriesRepairOldSeededIcons() throws {
+        let container = try SpendMindModelContainer.test()
+        container.mainContext.insert(SpendMind.Category(name: "Food", icon: "tag", colorHex: "#5B7FFF", isSystem: true))
+        try container.mainContext.save()
+
+        try SpendMindModelContainer.seedDefaultCategoriesIfNeeded(in: container.mainContext)
+
+        let category = try XCTUnwrap(container.mainContext.fetch(FetchDescriptor<SpendMind.Category>()).first)
+        XCTAssertEqual(category.icon, "fork.knife")
+        XCTAssertEqual(category.colorHex, "#FF7444")
     }
 
     func testExpenseCanUseSelectedCategory() throws {

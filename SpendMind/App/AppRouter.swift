@@ -10,6 +10,7 @@ import Observation
 
 enum AppRoute: Hashable {
     case dashboard
+    case expenses
 }
 
 enum AppModal: Identifiable {

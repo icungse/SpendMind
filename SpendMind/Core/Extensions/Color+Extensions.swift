@@ -21,4 +21,11 @@ extension Color {
             blue: Double(hex & 0xFF) / 255
         )
     }
+
+    init(hexString: String) {
+        let hex = hexString.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+        // invalid stored category colors fall back to brand blue; add validation when categories are editable.
+        let value = UInt(hex, radix: 16) ?? 0x576A8F
+        self.init(hex: value)
+    }
 }

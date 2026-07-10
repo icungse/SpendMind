@@ -49,7 +49,8 @@ struct AddExpenseView: View {
                         Text("Select Category").tag(UUID?.none)
 
                         ForEach(viewModel.categories) { category in
-                            Text(category.name).tag(Optional(category.id))
+                            categoryButton(category)
+                                .tag(Optional(category.id))
                         }
                     }
                     .accessibilityLabel("Expense Category")
@@ -125,6 +126,44 @@ struct AddExpenseView: View {
                 viewModel.loadCategories()
             }
         }
+    }
+
+    private func categoryButton(_ category: Category) -> some View {
+        let isSelected = viewModel.selectedCategoryID == category.id
+        let color = Color(hexString: category.colorHex)
+
+        return Button {
+            viewModel.selectedCategoryID = category.id
+        } label: {
+            HStack(spacing: AppSpacing.sm) {
+                Image(systemName: category.icon)
+                    .foregroundStyle(AppColor.textInverse)
+                    .frame(width: 32, height: 32)
+                    .background(color)
+                    .clipShape(Circle())
+
+                Text(category.name)
+                    .appFont(.body)
+                    .foregroundStyle(AppColor.textPrimary)
+
+                Spacer()
+
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(color)
+                }
+            }
+            .padding(AppSpacing.sm)
+            .background(isSelected ? AppColor.surfaceAlt : AppColor.surface)
+            .clipShape(RoundedRectangle(cornerRadius: Radius.medium))
+            .overlay {
+                RoundedRectangle(cornerRadius: Radius.medium)
+                    .stroke(isSelected ? color : AppColor.border)
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Category \(category.name)")
+        .accessibilityAddTraits(isSelected ? [.isSelected] : [])
     }
 }
 

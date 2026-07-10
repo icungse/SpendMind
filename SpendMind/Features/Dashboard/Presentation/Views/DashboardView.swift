@@ -248,7 +248,16 @@ struct DashboardView: View {
 
     private var recentTransactionsSection: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
-            SectionHeader(title: "Recent Transactions")
+            HStack {
+                SectionHeader(title: "Recent Transactions")
+
+                Spacer()
+
+                NavigationLink("View All", value: AppRoute.expenses)
+                    .appFont(.caption)
+                    .foregroundStyle(AppColor.primary)
+                    .accessibilityLabel("View All Expenses")
+            }
 
             if viewModel.recentTransactions.isEmpty {
                 EmptyState(
