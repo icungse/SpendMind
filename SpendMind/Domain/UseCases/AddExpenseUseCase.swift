@@ -15,7 +15,14 @@ struct AddExpenseUseCase {
     }
 
     @discardableResult
-    func execute(title: String, amount: Decimal, category: Category?) throws -> Expense {
+    func execute(
+        title: String,
+        amount: Decimal,
+        category: Category?,
+        date: Date = .now,
+        note: String = "",
+        currency: CurrencyCode = .IDR
+    ) throws -> Expense {
         let title = title.trimmingCharacters(in: .whitespacesAndNewlines)
 
         guard !title.isEmpty else {
@@ -30,8 +37,15 @@ struct AddExpenseUseCase {
             throw AppError.validation("Category is required.")
         }
 
-        // current model has no title field; store the accepted title as the expense note.
-        let expense = Expense(amount: amount, note: title, category: category)
+        // Expense has no title field; merchant carries the display title until the model changes.
+        let expense = Expense(
+            amount: amount,
+            note: note.trimmingCharacters(in: .whitespacesAndNewlines),
+            merchant: title,
+            expenseDate: date,
+            currency: currency,
+            category: category
+        )
         try repository.createExpense(expense)
         return expense
     }

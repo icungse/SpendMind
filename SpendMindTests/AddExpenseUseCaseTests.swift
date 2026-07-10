@@ -14,14 +14,25 @@ final class AddExpenseUseCaseTests: XCTestCase {
         let repository = AddExpenseMockRepository()
         let category = Category(name: "Food", icon: "fork.knife", colorHex: "#5B7FFF")
         let useCase = AddExpenseUseCase(repository: repository)
+        let date = Date(timeIntervalSince1970: 200)
 
-        let expense = try useCase.execute(title: " Lunch ", amount: 25, category: category)
+        let expense = try useCase.execute(
+            title: " Lunch ",
+            amount: 25,
+            category: category,
+            date: date,
+            note: " Team meal ",
+            currency: .USD
+        )
 
         XCTAssertEqual(repository.expenses.count, 1)
         XCTAssertEqual(repository.expenses.first?.id, expense.id)
-        XCTAssertEqual(expense.note, "Lunch")
+        XCTAssertEqual(expense.merchant, "Lunch")
+        XCTAssertEqual(expense.note, "Team meal")
         XCTAssertEqual(expense.amount, 25)
+        XCTAssertEqual(expense.currency, .USD)
         XCTAssertTrue(expense.category === category)
+        XCTAssertEqual(expense.expenseDate, date)
     }
 
     func testExecuteRejectsEmptyTitle() {
