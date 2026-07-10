@@ -56,4 +56,8 @@ private final class MockExpenseRepository: ExpenseRepository {
             && Calendar.current.isDate($0.expenseDate, equalTo: month, toGranularity: .year)
         }
     }
+
+    func getExpenses(from startDate: Date, to endDate: Date) throws -> [Expense] {
+        expenses.filter { $0.expenseDate >= startDate && $0.expenseDate < endDate }
+    }
 }

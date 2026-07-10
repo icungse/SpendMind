@@ -78,4 +78,8 @@ private final class AddExpenseMockRepository: ExpenseRepository {
     func getExpensesByMonth(_ month: Date) throws -> [Expense] {
         expenses
     }
+
+    func getExpenses(from startDate: Date, to endDate: Date) throws -> [Expense] {
+        expenses.filter { $0.expenseDate >= startDate && $0.expenseDate < endDate }
+    }
 }

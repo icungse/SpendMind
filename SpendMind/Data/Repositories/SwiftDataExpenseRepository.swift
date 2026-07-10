@@ -64,16 +64,22 @@ struct SwiftDataExpenseRepository: ExpenseRepository {
             throw AppError.persistence("Invalid expense month.")
         }
 
-        let start = monthInterval.start
-        let end = monthInterval.end
+        return try getExpenses(from: monthInterval.start, to: monthInterval.end)
+    }
+
+    func getExpenses(from startDate: Date, to endDate: Date) throws -> [Expense] {
+        guard startDate < endDate else {
+            throw AppError.persistence("Invalid expense date range.")
+        }
+
         let descriptor = FetchDescriptor<Expense>(predicate: #Predicate {
-            $0.expenseDate >= start && $0.expenseDate < end
+            $0.expenseDate >= startDate && $0.expenseDate < endDate
         })
 
         do {
             return try context.fetch(descriptor)
         } catch {
-            throw AppError.persistence("Failed to fetch expenses by month: \(error.localizedDescription)")
+            throw AppError.persistence("Failed to fetch expenses by date range: \(error.localizedDescription)")
         }
     }
 

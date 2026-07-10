@@ -15,4 +15,5 @@ protocol ExpenseRepository {
     func getExpense(id: UUID) throws -> Expense?
     func getExpenses() throws -> [Expense]
     func getExpensesByMonth(_ month: Date) throws -> [Expense]
+    func getExpenses(from startDate: Date, to endDate: Date) throws -> [Expense]
 }
