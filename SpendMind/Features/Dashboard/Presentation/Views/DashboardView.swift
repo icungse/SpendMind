@@ -5,9 +5,11 @@
 //  Created by Icung on 05/07/26.
 //
 
+import SwiftData
 import SwiftUI
 
 struct DashboardView: View {
+    @Environment(\.modelContext) private var modelContext
     @Binding var settings: AppSettings
     @State private var viewModel: DashboardViewModel
     @State private var showingQuickAdd = false
@@ -76,7 +78,7 @@ struct DashboardView: View {
             }
         }
         .sheet(isPresented: $showingQuickAdd) {
-            quickAddPlaceholderSheet
+            quickAddSheet
         }
     }
 
@@ -323,28 +325,18 @@ struct DashboardView: View {
         }
     }
 
-    private var quickAddPlaceholderSheet: some View {
-        NavigationStack {
-            VStack(spacing: AppSpacing.relaxed) {
-                EmptyState(
-                    title: "Transaction Creation",
-                    message: "This is a placeholder for the Transaction entry screen. In future tasks, this will allow adding new transactions to SwiftData."
-                )
+    private var quickAddSheet: some View {
+        let expenseRepository = SwiftDataExpenseRepository(context: modelContext)
+        let categoryRepository = SwiftDataCategoryRepository(context: modelContext)
 
-                PrimaryButton(title: "Dismiss") {
-                    showingQuickAdd = false
-                }
-                .padding(.horizontal, AppSpacing.lg)
-            }
-            .padding()
-            .navigationTitle("Add Transaction")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") {
-                        showingQuickAdd = false
-                    }
-                }
+        return AddExpenseView(
+            viewModel: AddExpenseViewModel(
+                addExpenseUseCase: AddExpenseUseCase(repository: expenseRepository),
+                categoryRepository: categoryRepository
+            )
+        ) {
+            Task {
+                await viewModel.loadDashboardData(currency: settings.currency)
             }
         }
     }
