@@ -6,9 +6,12 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ExpenseListView: View {
+    @Environment(\.modelContext) private var modelContext
     @State private var viewModel: ExpenseListViewModel
+    @State private var showingAddExpense = false
     let currency: CurrencyCode
 
     init(viewModel: ExpenseListViewModel, currency: CurrencyCode) {
@@ -48,9 +51,12 @@ struct ExpenseListView: View {
                     .listRowBackground(Color.clear)
             } else if viewModel.sections.isEmpty {
                 EmptyState(
-                    title: "No Expenses This Month",
-                    message: "Add an expense to see it grouped by date."
-                )
+                    title: "No expenses yet",
+                    message: "Add your first expense and SpendMind will keep this month organized.",
+                    actionTitle: "Add First Expense"
+                ) {
+                    showingAddExpense = true
+                }
                 .listRowBackground(Color.clear)
             } else {
                 ForEach(viewModel.sections) { section in
@@ -63,31 +69,13 @@ struct ExpenseListView: View {
             }
         }
         .scrollContentBackground(.hidden)
+        .sheet(isPresented: $showingAddExpense) {
+            addExpenseSheet
+        }
     }
 
     private func expenseRow(_ expense: Expense) -> some View {
         let categoryColor = expense.category.map { Color(hexString: $0.colorHex) } ?? AppColor.secondary
-
-        return HStack(spacing: AppSpacing.md) {
-            Image(systemName: expense.category?.icon ?? "creditcard.fill")
-                .foregroundStyle(AppColor.textInverse)
-                .frame(width: 36, height: 36)
-                .background(categoryColor)
-                .clipShape(Circle())
-                .accessibilityHidden(true)
-
-            VStack(alignment: .leading, spacing: AppSpacing.xxs) {
-                Text(expense.merchant ?? expense.note)
-                    .appFont(.bodyBold)
-                    .foregroundStyle(AppColor.textPrimary)
-                    .lineLimit(1)
-
-                Text(expense.category?.name ?? "Uncategorized")
-                    .appFont(.caption)
-                    .foregroundStyle(AppColor.textSecondary)
-            }
-
-            Spacer()
 
         // shared row gets primitive values, not the SwiftData model.
         return ExpenseRow(
@@ -99,6 +87,22 @@ struct ExpenseListView: View {
             amount: expense.amount,
             currencyCode: currency.rawValue
         )
+    }
+    
+    
+    private var addExpenseSheet: some View {
+        let expenseRepository = SwiftDataExpenseRepository(context: modelContext)
+        let categoryRepository = SwiftDataCategoryRepository(context: modelContext)
+        
+        return AddExpenseView(
+            viewModel: AddExpenseViewModel(
+                addExpenseUseCase: AddExpenseUseCase(repository: expenseRepository),
+                categoryRepository: categoryRepository,
+                currency: currency
+            )
+        ) {
+            viewModel.load()
+        }
     }
 }
 
