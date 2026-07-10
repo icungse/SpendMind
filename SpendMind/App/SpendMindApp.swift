@@ -92,12 +92,22 @@ private struct ContentView: View {
         )
     }
 
+    @ViewBuilder
     private func destination(for route: AppRoute) -> some View {
         switch route {
         case .dashboard:
             DashboardView(
                 viewModel: DashboardViewModel(dateService: dependencies.dateService),
                 settings: $settings
+            )
+        case .expenses:
+            ExpenseListView(
+                viewModel: ExpenseListViewModel(
+                    fetchExpensesUseCase: FetchExpensesUseCase(
+                        repository: SwiftDataExpenseRepository(context: dependencies.modelContainer.mainContext)
+                    )
+                ),
+                currency: settings.currency
             )
         }
     }

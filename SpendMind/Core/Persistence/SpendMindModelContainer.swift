@@ -39,31 +39,47 @@ enum SpendMindModelContainer {
     }
 
     static func seedDefaultCategoriesIfNeeded(in context: ModelContext) throws {
-        var descriptor = FetchDescriptor<Category>(predicate: #Predicate { $0.isSystem })
-        descriptor.fetchLimit = 1
+        let descriptor = FetchDescriptor<Category>(predicate: #Predicate { $0.isSystem })
+        let existingCategories = try context.fetch(descriptor)
 
-        guard try context.fetch(descriptor).isEmpty else {
+        if !existingCategories.isEmpty {
+            // repair old seeded icons by name; real migrations can wait until category editing ships.
+            for category in existingCategories {
+                guard let defaults = defaultCategoriesByName[category.name] else { continue }
+                category.icon = defaults.icon
+                category.colorHex = defaults.colorHex
+            }
+            try context.save()
             return
         }
 
-        for name in defaultCategoryNames {
-            context.insert(Category(name: name, icon: "tag", colorHex: "#5B7FFF", isSystem: true))
+        for category in defaultCategories {
+            context.insert(Category(
+                name: category.name,
+                icon: category.icon,
+                colorHex: category.colorHex,
+                isSystem: true
+            ))
         }
 
         try context.save()
     }
 
-    private static let defaultCategoryNames = [
-        "Food",
-        "Transportation",
-        "Shopping",
-        "Entertainment",
-        "Bills",
-        "Health",
-        "Education",
-        "Travel",
-        "Salary",
-        "Investment",
-        "Miscellaneous"
+    private static let defaultCategories: [(name: String, icon: String, colorHex: String)] = [
+        ("Food", "fork.knife", "#FF7444"),
+        ("Transportation", "car.fill", "#576A8F"),
+        ("Shopping", "bag.fill", "#B7BDF7"),
+        ("Entertainment", "popcorn.fill", "#FF9500"),
+        ("Bills", "doc.text.fill", "#8E8E93"),
+        ("Health", "cross.case.fill", "#2E7D32"),
+        ("Education", "book.fill", "#2563EB"),
+        ("Travel", "airplane", "#00A7A7"),
+        ("Salary", "banknote.fill", "#34C759"),
+        ("Investment", "chart.line.uptrend.xyaxis", "#AF52DE"),
+        ("Miscellaneous", "tag.fill", "#5B7FFF")
     ]
+
+    private static var defaultCategoriesByName: [String: (icon: String, colorHex: String)] {
+        Dictionary(uniqueKeysWithValues: defaultCategories.map { ($0.name, ($0.icon, $0.colorHex)) })
+    }
 }
