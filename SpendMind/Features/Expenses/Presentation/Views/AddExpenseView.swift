@@ -9,9 +9,15 @@ import SwiftUI
 
 struct AddExpenseView: View {
     @Environment(\.dismiss) private var dismiss
-    @FocusState private var isFieldFocused: Bool
+    @FocusState private var focusedField: Field?
     @State private var viewModel: AddExpenseViewModel
     let onSaved: () -> Void
+
+    private enum Field {
+        case title
+        case amount
+        case note
+    }
 
     init(viewModel: AddExpenseViewModel, onSaved: @escaping () -> Void = {}) {
         self._viewModel = State(initialValue: viewModel)
@@ -26,13 +32,16 @@ struct AddExpenseView: View {
                 Section("Expense") {
                     TextField("Title", text: $viewModel.title)
                         .textInputAutocapitalization(.words)
-                        .focused($isFieldFocused)
+                        .focused($focusedField, equals: .title)
                         .accessibilityLabel("Expense Title")
 
-                    TextField("Amount", text: $viewModel.amountText)
+                    TextField("Amount", text: Binding(
+                        get: { viewModel.amountText },
+                        set: { viewModel.updateAmountText($0) }
+                    ))
                         .keyboardType(.decimalPad)
-                        .focused($isFieldFocused)
-                        .accessibilityLabel("Expense Amount")
+                        .focused($focusedField, equals: .amount)
+                        .accessibilityLabel("Expense Amount in \(viewModel.currency.rawValue)")
                 }
 
                 Section("Details") {
@@ -50,7 +59,7 @@ struct AddExpenseView: View {
 
                     TextField("Note", text: $viewModel.note, axis: .vertical)
                         .lineLimit(3...5)
-                        .focused($isFieldFocused)
+                        .focused($focusedField, equals: .note)
                         .accessibilityLabel("Expense Note")
                 }
 
@@ -64,6 +73,15 @@ struct AddExpenseView: View {
             .scrollDismissesKeyboard(.interactively)
             .scrollContentBackground(.hidden)
             .background(AppColor.background)
+            .onChange(of: focusedField) { oldValue, newValue in
+                if oldValue == .amount {
+                    viewModel.formatAmount()
+                }
+
+                if newValue == .amount {
+                    viewModel.unformatAmount()
+                }
+            }
             .navigationTitle("Add Expense")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -85,7 +103,7 @@ struct AddExpenseView: View {
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
                     Button("Done") {
-                        isFieldFocused = false
+                        focusedField = nil
                     }
                     .accessibilityLabel("Dismiss Keyboard")
                 }

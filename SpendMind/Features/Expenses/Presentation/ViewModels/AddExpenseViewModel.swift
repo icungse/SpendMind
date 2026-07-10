@@ -20,12 +20,18 @@ final class AddExpenseViewModel {
     private(set) var errorMessage: String?
     private(set) var isSaving = false
 
+    let currency: CurrencyCode
     private let addExpenseUseCase: AddExpenseUseCase
     private let categoryRepository: any CategoryRepository
 
-    init(addExpenseUseCase: AddExpenseUseCase, categoryRepository: any CategoryRepository) {
+    init(
+        addExpenseUseCase: AddExpenseUseCase,
+        categoryRepository: any CategoryRepository,
+        currency: CurrencyCode = .IDR
+    ) {
         self.addExpenseUseCase = addExpenseUseCase
         self.categoryRepository = categoryRepository
+        self.currency = currency
     }
 
     var canSave: Bool {
@@ -62,7 +68,8 @@ final class AddExpenseViewModel {
                 amount: amount,
                 category: category,
                 date: date,
-                note: note
+                note: note,
+                currency: currency
             )
             errorMessage = nil
             return true
@@ -72,8 +79,32 @@ final class AddExpenseViewModel {
         }
     }
 
+    func updateAmountText(_ value: String) {
+        amountText = sanitizedAmountText(from: value)
+    }
+
+    func formatAmount() {
+        guard let amount else { return }
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = currency.rawValue
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
+        amountText = formatter.string(from: amount as NSDecimalNumber) ?? amount.formattedCurrency(code: currency.rawValue)
+    }
+
+    func unformatAmount() {
+        guard let amount else {
+            updateAmountText(amountText)
+            return
+        }
+
+        amountText = NSDecimalNumber(decimal: amount).stringValue
+    }
+
     private var amount: Decimal? {
-        Decimal(string: amountText.trimmed)
+        Decimal(string: normalizedAmountText(from: amountText))
     }
 
     private var category: Category? {
@@ -94,5 +125,32 @@ final class AddExpenseViewModel {
 
     private var hasInput: Bool {
         !title.trimmed.isEmpty || !amountText.trimmed.isEmpty || !note.trimmed.isEmpty
+    }
+
+    private func sanitizedAmountText(from value: String) -> String {
+        var result = ""
+        var hasDecimalSeparator = false
+
+        for character in value where character.isNumber || character == "." || character == "," {
+            if character == "." || character == "," {
+                guard !hasDecimalSeparator else { continue }
+                hasDecimalSeparator = true
+                result.append(".")
+            } else {
+                result.append(character)
+            }
+        }
+
+        return result
+    }
+
+    private func normalizedAmountText(from value: String) -> String {
+        let value = value.trimmed.filter { $0.isNumber || $0 == "." || $0 == "," }
+
+        if value.contains(".") {
+            return value.replacingOccurrences(of: ",", with: "")
+        }
+
+        return value.replacingOccurrences(of: ",", with: ".")
     }
 }

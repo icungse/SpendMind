@@ -21,7 +21,8 @@ final class AddExpenseUseCaseTests: XCTestCase {
             amount: 25,
             category: category,
             date: date,
-            note: " Team meal "
+            note: " Team meal ",
+            currency: .USD
         )
 
         XCTAssertEqual(repository.expenses.count, 1)
@@ -29,6 +30,7 @@ final class AddExpenseUseCaseTests: XCTestCase {
         XCTAssertEqual(expense.merchant, "Lunch")
         XCTAssertEqual(expense.note, "Team meal")
         XCTAssertEqual(expense.amount, 25)
+        XCTAssertEqual(expense.currency, .USD)
         XCTAssertTrue(expense.category === category)
         XCTAssertEqual(expense.expenseDate, date)
     }

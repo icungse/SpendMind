@@ -332,7 +332,8 @@ struct DashboardView: View {
         return AddExpenseView(
             viewModel: AddExpenseViewModel(
                 addExpenseUseCase: AddExpenseUseCase(repository: expenseRepository),
-                categoryRepository: categoryRepository
+                categoryRepository: categoryRepository,
+                currency: settings.currency
             )
         ) {
             Task {

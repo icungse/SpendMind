@@ -20,7 +20,8 @@ struct AddExpenseUseCase {
         amount: Decimal,
         category: Category?,
         date: Date = .now,
-        note: String = ""
+        note: String = "",
+        currency: CurrencyCode = .IDR
     ) throws -> Expense {
         let title = title.trimmingCharacters(in: .whitespacesAndNewlines)
 
@@ -42,6 +43,7 @@ struct AddExpenseUseCase {
             note: note.trimmingCharacters(in: .whitespacesAndNewlines),
             merchant: title,
             expenseDate: date,
+            currency: currency,
             category: category
         )
         try repository.createExpense(expense)
