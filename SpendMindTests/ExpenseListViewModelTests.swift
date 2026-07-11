@@ -56,6 +56,38 @@ final class ExpenseListViewModelTests: XCTestCase {
         XCTAssertNil(viewModel.errorMessage)
     }
 
+    func testSearchFiltersByTitle() throws {
+        let coffee = Expense(amount: 10, note: "Morning drink", merchant: "Starbucks", expenseDate: date(year: 2026, month: 7, day: 1))
+        let lunch = Expense(amount: 20, note: "Lunch", merchant: "Warung", expenseDate: date(year: 2026, month: 7, day: 2))
+        let viewModel = makeViewModel(repository: ExpenseListMockRepository(expenses: [coffee, lunch]))
+
+        viewModel.load()
+        viewModel.searchText = "star"
+
+        XCTAssertEqual(viewModel.sections.flatMap(\.expenses).map(\.id), [coffee.id])
+    }
+
+    func testSearchFiltersByNote() throws {
+        let taxi = Expense(amount: 10, note: "Airport ride", merchant: "Grab", expenseDate: date(year: 2026, month: 7, day: 1))
+        let groceries = Expense(amount: 20, note: "Groceries", merchant: "Market", expenseDate: date(year: 2026, month: 7, day: 2))
+        let viewModel = makeViewModel(repository: ExpenseListMockRepository(expenses: [taxi, groceries]))
+
+        viewModel.load()
+        viewModel.searchText = "ride"
+
+        XCTAssertEqual(viewModel.sections.flatMap(\.expenses).map(\.id), [taxi.id])
+    }
+
+    func testSearchIsCaseInsensitive() throws {
+        let expense = Expense(amount: 10, note: "Monthly Coffee", merchant: nil, expenseDate: date(year: 2026, month: 7, day: 1))
+        let viewModel = makeViewModel(repository: ExpenseListMockRepository(expenses: [expense]))
+
+        viewModel.load()
+        viewModel.searchText = "coffee"
+
+        XCTAssertEqual(viewModel.sections.flatMap(\.expenses).map(\.id), [expense.id])
+    }
+
     private func makeViewModel(repository: ExpenseListMockRepository) -> ExpenseListViewModel {
         ExpenseListViewModel(
             fetchExpensesUseCase: FetchExpensesUseCase(repository: repository),

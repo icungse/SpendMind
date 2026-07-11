@@ -25,6 +25,7 @@ struct ExpenseListView: View {
         .background(AppColor.background)
         .navigationTitle("Expenses")
         .navigationBarTitleDisplayMode(.inline)
+        .searchable(text: $viewModel.searchText, prompt: "Search expenses")
         .overlay(alignment: .bottom) {
             if let errorMessage = viewModel.errorMessage {
                 Text(errorMessage)

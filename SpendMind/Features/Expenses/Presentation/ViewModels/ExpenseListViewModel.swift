@@ -21,11 +21,17 @@ final class ExpenseListViewModel {
     private(set) var sections: [ExpenseDateSection] = []
     private(set) var errorMessage: String?
     private(set) var isLoading = false
+    var searchText = "" {
+        didSet {
+            applySearch()
+        }
+    }
 
     private let fetchExpensesUseCase: FetchExpensesUseCase
     private let deleteExpenseUseCase: DeleteExpenseUseCase
     private let calendar: Calendar
     private let currentDate: Date
+    private var expenses: [Expense] = []
 
     init(
         fetchExpensesUseCase: FetchExpensesUseCase,
@@ -46,8 +52,8 @@ final class ExpenseListViewModel {
         }
 
         do {
-            let expenses = try fetchExpensesUseCase.execute(month: currentDate)
-            sections = groupedByDay(expenses)
+            expenses = try fetchExpensesUseCase.execute(month: currentDate)
+            applySearch()
             errorMessage = nil
         } catch {
             errorMessage = AppError.wrap(error).errorDescription
@@ -61,6 +67,21 @@ final class ExpenseListViewModel {
         } catch {
             errorMessage = AppError.wrap(error).errorDescription
         }
+    }
+
+    private func applySearch() {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else {
+            sections = groupedByDay(expenses)
+            return
+        }
+
+        // in-memory month search; move to repository only when full-history search or scale requires it.
+        sections = groupedByDay(expenses.filter { expense in
+            let title = expense.merchant ?? expense.note
+            return title.localizedCaseInsensitiveContains(query)
+                || expense.note.localizedCaseInsensitiveContains(query)
+        })
     }
 
     private func groupedByDay(_ expenses: [Expense]) -> [ExpenseDateSection] {
