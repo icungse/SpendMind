@@ -40,6 +40,36 @@ final class AddExpenseViewModelTests: XCTestCase {
         XCTAssertEqual(expenseRepository.expenses.first?.currency, .USD)
     }
 
+    func testEditPrefillsAndUpdatesExpense() {
+        let expenseRepository = ViewModelExpenseRepository()
+        let oldCategory = SpendMind.Category(name: "Food", icon: "fork.knife", colorHex: "#5B7FFF")
+        let newCategory = SpendMind.Category(name: "Transport", icon: "car", colorHex: "#FF9500")
+        let expense = Expense(amount: 25, note: "Old note", merchant: "Lunch", category: oldCategory)
+        expenseRepository.expenses = [expense]
+
+        let viewModel = makeViewModel(
+            expenseRepository: expenseRepository,
+            categories: [oldCategory, newCategory],
+            existingExpense: expense
+        )
+        viewModel.loadCategories()
+
+        XCTAssertTrue(viewModel.isEditing)
+        XCTAssertEqual(viewModel.title, "Lunch")
+        XCTAssertEqual(viewModel.amountText, "25")
+        XCTAssertEqual(viewModel.note, "Old note")
+
+        viewModel.title = "Bus"
+        viewModel.amountText = "10"
+        viewModel.selectedCategoryID = newCategory.id
+
+        XCTAssertTrue(viewModel.save())
+        XCTAssertEqual(expenseRepository.updatedExpenseId, expense.id)
+        XCTAssertEqual(expense.merchant, "Bus")
+        XCTAssertEqual(expense.amount, 10)
+        XCTAssertTrue(expense.category === newCategory)
+    }
+
     func testAmountInputRejectsNegativeValue() {
         let viewModel = makeViewModel()
 
@@ -71,24 +101,30 @@ final class AddExpenseViewModelTests: XCTestCase {
         categories: [SpendMind.Category] = [
             SpendMind.Category(name: "Food", icon: "fork.knife", colorHex: "#5B7FFF")
         ],
-        currency: CurrencyCode = .IDR
+        currency: CurrencyCode = .IDR,
+        existingExpense: Expense? = nil
     ) -> AddExpenseViewModel {
         AddExpenseViewModel(
             addExpenseUseCase: AddExpenseUseCase(repository: expenseRepository),
             categoryRepository: ViewModelCategoryRepository(categories: categories),
-            currency: currency
+            currency: currency,
+            expense: existingExpense,
+            updateExpenseUseCase: UpdateExpenseUseCase(repository: expenseRepository)
         )
     }
 }
 
 private final class ViewModelExpenseRepository: ExpenseRepository {
-    private(set) var expenses: [Expense] = []
+    var expenses: [Expense] = []
+    private(set) var updatedExpenseId: UUID?
 
     func createExpense(_ expense: Expense) throws {
         expenses.append(expense)
     }
 
-    func updateExpense(_ expense: Expense) throws { }
+    func updateExpense(_ expense: Expense) throws {
+        updatedExpenseId = expense.id
+    }
     func deleteExpense(id: UUID) throws { }
     func getExpense(id: UUID) throws -> Expense? { expenses.first { $0.id == id } }
     func getExpenses() throws -> [Expense] { expenses }

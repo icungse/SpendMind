@@ -12,6 +12,7 @@ struct ExpenseListView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel: ExpenseListViewModel
     @State private var showingAddExpense = false
+    @State private var editingExpense: Expense?
     let currency: CurrencyCode
 
     init(viewModel: ExpenseListViewModel, currency: CurrencyCode) {
@@ -62,7 +63,13 @@ struct ExpenseListView: View {
                 ForEach(viewModel.sections) { section in
                     Section(section.date.formatted(.dateTime.weekday(.wide).month(.abbreviated).day())) {
                         ForEach(section.expenses) { expense in
-                            expenseRow(expense)
+                            Button {
+                                editingExpense = expense
+                            } label: {
+                                expenseRow(expense)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Edit Expense")
                         }
                     }
                 }
@@ -71,6 +78,9 @@ struct ExpenseListView: View {
         .scrollContentBackground(.hidden)
         .sheet(isPresented: $showingAddExpense) {
             addExpenseSheet
+        }
+        .sheet(item: $editingExpense) { expense in
+            editExpenseSheet(expense)
         }
     }
 
@@ -99,6 +109,23 @@ struct ExpenseListView: View {
                 addExpenseUseCase: AddExpenseUseCase(repository: expenseRepository),
                 categoryRepository: categoryRepository,
                 currency: currency
+            )
+        ) {
+            viewModel.load()
+        }
+    }
+
+    private func editExpenseSheet(_ expense: Expense) -> some View {
+        let expenseRepository = SwiftDataExpenseRepository(context: modelContext)
+        let categoryRepository = SwiftDataCategoryRepository(context: modelContext)
+
+        return AddExpenseView(
+            viewModel: AddExpenseViewModel(
+                addExpenseUseCase: AddExpenseUseCase(repository: expenseRepository),
+                categoryRepository: categoryRepository,
+                currency: currency,
+                expense: expense,
+                updateExpenseUseCase: UpdateExpenseUseCase(repository: expenseRepository)
             )
         ) {
             viewModel.load()
