@@ -42,9 +42,24 @@ final class ExpenseListViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.sections.flatMap(\.expenses).map(\.id), [second.id, first.id])
     }
 
+    func testDeleteRemovesExpenseFromList() throws {
+        let first = Expense(amount: 10, expenseDate: date(year: 2026, month: 7, day: 1))
+        let second = Expense(amount: 20, expenseDate: date(year: 2026, month: 7, day: 2))
+        let repository = ExpenseListMockRepository(expenses: [first, second])
+        let viewModel = makeViewModel(repository: repository)
+
+        viewModel.load()
+        viewModel.delete(second)
+
+        XCTAssertTrue(second.isDeleted)
+        XCTAssertEqual(viewModel.sections.flatMap(\.expenses).map(\.id), [first.id])
+        XCTAssertNil(viewModel.errorMessage)
+    }
+
     private func makeViewModel(repository: ExpenseListMockRepository) -> ExpenseListViewModel {
         ExpenseListViewModel(
             fetchExpensesUseCase: FetchExpensesUseCase(repository: repository),
+            deleteExpenseUseCase: DeleteExpenseUseCase(repository: repository),
             calendar: Calendar(identifier: .gregorian),
             currentDate: date(year: 2026, month: 7, day: 10)
         )

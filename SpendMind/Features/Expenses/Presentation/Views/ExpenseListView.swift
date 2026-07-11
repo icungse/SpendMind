@@ -13,6 +13,7 @@ struct ExpenseListView: View {
     @State private var viewModel: ExpenseListViewModel
     @State private var showingAddExpense = false
     @State private var editingExpense: Expense?
+    @State private var deletingExpense: Expense?
     let currency: CurrencyCode
 
     init(viewModel: ExpenseListViewModel, currency: CurrencyCode) {
@@ -70,6 +71,14 @@ struct ExpenseListView: View {
                             }
                             .buttonStyle(.plain)
                             .accessibilityLabel("Edit Expense")
+                            .swipeActions(edge: .trailing) {
+                                Button(role: .destructive) {
+                                    deletingExpense = expense
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                                .accessibilityLabel("Delete Expense")
+                            }
                         }
                     }
                 }
@@ -81,6 +90,24 @@ struct ExpenseListView: View {
         }
         .sheet(item: $editingExpense) { expense in
             editExpenseSheet(expense)
+        }
+        .confirmationDialog(
+            "Delete Expense?",
+            isPresented: Binding(
+                get: { deletingExpense != nil },
+                set: { if !$0 { deletingExpense = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button("Delete", role: .destructive) {
+                if let deletingExpense {
+                    viewModel.delete(deletingExpense)
+                }
+                deletingExpense = nil
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("This expense will be removed from the list.")
         }
     }
 
@@ -137,7 +164,8 @@ struct ExpenseListView: View {
     NavigationStack {
         ExpenseListView(
             viewModel: ExpenseListViewModel(
-                fetchExpensesUseCase: FetchExpensesUseCase(repository: ExpenseListPreviewRepository())
+                fetchExpensesUseCase: FetchExpensesUseCase(repository: ExpenseListPreviewRepository()),
+                deleteExpenseUseCase: DeleteExpenseUseCase(repository: ExpenseListPreviewRepository())
             ),
             currency: .IDR
         )

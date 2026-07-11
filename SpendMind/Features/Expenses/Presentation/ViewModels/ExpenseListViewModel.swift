@@ -23,15 +23,18 @@ final class ExpenseListViewModel {
     private(set) var isLoading = false
 
     private let fetchExpensesUseCase: FetchExpensesUseCase
+    private let deleteExpenseUseCase: DeleteExpenseUseCase
     private let calendar: Calendar
     private let currentDate: Date
 
     init(
         fetchExpensesUseCase: FetchExpensesUseCase,
+        deleteExpenseUseCase: DeleteExpenseUseCase,
         calendar: Calendar = .current,
         currentDate: Date = .now
     ) {
         self.fetchExpensesUseCase = fetchExpensesUseCase
+        self.deleteExpenseUseCase = deleteExpenseUseCase
         self.calendar = calendar
         self.currentDate = currentDate
     }
@@ -46,6 +49,15 @@ final class ExpenseListViewModel {
             let expenses = try fetchExpensesUseCase.execute(month: currentDate)
             sections = groupedByDay(expenses)
             errorMessage = nil
+        } catch {
+            errorMessage = AppError.wrap(error).errorDescription
+        }
+    }
+
+    func delete(_ expense: Expense) {
+        do {
+            try deleteExpenseUseCase.execute(id: expense.id, isConfirmed: true)
+            load()
         } catch {
             errorMessage = AppError.wrap(error).errorDescription
         }
