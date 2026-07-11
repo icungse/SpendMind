@@ -101,10 +101,15 @@ private struct ContentView: View {
                 settings: $settings
             )
         case .expenses:
+            let expenseRepository = SwiftDataExpenseRepository(context: dependencies.modelContainer.mainContext)
+
             ExpenseListView(
                 viewModel: ExpenseListViewModel(
                     fetchExpensesUseCase: FetchExpensesUseCase(
-                        repository: SwiftDataExpenseRepository(context: dependencies.modelContainer.mainContext)
+                        repository: expenseRepository
+                    ),
+                    deleteExpenseUseCase: DeleteExpenseUseCase(
+                        repository: expenseRepository
                     )
                 ),
                 currency: settings.currency

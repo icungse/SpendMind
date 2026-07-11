@@ -83,12 +83,12 @@ struct AddExpenseView: View {
                     viewModel.unformatAmount()
                 }
             }
-            .navigationTitle("Add Expense")
+            .navigationTitle(viewModel.isEditing ? "Edit Expense" : "Add Expense")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
-                        .accessibilityLabel("Cancel Add Expense")
+                        .accessibilityLabel(viewModel.isEditing ? "Cancel Edit Expense" : "Cancel Add Expense")
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
@@ -98,7 +98,7 @@ struct AddExpenseView: View {
                         dismiss()
                     }
                     .disabled(!viewModel.canSave)
-                    .accessibilityLabel("Save Expense")
+                    .accessibilityLabel(viewModel.isEditing ? "Save Expense Changes" : "Save Expense")
                 }
 
                 ToolbarItemGroup(placement: .keyboard) {
@@ -111,7 +111,7 @@ struct AddExpenseView: View {
             }
             .safeAreaInset(edge: .bottom) {
                 PrimaryButton(
-                    title: "Save Expense",
+                    title: viewModel.isEditing ? "Save Changes" : "Save Expense",
                     isLoading: viewModel.isSaving,
                     isDisabled: !viewModel.canSave
                 ) {

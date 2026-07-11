@@ -12,6 +12,8 @@ struct ExpenseListView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel: ExpenseListViewModel
     @State private var showingAddExpense = false
+    @State private var editingExpense: Expense?
+    @State private var deletingExpense: Expense?
     let currency: CurrencyCode
 
     init(viewModel: ExpenseListViewModel, currency: CurrencyCode) {
@@ -62,7 +64,21 @@ struct ExpenseListView: View {
                 ForEach(viewModel.sections) { section in
                     Section(section.date.formatted(.dateTime.weekday(.wide).month(.abbreviated).day())) {
                         ForEach(section.expenses) { expense in
-                            expenseRow(expense)
+                            Button {
+                                editingExpense = expense
+                            } label: {
+                                expenseRow(expense)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Edit Expense")
+                            .swipeActions(edge: .trailing) {
+                                Button(role: .destructive) {
+                                    deletingExpense = expense
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                                .accessibilityLabel("Delete Expense")
+                            }
                         }
                     }
                 }
@@ -71,6 +87,27 @@ struct ExpenseListView: View {
         .scrollContentBackground(.hidden)
         .sheet(isPresented: $showingAddExpense) {
             addExpenseSheet
+        }
+        .sheet(item: $editingExpense) { expense in
+            editExpenseSheet(expense)
+        }
+        .confirmationDialog(
+            "Delete Expense?",
+            isPresented: Binding(
+                get: { deletingExpense != nil },
+                set: { if !$0 { deletingExpense = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button("Delete", role: .destructive) {
+                if let deletingExpense {
+                    viewModel.delete(deletingExpense)
+                }
+                deletingExpense = nil
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("This expense will be removed from the list.")
         }
     }
 
@@ -104,13 +141,31 @@ struct ExpenseListView: View {
             viewModel.load()
         }
     }
+
+    private func editExpenseSheet(_ expense: Expense) -> some View {
+        let expenseRepository = SwiftDataExpenseRepository(context: modelContext)
+        let categoryRepository = SwiftDataCategoryRepository(context: modelContext)
+
+        return AddExpenseView(
+            viewModel: AddExpenseViewModel(
+                addExpenseUseCase: AddExpenseUseCase(repository: expenseRepository),
+                categoryRepository: categoryRepository,
+                currency: currency,
+                expense: expense,
+                updateExpenseUseCase: UpdateExpenseUseCase(repository: expenseRepository)
+            )
+        ) {
+            viewModel.load()
+        }
+    }
 }
 
 #Preview {
     NavigationStack {
         ExpenseListView(
             viewModel: ExpenseListViewModel(
-                fetchExpensesUseCase: FetchExpensesUseCase(repository: ExpenseListPreviewRepository())
+                fetchExpensesUseCase: FetchExpensesUseCase(repository: ExpenseListPreviewRepository()),
+                deleteExpenseUseCase: DeleteExpenseUseCase(repository: ExpenseListPreviewRepository())
             ),
             currency: .IDR
         )

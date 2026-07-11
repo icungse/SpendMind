@@ -21,17 +21,33 @@ final class AddExpenseViewModel {
     private(set) var isSaving = false
 
     let currency: CurrencyCode
+    let isEditing: Bool
+    private let expenseID: UUID?
     private let addExpenseUseCase: AddExpenseUseCase
+    private let updateExpenseUseCase: UpdateExpenseUseCase?
     private let categoryRepository: any CategoryRepository
 
     init(
         addExpenseUseCase: AddExpenseUseCase,
         categoryRepository: any CategoryRepository,
-        currency: CurrencyCode = .IDR
+        currency: CurrencyCode = .IDR,
+        expense: Expense? = nil,
+        updateExpenseUseCase: UpdateExpenseUseCase? = nil
     ) {
         self.addExpenseUseCase = addExpenseUseCase
+        self.updateExpenseUseCase = updateExpenseUseCase
         self.categoryRepository = categoryRepository
         self.currency = currency
+        self.expenseID = expense?.id
+        self.isEditing = expense != nil
+
+        if let expense {
+            title = expense.merchant ?? expense.note
+            amountText = NSDecimalNumber(decimal: expense.amount).stringValue
+            selectedCategoryID = expense.category?.id
+            date = expense.expenseDate
+            note = expense.note
+        }
     }
 
     var canSave: Bool {
@@ -63,14 +79,26 @@ final class AddExpenseViewModel {
         defer { isSaving = false }
 
         do {
-            try addExpenseUseCase.execute(
-                title: title,
-                amount: amount,
-                category: category,
-                date: date,
-                note: note,
-                currency: currency
-            )
+            // one form handles add/edit; split only when edit needs different fields.
+            if let expenseID, let updateExpenseUseCase {
+                try updateExpenseUseCase.execute(
+                    id: expenseID,
+                    title: title,
+                    amount: amount,
+                    category: category,
+                    note: note,
+                    date: date
+                )
+            } else {
+                try addExpenseUseCase.execute(
+                    title: title,
+                    amount: amount,
+                    category: category,
+                    date: date,
+                    note: note,
+                    currency: currency
+                )
+            }
             errorMessage = nil
             return true
         } catch {
