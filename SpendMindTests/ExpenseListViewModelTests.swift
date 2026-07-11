@@ -88,6 +88,64 @@ final class ExpenseListViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.sections.flatMap(\.expenses).map(\.id), [expense.id])
     }
 
+    func testCategoryFilterShowsSelectedCategory() throws {
+        let food = Category(name: "Food", icon: "fork.knife", colorHex: "#FF7444")
+        let transport = Category(name: "Transport", icon: "car.fill", colorHex: "#576A8F")
+        let coffee = Expense(amount: 10, expenseDate: date(year: 2026, month: 7, day: 1), category: food)
+        let taxi = Expense(amount: 20, expenseDate: date(year: 2026, month: 7, day: 2), category: transport)
+        let viewModel = makeViewModel(repository: ExpenseListMockRepository(expenses: [coffee, taxi]))
+
+        viewModel.load()
+        viewModel.toggleCategory(food)
+
+        XCTAssertEqual(viewModel.sections.flatMap(\.expenses).map(\.id), [coffee.id])
+    }
+
+    func testCategoryFilterAllowsMultipleCategories() throws {
+        let food = Category(name: "Food", icon: "fork.knife", colorHex: "#FF7444")
+        let travel = Category(name: "Travel", icon: "airplane", colorHex: "#5B7FFF")
+        let bills = Category(name: "Bills", icon: "doc.text", colorHex: "#888888")
+        let coffee = Expense(amount: 10, expenseDate: date(year: 2026, month: 7, day: 1), category: food)
+        let flight = Expense(amount: 20, expenseDate: date(year: 2026, month: 7, day: 2), category: travel)
+        let bill = Expense(amount: 30, expenseDate: date(year: 2026, month: 7, day: 3), category: bills)
+        let viewModel = makeViewModel(repository: ExpenseListMockRepository(expenses: [coffee, flight, bill]))
+
+        viewModel.load()
+        viewModel.toggleCategory(food)
+        viewModel.toggleCategory(travel)
+
+        XCTAssertEqual(viewModel.sections.flatMap(\.expenses).map(\.id), [flight.id, coffee.id])
+    }
+
+    func testClearCategoryFilterShowsAllExpenses() throws {
+        let food = Category(name: "Food", icon: "fork.knife", colorHex: "#FF7444")
+        let transport = Category(name: "Transport", icon: "car.fill", colorHex: "#576A8F")
+        let coffee = Expense(amount: 10, expenseDate: date(year: 2026, month: 7, day: 1), category: food)
+        let taxi = Expense(amount: 20, expenseDate: date(year: 2026, month: 7, day: 2), category: transport)
+        let viewModel = makeViewModel(repository: ExpenseListMockRepository(expenses: [coffee, taxi]))
+
+        viewModel.load()
+        viewModel.toggleCategory(food)
+        viewModel.clearCategoryFilter()
+
+        XCTAssertTrue(viewModel.selectedCategoryIDs.isEmpty)
+        XCTAssertEqual(viewModel.sections.flatMap(\.expenses).map(\.id), [taxi.id, coffee.id])
+    }
+
+    func testSearchAndCategoryFilterApplyTogether() throws {
+        let food = Category(name: "Food", icon: "fork.knife", colorHex: "#FF7444")
+        let transport = Category(name: "Transport", icon: "car.fill", colorHex: "#576A8F")
+        let coffee = Expense(amount: 10, note: "Coffee", merchant: "Cafe", expenseDate: date(year: 2026, month: 7, day: 1), category: food)
+        let taxi = Expense(amount: 20, note: "Coffee run", merchant: "Grab", expenseDate: date(year: 2026, month: 7, day: 2), category: transport)
+        let viewModel = makeViewModel(repository: ExpenseListMockRepository(expenses: [coffee, taxi]))
+
+        viewModel.load()
+        viewModel.searchText = "coffee"
+        viewModel.toggleCategory(food)
+
+        XCTAssertEqual(viewModel.sections.flatMap(\.expenses).map(\.id), [coffee.id])
+    }
+
     private func makeViewModel(repository: ExpenseListMockRepository) -> ExpenseListViewModel {
         ExpenseListViewModel(
             fetchExpensesUseCase: FetchExpensesUseCase(repository: repository),

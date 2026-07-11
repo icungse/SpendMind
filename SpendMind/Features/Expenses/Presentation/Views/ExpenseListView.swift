@@ -26,6 +26,11 @@ struct ExpenseListView: View {
         .navigationTitle("Expenses")
         .navigationBarTitleDisplayMode(.inline)
         .searchable(text: $viewModel.searchText, prompt: "Search expenses")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                categoryFilterMenu
+            }
+        }
         .overlay(alignment: .bottom) {
             if let errorMessage = viewModel.errorMessage {
                 Text(errorMessage)
@@ -107,6 +112,32 @@ struct ExpenseListView: View {
         } message: {
             Text("This expense will be removed from the list.")
         }
+    }
+
+    private var categoryFilterMenu: some View {
+        Menu {
+            if !viewModel.selectedCategoryIDs.isEmpty {
+                Button("Clear Filter") {
+                    viewModel.clearCategoryFilter()
+                }
+                .accessibilityLabel("Clear Category Filter")
+            }
+
+            ForEach(viewModel.availableCategories) { category in
+                Button {
+                    viewModel.toggleCategory(category)
+                } label: {
+                    Label(
+                        category.name,
+                        systemImage: viewModel.selectedCategoryIDs.contains(category.id) ? "checkmark.circle.fill" : category.icon
+                    )
+                }
+                .accessibilityLabel("Filter by \(category.name)")
+            }
+        } label: {
+            Label("Filter", systemImage: viewModel.selectedCategoryIDs.isEmpty ? "line.3.horizontal.decrease.circle" : "line.3.horizontal.decrease.circle.fill")
+        }
+        .accessibilityLabel("Filter Expenses by Category")
     }
 
     private func expenseRow(_ expense: Expense) -> some View {
