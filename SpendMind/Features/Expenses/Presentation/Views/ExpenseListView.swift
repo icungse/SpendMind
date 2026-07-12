@@ -12,6 +12,7 @@ struct ExpenseListView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel: ExpenseListViewModel
     @State private var showingAddExpense = false
+    @State private var showingDateFilter = false
     @State private var deletingExpense: Expense?
     let currency: CurrencyCode
 
@@ -28,7 +29,12 @@ struct ExpenseListView: View {
         .searchable(text: $viewModel.searchText, prompt: "Search expenses")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                monthFilterMenu
+                Button {
+                    showingDateFilter = true
+                } label: {
+                    Label(viewModel.dateFilterTitle, systemImage: "calendar")
+                }
+                .accessibilityLabel("Filter Expenses by Date")
             }
 
             ToolbarItem(placement: .topBarTrailing) {
@@ -98,6 +104,9 @@ struct ExpenseListView: View {
         .sheet(isPresented: $showingAddExpense) {
             addExpenseSheet
         }
+        .sheet(isPresented: $showingDateFilter) {
+            dateFilterSheet
+        }
         .confirmationDialog(
             "Delete Expense?",
             isPresented: Binding(
@@ -118,24 +127,76 @@ struct ExpenseListView: View {
         }
     }
 
-    private var monthFilterMenu: some View {
-        Menu {
-            Button("Current Month") {
-                viewModel.selectMonth(viewModel.currentMonth)
-            }
+    private var dateFilterSheet: some View {
+        NavigationStack {
+            Form {
+                Picker(
+                    "Date Filter Mode",
+                    selection: Binding(
+                        get: { viewModel.dateFilterMode },
+                        set: { viewModel.selectDateFilterMode($0) }
+                    )
+                ) {
+                    Text("Month").tag(ExpenseDateFilterMode.month)
+                    Text("Day Range").tag(ExpenseDateFilterMode.dayRange)
+                }
+                .pickerStyle(.segmented)
 
-            Button("Previous Month") {
-                viewModel.selectMonth(viewModel.previousMonth)
-            }
+                if viewModel.dateFilterMode == .month {
+                    DatePicker(
+                        "Month",
+                        selection: Binding(
+                            get: { viewModel.selectedMonth },
+                            set: { viewModel.selectMonth($0) }
+                        ),
+                        in: ...viewModel.currentDay,
+                        displayedComponents: .date
+                    )
+                    // native DatePicker as month picker; custom month grid only if UX demands it.
+                    .datePickerStyle(.graphical)
+                    .accessibilityLabel("Expense Filter Month")
+                } else {
+                    DatePicker(
+                        "Start Date",
+                        selection: Binding(
+                            get: { viewModel.startDate },
+                            set: { viewModel.setStartDate($0) }
+                        ),
+                        in: ...viewModel.currentDay,
+                        displayedComponents: .date
+                    )
+                    .accessibilityLabel("Expense Filter Start Date")
 
-            Button("Next Month") {
-                viewModel.selectMonth(viewModel.futureMonth)
+                    DatePicker(
+                        "End Date",
+                        selection: Binding(
+                            get: { viewModel.endDate },
+                            set: { viewModel.setEndDate($0) }
+                        ),
+                        in: viewModel.startDate...viewModel.currentDay,
+                        displayedComponents: .date
+                    )
+                    .accessibilityLabel("Expense Filter End Date")
+                }
             }
-            .disabled(true)
-        } label: {
-            Label(viewModel.selectedMonthTitle, systemImage: "calendar")
+            .navigationTitle("Date Filter")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Clear") {
+                        viewModel.clearDateFilter()
+                    }
+                    .accessibilityLabel("Clear Date Filter")
+                }
+
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") {
+                        showingDateFilter = false
+                    }
+                    .accessibilityLabel("Close Date Filter")
+                }
+            }
         }
-        .accessibilityLabel("Filter Expenses by Month")
     }
 
     private var categoryFilterMenu: some View {

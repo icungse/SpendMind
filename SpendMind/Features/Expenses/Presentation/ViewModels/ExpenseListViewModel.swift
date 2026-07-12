@@ -15,6 +15,13 @@ struct ExpenseDateSection: Identifiable {
     var id: Date { date }
 }
 
+enum ExpenseDateFilterMode: String, CaseIterable, Identifiable {
+    case month
+    case dayRange
+
+    var id: Self { self }
+}
+
 @Observable
 @MainActor
 final class ExpenseListViewModel {
@@ -22,27 +29,30 @@ final class ExpenseListViewModel {
     private(set) var errorMessage: String?
     private(set) var isLoading = false
     private(set) var selectedCategoryIDs: Set<UUID> = []
+    private(set) var dateFilterMode: ExpenseDateFilterMode = .month
     private(set) var selectedMonth: Date
+    private(set) var startDate: Date
+    private(set) var endDate: Date
     var searchText = "" {
         didSet {
             applyFilters()
         }
     }
 
-    var currentMonth: Date {
+    var currentDay: Date {
         calendar.startOfDay(for: currentDate)
     }
 
-    var previousMonth: Date {
-        calendar.date(byAdding: .month, value: -1, to: currentMonth) ?? currentMonth
+    var currentMonth: Date {
+        startOfMonth(for: currentDay)
     }
 
-    var futureMonth: Date {
-        calendar.date(byAdding: .month, value: 1, to: currentMonth) ?? currentMonth
-    }
+    var dateFilterTitle: String {
+        if dateFilterMode == .month {
+            return selectedMonth.formatted(.dateTime.month(.abbreviated).year())
+        }
 
-    var selectedMonthTitle: String {
-        selectedMonth.formatted(.dateTime.month(.wide).year())
+        return "\(startDate.formatted(.dateTime.month(.abbreviated).day())) - \(endDate.formatted(.dateTime.month(.abbreviated).day()))"
     }
 
     var availableCategories: [Category] {
@@ -73,7 +83,10 @@ final class ExpenseListViewModel {
         self.deleteExpenseUseCase = deleteExpenseUseCase
         self.calendar = calendar
         self.currentDate = currentDate
-        self.selectedMonth = calendar.startOfDay(for: currentDate)
+        let monthStart = calendar.dateInterval(of: .month, for: currentDate)?.start ?? calendar.startOfDay(for: currentDate)
+        self.selectedMonth = monthStart
+        self.startDate = monthStart
+        self.endDate = calendar.startOfDay(for: currentDate)
     }
 
     func load() {
@@ -83,7 +96,8 @@ final class ExpenseListViewModel {
         }
 
         do {
-            expenses = try fetchExpensesUseCase.execute(month: selectedMonth)
+            let exclusiveEndDate = calendar.date(byAdding: .day, value: 1, to: endDate) ?? endDate
+            expenses = try fetchExpensesUseCase.execute(from: startDate, to: exclusiveEndDate)
             applyFilters()
             errorMessage = nil
         } catch {
@@ -115,17 +129,49 @@ final class ExpenseListViewModel {
         applyFilters()
     }
 
+    func clearDateFilter() {
+        dateFilterMode = .month
+        selectedMonth = currentMonth
+        startDate = currentMonth
+        endDate = currentDay
+        load()
+    }
+
+    func selectDateFilterMode(_ mode: ExpenseDateFilterMode) {
+        dateFilterMode = mode
+        if mode == .month {
+            selectMonth(selectedMonth)
+        }
+    }
+
     func selectMonth(_ month: Date) {
-        // ponytail: only current/previous/future-disabled; add arbitrary month picking when accepted.
-        guard month <= currentMonth else { return }
-        selectedMonth = calendar.startOfDay(for: month)
+        let monthStart = startOfMonth(for: month)
+        guard monthStart <= currentMonth else { return }
+        dateFilterMode = .month
+        selectedMonth = monthStart
+        startDate = monthStart
+        endDate = min(endOfMonth(for: monthStart), currentDay)
+        load()
+    }
+
+    func setStartDate(_ date: Date) {
+        dateFilterMode = .dayRange
+        startDate = min(calendar.startOfDay(for: date), endDate)
+        selectedMonth = startOfMonth(for: startDate)
+        load()
+    }
+
+    func setEndDate(_ date: Date) {
+        // native date range only; add preset/range model when more filters exist.
+        dateFilterMode = .dayRange
+        endDate = min(max(calendar.startOfDay(for: date), startDate), currentDay)
         load()
     }
 
     private func applyFilters() {
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        // ponytail: in-memory month filters; move to repository only when full-history filtering or scale requires it.
+        // in-memory month filters; move to repository only when full-history filtering or scale requires it.
         sections = groupedByDay(expenses.filter { expense in
             let title = expense.merchant ?? expense.note
             let matchesSearch = query.isEmpty
@@ -145,7 +191,20 @@ final class ExpenseListViewModel {
 
         // grouping stays in-memory; move to repository only if month lists become slow.
         return grouped.keys.sorted(by: >).map { date in
-            ExpenseDateSection(date: date, expenses: grouped[date] ?? [])
+            ExpenseDateSection(date: date, expenses: (grouped[date] ?? []).sorted { $0.expenseDate > $1.expenseDate })
         }
+    }
+
+    private func startOfMonth(for date: Date) -> Date {
+        calendar.dateInterval(of: .month, for: date)?.start ?? calendar.startOfDay(for: date)
+    }
+
+    private func endOfMonth(for date: Date) -> Date {
+        guard let monthInterval = calendar.dateInterval(of: .month, for: date),
+              let lastDay = calendar.date(byAdding: .day, value: -1, to: monthInterval.end) else {
+            return calendar.startOfDay(for: date)
+        }
+
+        return lastDay
     }
 }
