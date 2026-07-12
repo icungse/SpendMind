@@ -12,6 +12,7 @@ struct ExpenseListView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel: ExpenseListViewModel
     @State private var showingAddExpense = false
+    @State private var showingDateFilter = false
     @State private var deletingExpense: Expense?
     let currency: CurrencyCode
 
@@ -25,6 +26,21 @@ struct ExpenseListView: View {
         .background(AppColor.background)
         .navigationTitle("Expenses")
         .navigationBarTitleDisplayMode(.inline)
+        .searchable(text: $viewModel.searchText, prompt: "Search expenses")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showingDateFilter = true
+                } label: {
+                    Label(viewModel.dateFilterTitle, systemImage: "calendar")
+                }
+                .accessibilityLabel("Filter Expenses by Date")
+            }
+
+            ToolbarItem(placement: .topBarTrailing) {
+                categoryFilterMenu
+            }
+        }
         .overlay(alignment: .bottom) {
             if let errorMessage = viewModel.errorMessage {
                 Text(errorMessage)
@@ -88,6 +104,9 @@ struct ExpenseListView: View {
         .sheet(isPresented: $showingAddExpense) {
             addExpenseSheet
         }
+        .sheet(isPresented: $showingDateFilter) {
+            dateFilterSheet
+        }
         .confirmationDialog(
             "Delete Expense?",
             isPresented: Binding(
@@ -106,6 +125,104 @@ struct ExpenseListView: View {
         } message: {
             Text("This expense will be removed from the list.")
         }
+    }
+
+    private var dateFilterSheet: some View {
+        NavigationStack {
+            Form {
+                Picker(
+                    "Date Filter Mode",
+                    selection: Binding(
+                        get: { viewModel.dateFilterMode },
+                        set: { viewModel.selectDateFilterMode($0) }
+                    )
+                ) {
+                    Text("Month").tag(ExpenseDateFilterMode.month)
+                    Text("Day Range").tag(ExpenseDateFilterMode.dayRange)
+                }
+                .pickerStyle(.segmented)
+
+                if viewModel.dateFilterMode == .month {
+                    DatePicker(
+                        "Month",
+                        selection: Binding(
+                            get: { viewModel.selectedMonth },
+                            set: { viewModel.selectMonth($0) }
+                        ),
+                        in: ...viewModel.currentDay,
+                        displayedComponents: .date
+                    )
+                    // native DatePicker as month picker; custom month grid only if UX demands it.
+                    .datePickerStyle(.graphical)
+                    .accessibilityLabel("Expense Filter Month")
+                } else {
+                    DatePicker(
+                        "Start Date",
+                        selection: Binding(
+                            get: { viewModel.startDate },
+                            set: { viewModel.setStartDate($0) }
+                        ),
+                        in: ...viewModel.currentDay,
+                        displayedComponents: .date
+                    )
+                    .accessibilityLabel("Expense Filter Start Date")
+
+                    DatePicker(
+                        "End Date",
+                        selection: Binding(
+                            get: { viewModel.endDate },
+                            set: { viewModel.setEndDate($0) }
+                        ),
+                        in: viewModel.startDate...viewModel.currentDay,
+                        displayedComponents: .date
+                    )
+                    .accessibilityLabel("Expense Filter End Date")
+                }
+            }
+            .navigationTitle("Date Filter")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Clear") {
+                        viewModel.clearDateFilter()
+                    }
+                    .accessibilityLabel("Clear Date Filter")
+                }
+
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") {
+                        showingDateFilter = false
+                    }
+                    .accessibilityLabel("Close Date Filter")
+                }
+            }
+        }
+    }
+
+    private var categoryFilterMenu: some View {
+        Menu {
+            if !viewModel.selectedCategoryIDs.isEmpty {
+                Button("Clear Filter") {
+                    viewModel.clearCategoryFilter()
+                }
+                .accessibilityLabel("Clear Category Filter")
+            }
+
+            ForEach(viewModel.availableCategories) { category in
+                Button {
+                    viewModel.toggleCategory(category)
+                } label: {
+                    Label(
+                        category.name,
+                        systemImage: viewModel.selectedCategoryIDs.contains(category.id) ? "checkmark.circle.fill" : category.icon
+                    )
+                }
+                .accessibilityLabel("Filter by \(category.name)")
+            }
+        } label: {
+            Label("Filter", systemImage: viewModel.selectedCategoryIDs.isEmpty ? "line.3.horizontal.decrease.circle" : "line.3.horizontal.decrease.circle.fill")
+        }
+        .accessibilityLabel("Filter Expenses by Category")
     }
 
     private func expenseRow(_ expense: Expense) -> some View {
