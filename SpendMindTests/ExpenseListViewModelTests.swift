@@ -28,6 +28,45 @@ final class ExpenseListViewModelTests: XCTestCase {
         XCTAssertNil(viewModel.errorMessage)
     }
 
+    func testCurrentMonthIsDefault() throws {
+        let june = Expense(amount: 10, expenseDate: date(year: 2026, month: 6, day: 1))
+        let july = Expense(amount: 20, expenseDate: date(year: 2026, month: 7, day: 1))
+        let repository = ExpenseListMockRepository(expenses: [june, july])
+        let viewModel = makeViewModel(repository: repository)
+
+        viewModel.load()
+
+        XCTAssertEqual(repository.fetchedMonths, [date(year: 2026, month: 7, day: 10)])
+        XCTAssertEqual(viewModel.sections.flatMap(\.expenses).map(\.id), [july.id])
+    }
+
+    func testPreviousMonthIsSelectable() throws {
+        let june = Expense(amount: 10, expenseDate: date(year: 2026, month: 6, day: 1))
+        let july = Expense(amount: 20, expenseDate: date(year: 2026, month: 7, day: 1))
+        let repository = ExpenseListMockRepository(expenses: [june, july])
+        let viewModel = makeViewModel(repository: repository)
+
+        viewModel.load()
+        viewModel.selectMonth(viewModel.previousMonth)
+
+        XCTAssertEqual(repository.monthFetchCount, 2)
+        XCTAssertEqual(repository.fetchedMonths.map { Calendar(identifier: .gregorian).component(.month, from: $0) }, [7, 6])
+        XCTAssertEqual(viewModel.sections.flatMap(\.expenses).map(\.id), [june.id])
+    }
+
+    func testFutureMonthIsDisabled() throws {
+        let july = Expense(amount: 20, expenseDate: date(year: 2026, month: 7, day: 1))
+        let august = Expense(amount: 30, expenseDate: date(year: 2026, month: 8, day: 1))
+        let repository = ExpenseListMockRepository(expenses: [july, august])
+        let viewModel = makeViewModel(repository: repository)
+
+        viewModel.load()
+        viewModel.selectMonth(viewModel.futureMonth)
+
+        XCTAssertEqual(repository.monthFetchCount, 1)
+        XCTAssertEqual(viewModel.sections.flatMap(\.expenses).map(\.id), [july.id])
+    }
+
     func testLoadRefreshesExpenses() throws {
         let first = Expense(amount: 10, expenseDate: date(year: 2026, month: 7, day: 1))
         let second = Expense(amount: 20, expenseDate: date(year: 2026, month: 7, day: 2))
@@ -169,6 +208,7 @@ final class ExpenseListViewModelTests: XCTestCase {
 private final class ExpenseListMockRepository: ExpenseRepository {
     var expenses: [Expense]
     private(set) var monthFetchCount = 0
+    private(set) var fetchedMonths: [Date] = []
 
     init(expenses: [Expense]) {
         self.expenses = expenses
@@ -182,6 +222,7 @@ private final class ExpenseListMockRepository: ExpenseRepository {
 
     func getExpensesByMonth(_ month: Date) throws -> [Expense] {
         monthFetchCount += 1
+        fetchedMonths.append(month)
         return expenses.filter {
             Calendar(identifier: .gregorian).isDate($0.expenseDate, equalTo: month, toGranularity: .month)
             && Calendar(identifier: .gregorian).isDate($0.expenseDate, equalTo: month, toGranularity: .year)

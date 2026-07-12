@@ -22,10 +22,27 @@ final class ExpenseListViewModel {
     private(set) var errorMessage: String?
     private(set) var isLoading = false
     private(set) var selectedCategoryIDs: Set<UUID> = []
+    private(set) var selectedMonth: Date
     var searchText = "" {
         didSet {
             applyFilters()
         }
+    }
+
+    var currentMonth: Date {
+        calendar.startOfDay(for: currentDate)
+    }
+
+    var previousMonth: Date {
+        calendar.date(byAdding: .month, value: -1, to: currentMonth) ?? currentMonth
+    }
+
+    var futureMonth: Date {
+        calendar.date(byAdding: .month, value: 1, to: currentMonth) ?? currentMonth
+    }
+
+    var selectedMonthTitle: String {
+        selectedMonth.formatted(.dateTime.month(.wide).year())
     }
 
     var availableCategories: [Category] {
@@ -56,6 +73,7 @@ final class ExpenseListViewModel {
         self.deleteExpenseUseCase = deleteExpenseUseCase
         self.calendar = calendar
         self.currentDate = currentDate
+        self.selectedMonth = calendar.startOfDay(for: currentDate)
     }
 
     func load() {
@@ -65,7 +83,7 @@ final class ExpenseListViewModel {
         }
 
         do {
-            expenses = try fetchExpensesUseCase.execute(month: currentDate)
+            expenses = try fetchExpensesUseCase.execute(month: selectedMonth)
             applyFilters()
             errorMessage = nil
         } catch {
@@ -97,10 +115,17 @@ final class ExpenseListViewModel {
         applyFilters()
     }
 
+    func selectMonth(_ month: Date) {
+        // ponytail: only current/previous/future-disabled; add arbitrary month picking when accepted.
+        guard month <= currentMonth else { return }
+        selectedMonth = calendar.startOfDay(for: month)
+        load()
+    }
+
     private func applyFilters() {
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        // in-memory month filters; move to repository only when full-history filtering or scale requires it.
+        // ponytail: in-memory month filters; move to repository only when full-history filtering or scale requires it.
         sections = groupedByDay(expenses.filter { expense in
             let title = expense.merchant ?? expense.note
             let matchesSearch = query.isEmpty

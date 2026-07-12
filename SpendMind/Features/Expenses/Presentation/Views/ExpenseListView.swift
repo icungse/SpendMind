@@ -28,6 +28,10 @@ struct ExpenseListView: View {
         .searchable(text: $viewModel.searchText, prompt: "Search expenses")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
+                monthFilterMenu
+            }
+
+            ToolbarItem(placement: .topBarTrailing) {
                 categoryFilterMenu
             }
         }
@@ -112,6 +116,26 @@ struct ExpenseListView: View {
         } message: {
             Text("This expense will be removed from the list.")
         }
+    }
+
+    private var monthFilterMenu: some View {
+        Menu {
+            Button("Current Month") {
+                viewModel.selectMonth(viewModel.currentMonth)
+            }
+
+            Button("Previous Month") {
+                viewModel.selectMonth(viewModel.previousMonth)
+            }
+
+            Button("Next Month") {
+                viewModel.selectMonth(viewModel.futureMonth)
+            }
+            .disabled(true)
+        } label: {
+            Label(viewModel.selectedMonthTitle, systemImage: "calendar")
+        }
+        .accessibilityLabel("Filter Expenses by Month")
     }
 
     private var categoryFilterMenu: some View {
