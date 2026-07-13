@@ -69,4 +69,54 @@ final class DashboardViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.recentTransactions[0].merchant, "Starbucks")
         XCTAssertEqual(viewModel.recentTransactions[0].amount, 65000)
     }
+
+    func testDashboardViewModelCalculatesCurrentMonthExpenseTotal() async {
+        let currentMonthExpense = Expense(amount: 100, expenseDate: date(year: 2026, month: 7, day: 10))
+        let anotherCurrentMonthExpense = Expense(amount: 50, expenseDate: date(year: 2026, month: 7, day: 1))
+        let deletedExpense = Expense(amount: 25, expenseDate: date(year: 2026, month: 7, day: 2), isDeleted: true)
+        let previousMonthExpense = Expense(amount: 500, expenseDate: date(year: 2026, month: 6, day: 30))
+        let repository = DashboardExpenseRepository(
+            expenses: [currentMonthExpense, anotherCurrentMonthExpense, deletedExpense, previousMonthExpense]
+        )
+        let viewModel = DashboardViewModel(
+            fetchExpensesUseCase: FetchExpensesUseCase(repository: repository),
+            calendar: Calendar(identifier: .gregorian),
+            currentDate: date(year: 2026, month: 7, day: 13)
+        )
+
+        await viewModel.loadDashboardData(currency: .IDR)
+
+        XCTAssertEqual(viewModel.monthlySpending, 150)
+        XCTAssertEqual(viewModel.totalExpense, 150)
+        XCTAssertEqual(viewModel.budgetSpent, 150)
+        XCTAssertNil(viewModel.errorMessage)
+    }
+
+    private func date(year: Int, month: Int, day: Int) -> Date {
+        DateComponents(
+            calendar: Calendar(identifier: .gregorian),
+            year: year,
+            month: month,
+            day: day
+        ).date ?? Date()
+    }
+}
+
+private final class DashboardExpenseRepository: ExpenseRepository {
+    var expenses: [Expense]
+
+    init(expenses: [Expense]) {
+        self.expenses = expenses
+    }
+
+    func createExpense(_ expense: Expense) throws { expenses.append(expense) }
+    func updateExpense(_ expense: Expense) throws { }
+    func deleteExpense(id: UUID) throws { expenses.removeAll { $0.id == id } }
+    func getExpense(id: UUID) throws -> Expense? { expenses.first { $0.id == id } }
+    func getExpenses() throws -> [Expense] { expenses }
+    func getExpensesByMonth(_ month: Date) throws -> [Expense] { expenses }
+
+    func getExpenses(from startDate: Date, to endDate: Date) throws -> [Expense] {
+        expenses.filter { $0.expenseDate >= startDate && $0.expenseDate < endDate }
+    }
 }

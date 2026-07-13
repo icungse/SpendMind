@@ -33,11 +33,23 @@ final class DashboardViewModel {
     private(set) var financialSuggestions: [String] = []
     private(set) var currencyCode: String = "IDR"
     private(set) var isLoading: Bool = false
+    private(set) var errorMessage: String?
 
     private let dateService: any DateServiceProtocol
+    private let fetchExpensesUseCase: FetchExpensesUseCase?
+    private let calendar: Calendar
+    private let currentDate: Date
 
-    init(dateService: any DateServiceProtocol = DateService()) {
+    init(
+        dateService: any DateServiceProtocol = DateService(),
+        fetchExpensesUseCase: FetchExpensesUseCase? = nil,
+        calendar: Calendar = .current,
+        currentDate: Date = .now
+    ) {
         self.dateService = dateService
+        self.fetchExpensesUseCase = fetchExpensesUseCase
+        self.calendar = calendar
+        self.currentDate = currentDate
     }
 
     func loadDashboardData(currency: CurrencyCode) async {
@@ -66,6 +78,8 @@ final class DashboardViewModel {
             budgetLimit = 8000000
             budgetSpent = 3500000
         }
+
+        loadMonthlyExpenseTotal()
 
         let now = Date()
         recentTransactions = [
@@ -106,5 +120,24 @@ final class DashboardViewModel {
         ]
 
         isLoading = false
+    }
+
+    private func loadMonthlyExpenseTotal() {
+        guard let fetchExpensesUseCase else { return }
+        guard let monthInterval = calendar.dateInterval(of: .month, for: currentDate) else {
+            errorMessage = "Invalid dashboard month."
+            return
+        }
+
+        do {
+            let expenses = try fetchExpensesUseCase.execute(from: monthInterval.start, to: monthInterval.end)
+            let total = expenses.reduce(Decimal(0)) { $0 + $1.amount }
+            monthlySpending = total
+            totalExpense = total
+            budgetSpent = total
+            errorMessage = nil
+        } catch {
+            errorMessage = AppError.wrap(error).errorDescription
+        }
     }
 }

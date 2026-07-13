@@ -69,8 +69,10 @@ struct DashboardView: View {
                 }
             }
         }
-        .task {
-            await viewModel.loadDashboardData(currency: settings.currency)
+        .onAppear {
+            Task {
+                await viewModel.loadDashboardData(currency: settings.currency)
+            }
         }
         .onChange(of: settings.currency) { _, newCurrency in
             Task {
@@ -147,7 +149,7 @@ struct DashboardView: View {
                         .frame(height: 32)
 
                     VStack(alignment: .leading, spacing: AppSpacing.xxs) {
-                        Label("Expenses", systemImage: "arrow.up.right.circle.fill")
+                        Label("Total Monthly Expense", systemImage: "arrow.up.right.circle.fill")
                             .appFont(.caption2)
                             .foregroundStyle(AppColor.secondary)
 
