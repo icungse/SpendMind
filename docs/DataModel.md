@@ -384,6 +384,20 @@ Validation:
 - Only one active budget may exist for the same `categoryID` and `period`
 - Dates use the user's local calendar and timezone
 
+Budget progress is calculated from a budget and spent amount.
+
+```swift
+struct BudgetProgress {
+    let budget: Budget
+    let spentAmount: Decimal
+    let remainingAmount: Decimal
+    let progress: Decimal
+    let status: BudgetStatus
+}
+```
+
+`BudgetStatus` is `safe`, `warning`, or `exceeded`. Progress may be greater than `1` when spending exceeds the budget.
+
 ---
 
 # AppSettings
