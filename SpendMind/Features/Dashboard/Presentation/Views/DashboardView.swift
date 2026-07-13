@@ -35,6 +35,8 @@ struct DashboardView: View {
 
                         budgetCard
 
+                        categorySpendingSection
+
                         suggestionsSection
 
                         recentTransactionsSection
@@ -69,8 +71,10 @@ struct DashboardView: View {
                 }
             }
         }
-        .task {
-            await viewModel.loadDashboardData(currency: settings.currency)
+        .onAppear {
+            Task {
+                await viewModel.loadDashboardData(currency: settings.currency)
+            }
         }
         .onChange(of: settings.currency) { _, newCurrency in
             Task {
@@ -147,7 +151,7 @@ struct DashboardView: View {
                         .frame(height: 32)
 
                     VStack(alignment: .leading, spacing: AppSpacing.xxs) {
-                        Label("Expenses", systemImage: "arrow.up.right.circle.fill")
+                        Label("Total Monthly Expense", systemImage: "arrow.up.right.circle.fill")
                             .appFont(.caption2)
                             .foregroundStyle(AppColor.secondary)
 
@@ -203,6 +207,56 @@ struct DashboardView: View {
                             .appFont(.caption2)
                             .foregroundStyle(AppColor.textSecondary)
                     }
+                }
+            }
+        }
+    }
+
+    private var categorySpendingSection: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+            SectionHeader(title: "Category Spending")
+
+            if viewModel.categorySpendings.isEmpty {
+                EmptyState(
+                    title: "No category spending yet",
+                    message: "Add expenses this month to see category totals."
+                )
+            } else {
+                VStack(spacing: AppSpacing.none) {
+                    ForEach(viewModel.categorySpendings) { category in
+                        HStack(spacing: AppSpacing.md) {
+                            Image(systemName: category.icon)
+                                .foregroundStyle(AppColor.textInverse)
+                                .frame(width: 36, height: 36)
+                                .background(Color(hexString: category.colorHex))
+                                .clipShape(Circle())
+
+                            Text(category.name)
+                                .appFont(.bodyBold)
+                                .foregroundStyle(AppColor.textPrimary)
+
+                            Spacer()
+
+                            Text(category.amount.formattedCurrency(code: viewModel.currencyCode))
+                                .appFont(.headline)
+                                .foregroundStyle(AppColor.textPrimary)
+                        }
+                        .padding(.vertical, AppSpacing.sm)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel("\(category.name) spending \(category.amount.formattedCurrency(code: viewModel.currencyCode))")
+
+                        if category != viewModel.categorySpendings.last {
+                            Divider()
+                                .background(AppColor.border)
+                        }
+                    }
+                }
+                .padding(AppSpacing.md)
+                .background(AppColor.surface)
+                .clipShape(RoundedRectangle(cornerRadius: Radius.large))
+                .overlay {
+                    RoundedRectangle(cornerRadius: Radius.large)
+                        .stroke(AppColor.border)
                 }
             }
         }

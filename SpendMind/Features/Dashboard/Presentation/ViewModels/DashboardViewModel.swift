@@ -18,6 +18,14 @@ struct DashboardTransaction: Identifiable, Hashable {
     let date: Date
 }
 
+struct DashboardCategorySpending: Identifiable, Hashable {
+    let id: UUID
+    let name: String
+    let icon: String
+    let colorHex: String
+    let amount: Decimal
+}
+
 @Observable
 @MainActor
 final class DashboardViewModel {
@@ -30,14 +38,27 @@ final class DashboardViewModel {
     private(set) var budgetLimit: Decimal = 0
     private(set) var budgetSpent: Decimal = 0
     private(set) var recentTransactions: [DashboardTransaction] = []
+    private(set) var categorySpendings: [DashboardCategorySpending] = []
     private(set) var financialSuggestions: [String] = []
     private(set) var currencyCode: String = "IDR"
     private(set) var isLoading: Bool = false
+    private(set) var errorMessage: String?
 
     private let dateService: any DateServiceProtocol
+    private let fetchExpensesUseCase: FetchExpensesUseCase?
+    private let calendar: Calendar
+    private let currentDate: Date
 
-    init(dateService: any DateServiceProtocol = DateService()) {
+    init(
+        dateService: any DateServiceProtocol = DateService(),
+        fetchExpensesUseCase: FetchExpensesUseCase? = nil,
+        calendar: Calendar = .current,
+        currentDate: Date = .now
+    ) {
         self.dateService = dateService
+        self.fetchExpensesUseCase = fetchExpensesUseCase
+        self.calendar = calendar
+        self.currentDate = currentDate
     }
 
     func loadDashboardData(currency: CurrencyCode) async {
@@ -66,6 +87,8 @@ final class DashboardViewModel {
             budgetLimit = 8000000
             budgetSpent = 3500000
         }
+
+        loadMonthlyExpenseTotal()
 
         let now = Date()
         recentTransactions = [
@@ -106,5 +129,44 @@ final class DashboardViewModel {
         ]
 
         isLoading = false
+    }
+
+    private func loadMonthlyExpenseTotal() {
+        guard let fetchExpensesUseCase else { return }
+        guard let monthInterval = calendar.dateInterval(of: .month, for: currentDate) else {
+            errorMessage = "Invalid dashboard month."
+            return
+        }
+
+        do {
+            let expenses = try fetchExpensesUseCase.execute(from: monthInterval.start, to: monthInterval.end)
+            let total = expenses.reduce(Decimal(0)) { $0 + $1.amount }
+            monthlySpending = total
+            totalExpense = total
+            budgetSpent = total
+            loadCategorySpendings(from: expenses)
+            errorMessage = nil
+        } catch {
+            errorMessage = AppError.wrap(error).errorDescription
+        }
+    }
+
+    private func loadCategorySpendings(from expenses: [Expense]) {
+        var totals: [UUID: DashboardCategorySpending] = [:]
+
+        // one loaded month is small enough; add a repository aggregate only after this is slow.
+        for expense in expenses {
+            let id = expense.category?.id ?? UUID(uuidString: "00000000-0000-0000-0000-000000000000") ?? UUID()
+            let current = totals[id]?.amount ?? 0
+            totals[id] = DashboardCategorySpending(
+                id: id,
+                name: expense.category?.name ?? "Uncategorized",
+                icon: expense.category?.icon ?? "creditcard.fill",
+                colorHex: expense.category?.colorHex ?? "#576A8F",
+                amount: current + expense.amount
+            )
+        }
+
+        categorySpendings = totals.values.sorted { $0.amount > $1.amount }
     }
 }
