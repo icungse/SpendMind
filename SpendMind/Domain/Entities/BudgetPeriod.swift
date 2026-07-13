@@ -7,8 +7,11 @@
 
 import Foundation
 
-enum BudgetPeriod: String, Codable, Equatable, Sendable {
-    case weekly
+enum BudgetPeriod: String, Codable, CaseIterable, Equatable, Sendable {
     case monthly
-    case yearly
+
+    var localizedTitle: LocalizedStringResource {
+        // v0.3.0 only supports monthly; add cases here when product actually supports them.
+        "budget.period.monthly"
+    }
 }

@@ -375,6 +375,8 @@ struct Budget {
 
 `categoryID == nil` means the budget applies to all expenses. A non-nil `categoryID` means it applies to one category.
 
+`BudgetPeriod` supports only `monthly` in v0.3.0. Future periods such as weekly, quarterly, yearly, or custom ranges can be added as new enum cases without changing `Budget`.
+
 Validation:
 
 - `amount > 0`

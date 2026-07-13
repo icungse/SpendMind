@@ -32,7 +32,7 @@ final class BudgetTests: XCTestCase {
             categoryID: categoryID,
             name: "Food",
             amount: 500,
-            period: .weekly,
+            period: .monthly,
             startDate: .now,
             endDate: .now,
             alertThreshold: 1
@@ -41,6 +41,12 @@ final class BudgetTests: XCTestCase {
         XCTAssertEqual(budget.categoryID, categoryID)
         XCTAssertFalse(budget.isTotalBudget)
         XCTAssertTrue(budget.isCategoryBudget)
+    }
+
+    func testBudgetPeriodSupportsMonthlyOnly() {
+        XCTAssertEqual(BudgetPeriod.allCases, [.monthly])
+        XCTAssertEqual(BudgetPeriod.monthly.rawValue, "monthly")
+        XCTAssertEqual(String(localized: BudgetPeriod.monthly.localizedTitle), "budget.period.monthly")
     }
 
     func testRejectsInvalidAmounts() {
@@ -139,17 +145,18 @@ final class BudgetTests: XCTestCase {
             endDate: .now,
             alertThreshold: 0.8
         )
-        let weekly = try Budget(
+        let inactive = try Budget(
             categoryID: categoryID,
-            name: "Food weekly",
+            name: "Food inactive",
             amount: 100,
-            period: .weekly,
+            period: .monthly,
             startDate: .now,
             endDate: .now,
-            alertThreshold: 0.8
+            alertThreshold: 0.8,
+            isActive: false
         )
 
         XCTAssertTrue(first.conflictsWith(second))
-        XCTAssertFalse(first.conflictsWith(weekly))
+        XCTAssertFalse(first.conflictsWith(inactive))
     }
 }
