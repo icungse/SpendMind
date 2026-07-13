@@ -13,7 +13,7 @@ let project = Project(
             "ENABLE_USER_SCRIPT_SANDBOXING": "YES",
             "IPHONEOS_DEPLOYMENT_TARGET": "18.0",
             "LOCALIZATION_PREFERS_STRING_CATALOGS": "YES",
-            "MARKETING_VERSION": "0.1.0",
+            "MARKETING_VERSION": "0.3.0",
             "MODULE_VERIFIER_SUPPORTED_LANGUAGES": "objective-c objective-c++",
             "MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS": "gnu17 gnu++20",
             "STRING_CATALOG_GENERATE_SYMBOLS": "YES",
