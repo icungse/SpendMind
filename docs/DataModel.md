@@ -73,6 +73,7 @@ Expense
 | ExpenseAttachment | Receipt images |
 | ExpenseTag | Optional labels |
 | AIInsight | Cached AI analysis |
+| Budget | Spending limit for total or category expenses |
 | AppSettings | User preferences |
 
 ---
@@ -349,6 +350,37 @@ Reuse later
 ```
 
 This dramatically improves battery life.
+
+---
+
+# Budget
+
+Core domain model for spending budgets.
+
+```swift
+struct Budget {
+    let id: UUID
+    var categoryID: UUID?
+    var name: String
+    var amount: Decimal
+    var period: BudgetPeriod
+    var startDate: Date
+    var endDate: Date
+    var alertThreshold: Decimal
+    var isActive: Bool
+    let createdAt: Date
+    var updatedAt: Date
+}
+```
+
+`categoryID == nil` means the budget applies to all expenses. A non-nil `categoryID` means it applies to one category.
+
+Validation:
+
+- `amount > 0`
+- `alertThreshold` is between `0` and `1`
+- Only one active budget may exist for the same `categoryID` and `period`
+- Dates use the user's local calendar and timezone
 
 ---
 
