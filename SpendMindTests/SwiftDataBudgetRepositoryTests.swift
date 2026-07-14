@@ -39,8 +39,8 @@ final class SwiftDataBudgetRepositoryTests: XCTestCase {
     func testBudgetsFromDateRangeReturnsOverlappingBudgets() async throws {
         let store = try makeStore()
         let juneBudget = try makeBudget(name: "June", startDate: date(year: 2026, month: 6, day: 1), endDate: date(year: 2026, month: 6, day: 30))
-        let julyBudget = try makeBudget(name: "July", startDate: date(year: 2026, month: 7, day: 1), endDate: date(year: 2026, month: 7, day: 31))
-        let augustBudget = try makeBudget(name: "August", startDate: date(year: 2026, month: 8, day: 1), endDate: date(year: 2026, month: 8, day: 31))
+        let julyBudget = try makeBudget(name: "July", startDate: date(year: 2026, month: 7, day: 1), endDate: date(year: 2026, month: 7, day: 31), isActive: false)
+        let augustBudget = try makeBudget(name: "August", startDate: date(year: 2026, month: 8, day: 1), endDate: date(year: 2026, month: 8, day: 31), isActive: false)
 
         try await store.repository.create(juneBudget)
         try await store.repository.create(julyBudget)
@@ -58,7 +58,7 @@ final class SwiftDataBudgetRepositoryTests: XCTestCase {
         let store = try makeStore()
         let activeJulyBudget = try makeBudget(name: "Active July", startDate: date(year: 2026, month: 7, day: 1), endDate: date(year: 2026, month: 7, day: 31))
         let inactiveJulyBudget = try makeBudget(name: "Inactive July", startDate: date(year: 2026, month: 7, day: 1), endDate: date(year: 2026, month: 7, day: 31), isActive: false)
-        let augustBudget = try makeBudget(name: "August", startDate: date(year: 2026, month: 8, day: 1), endDate: date(year: 2026, month: 8, day: 31))
+        let augustBudget = try makeBudget(name: "August", startDate: date(year: 2026, month: 8, day: 1), endDate: date(year: 2026, month: 8, day: 31), isActive: false)
 
         try await store.repository.create(activeJulyBudget)
         try await store.repository.create(inactiveJulyBudget)
@@ -98,12 +98,68 @@ final class SwiftDataBudgetRepositoryTests: XCTestCase {
         }
     }
 
+    func testCreateRejectsDuplicateActiveBudgetForCategoryAndPeriod() async throws {
+        let store = try makeStore()
+        let category = SpendMind.Category(name: "Food", icon: "fork.knife", colorHex: "#FF7444")
+        store.container.mainContext.insert(category)
+        try store.container.mainContext.save()
+
+        try await store.repository.create(try makeBudget(categoryID: category.id, name: "Food"))
+
+        do {
+            try await store.repository.create(try makeBudget(categoryID: category.id, name: "Food Duplicate"))
+            XCTFail("Expected duplicate active budget to throw.")
+        } catch {
+            XCTAssertEqual(
+                error as? AppError,
+                .validation("An active budget already exists for this category and period.")
+            )
+        }
+    }
+
+    func testUpdateRejectsDuplicateActiveBudgetForCategoryAndPeriod() async throws {
+        let store = try makeStore()
+        let category = SpendMind.Category(name: "Food", icon: "fork.knife", colorHex: "#FF7444")
+        store.container.mainContext.insert(category)
+        try store.container.mainContext.save()
+        let activeBudget = try makeBudget(categoryID: category.id, name: "Food")
+        let inactiveBudget = try makeBudget(categoryID: category.id, name: "Food Inactive", isActive: false)
+
+        try await store.repository.create(activeBudget)
+        try await store.repository.create(inactiveBudget)
+
+        do {
+            try await store.repository.update(try makeBudget(id: inactiveBudget.id, categoryID: category.id, name: "Food Inactive", isActive: true))
+            XCTFail("Expected duplicate active budget to throw.")
+        } catch {
+            XCTAssertEqual(
+                error as? AppError,
+                .validation("An active budget already exists for this category and period.")
+            )
+        }
+    }
+
+    func testInactiveDuplicateBudgetIsAllowed() async throws {
+        let store = try makeStore()
+        let firstBudget = try makeBudget(name: "First")
+        let inactiveDuplicate = try makeBudget(name: "Second", isActive: false)
+
+        try await store.repository.create(firstBudget)
+        try await store.repository.create(inactiveDuplicate)
+
+        let budgets = try await store.repository.budgets(
+            from: date(year: 2026, month: 7, day: 1),
+            to: date(year: 2026, month: 8, day: 1)
+        )
+        XCTAssertEqual(Set(budgets.map(\.name)), ["First", "Second"])
+    }
+
     private func makeStore() throws -> TestStore {
         let container = try SpendMindModelContainer.test()
 
         return TestStore(
             container: container,
-            repository: SwiftDataBudgetRepository(context: container.mainContext)
+            repository: SwiftDataBudgetRepository(modelContainer: container)
         )
     }
 

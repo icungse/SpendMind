@@ -8,19 +8,12 @@
 import Foundation
 import SwiftData
 
-@MainActor
-struct SwiftDataBudgetRepository: BudgetRepository {
-    private let context: ModelContext
-    private let calendar: Calendar
-
-    init(context: ModelContext, calendar: Calendar = .current) {
-        self.context = context
-        self.calendar = calendar
-    }
-
+@ModelActor
+actor SwiftDataBudgetRepository: BudgetRepository {
     func create(_ budget: Budget) async throws {
         let category = try category(id: budget.categoryID)
-        context.insert(PersistentBudget(budget: budget, category: category))
+        try enforceUniqueActiveBudget(budget)
+        modelContext.insert(PersistentBudget(budget: budget, category: category))
         try save("create")
     }
 
@@ -30,6 +23,7 @@ struct SwiftDataBudgetRepository: BudgetRepository {
         }
 
         let category = try category(id: budget.categoryID)
+        try enforceUniqueActiveBudget(budget)
         persistentBudget.category = category
         persistentBudget.name = budget.name
         persistentBudget.amount = budget.amount
@@ -47,7 +41,7 @@ struct SwiftDataBudgetRepository: BudgetRepository {
             throw AppError.persistence("Budget not found.")
         }
 
-        context.delete(budget)
+        modelContext.delete(budget)
         try save("delete")
     }
 
@@ -56,7 +50,7 @@ struct SwiftDataBudgetRepository: BudgetRepository {
     }
 
     func activeBudgets(for date: Date) async throws -> [Budget] {
-        guard let month = calendar.dateInterval(of: .month, for: date) else {
+        guard let month = Calendar.current.dateInterval(of: .month, for: date) else {
             throw AppError.persistence("Invalid budget month.")
         }
 
@@ -84,7 +78,7 @@ struct SwiftDataBudgetRepository: BudgetRepository {
         descriptor.fetchLimit = 1
 
         do {
-            return try context.fetch(descriptor).first
+            return try modelContext.fetch(descriptor).first
         } catch {
             throw AppError.persistence("Failed to fetch budget: \(error.localizedDescription)")
         }
@@ -97,7 +91,7 @@ struct SwiftDataBudgetRepository: BudgetRepository {
         descriptor.fetchLimit = 1
 
         do {
-            guard let category = try context.fetch(descriptor).first else {
+            guard let category = try modelContext.fetch(descriptor).first else {
                 throw AppError.persistence("Category not found.")
             }
 
@@ -109,9 +103,31 @@ struct SwiftDataBudgetRepository: BudgetRepository {
         }
     }
 
+    private func enforceUniqueActiveBudget(_ budget: Budget) throws {
+        guard budget.isActive else { return }
+
+        let descriptor = FetchDescriptor<PersistentBudget>(predicate: #Predicate { $0.isActive })
+
+        do {
+            // active budgets are tiny; fetch active rows and compare in Swift instead of owning fragile predicates.
+            let duplicate = try modelContext.fetch(descriptor).contains {
+                guard let existing = try? $0.domainBudget() else { return false }
+                return existing.conflictsWith(budget)
+            }
+
+            if duplicate {
+                throw AppError.validation("An active budget already exists for this category and period.")
+            }
+        } catch let error as AppError {
+            throw error
+        } catch {
+            throw AppError.persistence("Failed to validate budget uniqueness: \(error.localizedDescription)")
+        }
+    }
+
     private func fetch(_ descriptor: FetchDescriptor<PersistentBudget>, action: String) throws -> [Budget] {
         do {
-            return try context.fetch(descriptor).map { try $0.domainBudget() }
+            return try modelContext.fetch(descriptor).map { try $0.domainBudget() }
         } catch let error as AppError {
             throw error
         } catch {
@@ -121,7 +137,7 @@ struct SwiftDataBudgetRepository: BudgetRepository {
 
     private func save(_ action: String) throws {
         do {
-            try context.save()
+            try modelContext.save()
         } catch {
             throw AppError.persistence("Failed to \(action) budget: \(error.localizedDescription)")
         }

@@ -7,7 +7,6 @@
 
 import Foundation
 
-@MainActor
 protocol BudgetRepository {
     func create(_ budget: Budget) async throws
     func update(_ budget: Budget) async throws
