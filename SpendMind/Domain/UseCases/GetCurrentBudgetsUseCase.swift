@@ -14,15 +14,18 @@ protocol GetCurrentBudgetsUseCase {
 struct DefaultGetCurrentBudgetsUseCase: GetCurrentBudgetsUseCase {
     private let budgetRepository: any BudgetRepository
     private let expenseRepository: any ExpenseRepository
+    private let calculateBudgetProgressUseCase: any CalculateBudgetProgressUseCase
     private let calendar: Calendar
 
     init(
         budgetRepository: any BudgetRepository,
         expenseRepository: any ExpenseRepository,
+        calculateBudgetProgressUseCase: (any CalculateBudgetProgressUseCase)? = nil,
         calendar: Calendar = .current
     ) {
         self.budgetRepository = budgetRepository
         self.expenseRepository = expenseRepository
+        self.calculateBudgetProgressUseCase = calculateBudgetProgressUseCase ?? DefaultCalculateBudgetProgressUseCase(calendar: calendar)
         self.calendar = calendar
     }
 
@@ -34,12 +37,9 @@ struct DefaultGetCurrentBudgetsUseCase: GetCurrentBudgetsUseCase {
         let budgets = try await budgetRepository.activeBudgets(for: referenceDate)
         let expenses = try expenseRepository.getExpenses(from: month.start, to: month.end).filter { !$0.isDeleted }
 
-        return budgets
+        return try budgets
             .map { budget in
-                let spentAmount = expenses
-                    .filter { budget.categoryID == nil || $0.category?.id == budget.categoryID }
-                    .reduce(Decimal.zero) { $0 + $1.amount }
-                return BudgetProgress(budget: budget, spentAmount: spentAmount)
+                try calculateBudgetProgressUseCase.execute(budget: budget, expenses: expenses)
             }
             .sorted { lhs, rhs in
                 if lhs.status != rhs.status {
