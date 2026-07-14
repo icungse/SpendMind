@@ -86,6 +86,23 @@ final class SwiftDataBudgetRepositoryTests: XCTestCase {
         XCTAssertEqual(savedBudget.name, budget.name)
     }
 
+    func testDeleteBudgetDoesNotDeleteExpenses() async throws {
+        let store = try makeStore()
+        let category = SpendMind.Category(name: "Food", icon: "fork.knife", colorHex: "#FF7444")
+        let expense = Expense(amount: 25, note: "Coffee", category: category)
+        store.container.mainContext.insert(category)
+        store.container.mainContext.insert(expense)
+        try store.container.mainContext.save()
+        let budget = try makeBudget(categoryID: category.id)
+
+        try await store.repository.create(budget)
+        try await store.repository.delete(id: budget.id)
+
+        let deletedBudget = try await store.repository.budget(id: budget.id)
+        XCTAssertNil(deletedBudget)
+        XCTAssertNotNil(try store.expense(id: expense.id))
+    }
+
     func testCreateRejectsMissingCategory() async throws {
         let store = try makeStore()
         let budget = try makeBudget(categoryID: UUID())
@@ -193,4 +210,11 @@ final class SwiftDataBudgetRepositoryTests: XCTestCase {
 private struct TestStore {
     let container: ModelContainer
     let repository: SwiftDataBudgetRepository
+
+    @MainActor
+    func expense(id: UUID) throws -> Expense? {
+        var descriptor = FetchDescriptor<Expense>(predicate: #Predicate { $0.id == id })
+        descriptor.fetchLimit = 1
+        return try container.mainContext.fetch(descriptor).first
+    }
 }
