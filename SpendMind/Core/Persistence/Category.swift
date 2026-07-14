@@ -17,6 +17,7 @@ final class Category {
     var isSystem: Bool
     var createdAt: Date
     @Relationship(inverse: \Expense.category) var expenses: [Expense]
+    @Relationship var budgets: [PersistentBudget]
 
     init(
         id: UUID = UUID(),
@@ -25,7 +26,8 @@ final class Category {
         colorHex: String,
         isSystem: Bool = false,
         createdAt: Date = .now,
-        expenses: [Expense] = []
+        expenses: [Expense] = [],
+        budgets: [PersistentBudget] = []
     ) {
         self.id = id
         self.name = name
@@ -34,5 +36,6 @@ final class Category {
         self.isSystem = isSystem
         self.createdAt = createdAt
         self.expenses = expenses
+        self.budgets = budgets
     }
 }
