@@ -43,7 +43,7 @@ final class SwiftDataCategoryRepositoryTests: XCTestCase {
 
     private func makeStore() throws -> TestStore {
         let container = try ModelContainer(
-            for: SpendMind.Category.self, Expense.self,
+            for: SpendMind.Category.self, Expense.self, PersistentBudget.self,
             configurations: ModelConfiguration(isStoredInMemoryOnly: true)
         )
 

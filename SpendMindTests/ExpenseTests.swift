@@ -13,7 +13,7 @@ import XCTest
 final class ExpenseTests: XCTestCase {
     func testExpenseCreateReadUpdateDelete() throws {
         let container = try ModelContainer(
-            for: SpendMind.Category.self, Expense.self,
+            for: SpendMind.Category.self, Expense.self, PersistentBudget.self,
             configurations: ModelConfiguration(isStoredInMemoryOnly: true)
         )
         let repository = SwiftDataRepository<Expense>(context: container.mainContext)

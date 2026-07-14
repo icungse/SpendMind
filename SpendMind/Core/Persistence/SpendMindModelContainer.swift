@@ -26,7 +26,7 @@ enum SpendMindModelContainer {
     }
 
     private static func createContainer(isStoredInMemoryOnly: Bool) throws -> ModelContainer {
-        let schema = Schema([Category.self, Expense.self])
+        let schema = Schema([Category.self, Expense.self, PersistentBudget.self])
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: isStoredInMemoryOnly)
 
         if !isStoredInMemoryOnly {
