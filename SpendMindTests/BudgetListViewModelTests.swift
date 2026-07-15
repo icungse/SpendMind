@@ -100,21 +100,59 @@ final class BudgetListViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.formattedTotalRemaining, Decimal(100).formattedCurrency(code: "USD", locale: locale))
     }
 
+    func testCurrentMonthLabelUsesSelectedDate() {
+        let viewModel = makeViewModel(useCase: BudgetListMockUseCase(results: []), locale: Locale(identifier: "en_US"))
+
+        XCTAssertEqual(viewModel.currentMonthLabel, "July 2026")
+    }
+
+    func testSplitsTotalAndCategoryBudgets() async throws {
+        let categoryID = UUID()
+        let total = BudgetProgress(budget: try budget(amount: 100), spentAmount: 40)
+        let category = BudgetProgress(budget: try budget(categoryID: categoryID, amount: 50), spentAmount: 10)
+        let viewModel = makeViewModel(useCase: BudgetListMockUseCase(results: [[total, category]]))
+
+        await viewModel.load()
+
+        XCTAssertEqual(viewModel.totalBudget, total)
+        XCTAssertEqual(viewModel.categoryBudgets, [category])
+    }
+
+    func testCategoryMetadataUsesRepositoryWhenAvailable() async throws {
+        let category = SpendMind.Category(name: "Very Long Grocery Category", icon: "cart.fill", colorHex: "#00AA55")
+        let progress = BudgetProgress(budget: try budget(categoryID: category.id, amount: 100), spentAmount: 25)
+        let viewModel = makeViewModel(
+            useCase: BudgetListMockUseCase(results: [[progress]]),
+            categoryRepository: BudgetListMockCategoryRepository(categories: [category])
+        )
+
+        await viewModel.load()
+
+        XCTAssertEqual(viewModel.categoryIcon(for: progress), "cart.fill")
+        XCTAssertEqual(viewModel.categoryColorHex(for: progress), "#00AA55")
+        XCTAssertEqual(viewModel.typeLabel(for: progress), "Category Budget")
+        XCTAssertEqual(viewModel.statusLabel(for: progress.status), "Safe")
+        XCTAssertEqual(viewModel.percentageUsed(for: progress), "25%")
+    }
+
     private func makeViewModel(
         useCase: any GetCurrentBudgetsUseCase,
+        categoryRepository: (any CategoryRepository)? = nil,
         currency: CurrencyCode = .IDR,
         locale: Locale = .current
     ) -> BudgetListViewModel {
         BudgetListViewModel(
             getCurrentBudgetsUseCase: useCase,
+            categoryRepository: categoryRepository,
             currency: currency,
             locale: locale,
             currentDate: date(year: 2026, month: 7, day: 15)
         )
     }
 
-    private func budget(amount: Decimal) throws -> Budget {
+    private func budget(categoryID: UUID? = nil, amount: Decimal) throws -> Budget {
         try Budget(
+            categoryID: categoryID,
             name: "Monthly",
             amount: amount,
             period: .monthly,
@@ -176,4 +214,16 @@ private final class BlockingBudgetListMockUseCase: GetCurrentBudgetsUseCase {
     func resume(returning progress: [BudgetProgress]) {
         continuation?.resume(returning: progress)
     }
+}
+
+private final class BudgetListMockCategoryRepository: CategoryRepository {
+    let categories: [SpendMind.Category]
+
+    init(categories: [SpendMind.Category]) {
+        self.categories = categories
+    }
+
+    func getCategories() throws -> [SpendMind.Category] { categories }
+    func getDefaultCategories() throws -> [SpendMind.Category] { categories.filter { $0.isSystem } }
+    func seedDefaultCategoriesIfNeeded() throws { }
 }
