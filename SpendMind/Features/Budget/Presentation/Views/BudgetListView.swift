@@ -9,10 +9,12 @@ import SwiftUI
 
 struct BudgetListView: View {
     @State private var viewModel: BudgetListViewModel
-    @State private var showingCreateBudgetUnavailable = false
+    @State private var showingCreateBudget = false
+    nonisolated(unsafe) private let createBudgetUseCase: any CreateBudgetUseCase
 
-    init(viewModel: BudgetListViewModel) {
+    init(viewModel: BudgetListViewModel, createBudgetUseCase: any CreateBudgetUseCase) {
         self._viewModel = State(initialValue: viewModel)
+        self.createBudgetUseCase = createBudgetUseCase
     }
 
     var body: some View {
@@ -35,17 +37,19 @@ struct BudgetListView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    showingCreateBudgetUnavailable = true
+                    showingCreateBudget = true
                 } label: {
                     Label("Create Budget", systemImage: "plus")
                 }
                 .accessibilityLabel("Create Budget")
             }
         }
-        .alert("Create Budget", isPresented: $showingCreateBudgetUnavailable) {
-            Button("OK", role: .cancel) { }
-        } message: {
-            Text("Budget creation will be added in the next budgeting task.")
+        .sheet(isPresented: $showingCreateBudget) {
+            CreateBudgetView(
+                viewModel: CreateBudgetViewModel(createBudgetUseCase: createBudgetUseCase)
+            ) {
+                Task { await viewModel.load() }
+            }
         }
         .task {
             if case .idle = viewModel.state {
@@ -60,7 +64,7 @@ struct BudgetListView: View {
             message: "Set a monthly spending limit and track your progress throughout the month.",
             actionTitle: "Create Budget"
         ) {
-            showingCreateBudgetUnavailable = true
+            showingCreateBudget = true
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -87,7 +91,7 @@ struct BudgetListView: View {
                 monthlyTotalCard
 
                 if let totalBudget = viewModel.totalBudget {
-                    BudgetProgressCard(progress: totalBudget, viewModel: viewModel, isTotal: true)
+                    BudgetProgressCardView(progress: totalBudget, viewModel: viewModel, isTotal: true)
                 }
 
                 VStack(alignment: .leading, spacing: AppSpacing.sm) {
@@ -96,7 +100,7 @@ struct BudgetListView: View {
                         .foregroundStyle(AppColor.textPrimary)
 
                     ForEach(viewModel.categoryBudgets, id: \.budget.id) { progress in
-                        BudgetProgressCard(progress: progress, viewModel: viewModel, isTotal: false)
+                        BudgetProgressCardView(progress: progress, viewModel: viewModel, isTotal: false)
                     }
                 }
             }
@@ -108,7 +112,7 @@ struct BudgetListView: View {
         }
         .safeAreaInset(edge: .bottom) {
             PrimaryButton(title: "Create Budget") {
-                showingCreateBudgetUnavailable = true
+                showingCreateBudget = true
             }
             .padding(AppSpacing.md)
             .background(AppColor.background.opacity(0.95))
@@ -117,7 +121,7 @@ struct BudgetListView: View {
 
     private var monthlyTotalCard: some View {
         Card {
-            BudgetCardBody(
+            BudgetCardBodyView(
                 title: "Total Monthly Budget",
                 subtitle: "All active budgets",
                 icon: "chart.pie.fill",
@@ -139,123 +143,94 @@ struct BudgetListView: View {
     }
 }
 
-private struct BudgetProgressCard: View {
-    let progress: BudgetProgress
-    let viewModel: BudgetListViewModel
-    let isTotal: Bool
+private struct CreateBudgetView: View {
+    @Environment(\.dismiss) private var dismiss
+    @FocusState private var focusedField: Field?
+    @State private var viewModel: CreateBudgetViewModel
+    let onSaved: () -> Void
 
-    var body: some View {
-        Card {
-            BudgetCardBody(
-                title: progress.budget.name,
-                subtitle: viewModel.typeLabel(for: progress),
-                icon: viewModel.categoryIcon(for: progress),
-                iconColor: isTotal ? AppColor.primary : Color(hexString: viewModel.categoryColorHex(for: progress)),
-                amount: viewModel.formattedAmount(progress.budget.amount),
-                spent: viewModel.formattedAmount(progress.spentAmount),
-                remaining: viewModel.formattedAmount(progress.remainingAmount),
-                progress: progress.progress,
-                status: progress.status,
-                isTotal: isTotal
-            )
-        }
+    private enum Field {
+        case name
+        case amount
     }
-}
 
-private struct BudgetCardBody: View {
-    let title: String
-    let subtitle: String
-    let icon: String
-    let iconColor: Color
-    let amount: String
-    let spent: String
-    let remaining: String
-    let progress: Decimal
-    let status: BudgetStatus
-    let isTotal: Bool
+    init(viewModel: CreateBudgetViewModel, onSaved: @escaping () -> Void = {}) {
+        self._viewModel = State(initialValue: viewModel)
+        self.onSaved = onSaved
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.md) {
-            HStack(alignment: .top, spacing: AppSpacing.md) {
-                Image(systemName: icon)
-                    .foregroundStyle(AppColor.textInverse)
-                    .frame(width: 40, height: 40)
-                    .background(iconColor)
-                    .clipShape(Circle())
-                    .accessibilityHidden(true)
+        @Bindable var viewModel = viewModel
 
-                VStack(alignment: .leading, spacing: AppSpacing.xxs) {
-                    Text(title)
-                        .appFont(.headline)
-                        .foregroundStyle(AppColor.textPrimary)
-                        .lineLimit(2)
-                        .fixedSize(horizontal: false, vertical: true)
+        NavigationStack {
+            Form {
+                Section("Budget") {
+                    TextField("Name", text: $viewModel.name)
+                        .textInputAutocapitalization(.words)
+                        .focused($focusedField, equals: .name)
+                        .accessibilityLabel("Budget Name")
 
-                    Text(subtitle)
-                        .appFont(.caption)
-                        .foregroundStyle(isTotal ? AppColor.primary : AppColor.textSecondary)
+                    TextField("Amount", text: Binding(
+                        get: { viewModel.amountText },
+                        set: { viewModel.updateAmountText($0) }
+                    ))
+                    .keyboardType(.decimalPad)
+                    .focused($focusedField, equals: .amount)
+                    .accessibilityLabel("Budget Amount")
+
+                    DatePicker("Month", selection: $viewModel.month, displayedComponents: .date)
+                        .accessibilityLabel("Budget Month")
                 }
 
-                Spacer(minLength: AppSpacing.sm)
-
-                Text(statusText)
-                    .appFont(.caption)
-                    .foregroundStyle(statusColor)
-                    .padding(.horizontal, AppSpacing.sm)
-                    .padding(.vertical, AppSpacing.xs)
-                    .background(statusColor.opacity(0.12))
-                    .clipShape(Capsule())
+                if let message = viewModel.formMessage {
+                    Text(message)
+                        .appFont(.footnote)
+                        .foregroundStyle(AppColor.error)
+                        .accessibilityLabel("Validation Error: \(message)")
+                }
             }
+            .scrollDismissesKeyboard(.interactively)
+            .scrollContentBackground(.hidden)
+            .background(AppColor.background)
+            .navigationTitle("Create Budget")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                        .accessibilityLabel("Cancel Create Budget")
+                }
 
-            VStack(spacing: AppSpacing.sm) {
-                amountRow(label: "Budget", value: amount)
-                amountRow(label: "Spent", value: spent)
-                amountRow(label: "Remaining", value: remaining)
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        Task { await save() }
+                    }
+                    .disabled(!viewModel.canSave)
+                    .accessibilityLabel("Save Budget")
+                }
+
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") { focusedField = nil }
+                        .accessibilityLabel("Dismiss Keyboard")
+                }
             }
-
-            BudgetProgressIndicator(budgetName: title, progress: progress, status: status)
-        }
-        .padding(isTotal ? AppSpacing.xs : AppSpacing.none)
-        .background(isTotal ? AppColor.surfaceAlt.opacity(0.35) : Color.clear)
-        .clipShape(RoundedRectangle(cornerRadius: Radius.medium))
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(title), \(subtitle), budget \(amount), spent \(spent), remaining \(remaining), \(percentageText) used, status \(statusText)")
-    }
-
-    private var statusText: String {
-        switch status {
-        case .safe: "Safe"
-        case .warning: "Warning"
-        case .exceeded: "Exceeded"
+            .safeAreaInset(edge: .bottom) {
+                PrimaryButton(
+                    title: "Save Budget",
+                    isLoading: viewModel.isSaving,
+                    isDisabled: !viewModel.canSave
+                ) {
+                    Task { await save() }
+                }
+                .padding(AppSpacing.md)
+                .background(AppColor.background)
+            }
         }
     }
 
-    private var statusColor: Color {
-        switch status {
-        case .safe: AppColor.success
-        case .warning: AppColor.warning
-        case .exceeded: AppColor.error
-        }
+    private func save() async {
+        guard await viewModel.save() else { return }
+        onSaved()
+        dismiss()
     }
-
-    private var percentageText: String {
-        let value = max(0, NSDecimalNumber(decimal: progress).doubleValue)
-        return "\(Int((value * 100).rounded()))%"
-    }
-
-    private func amountRow(label: String, value: String) -> some View {
-        HStack(alignment: .firstTextBaseline) {
-            Text(label)
-                .appFont(.caption)
-                .foregroundStyle(AppColor.textSecondary)
-
-            Spacer(minLength: AppSpacing.md)
-
-            Text(value)
-                .appFont(.bodyBold)
-                .foregroundStyle(AppColor.textPrimary)
-                .multilineTextAlignment(.trailing)
-                .minimumScaleFactor(0.8)
-        }
-    }
-}
+} 

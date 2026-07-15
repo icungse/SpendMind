@@ -1,5 +1,5 @@
 //
-//  BudgetProgressIndicator.swift
+//  BudgetProgressIndicatorView.swift
 //  SpendMind
 //
 //  Created by Icung on 15/07/26.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct BudgetProgressIndicator: View {
+struct BudgetProgressIndicatorView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     let budgetName: String
@@ -95,10 +95,10 @@ struct BudgetProgressIndicator: View {
 
 #Preview("Budget Progress States") {
     VStack(spacing: AppSpacing.lg) {
-        BudgetProgressIndicator(budgetName: "Groceries", progress: 0, status: .safe)
-        BudgetProgressIndicator(budgetName: "Food", progress: 0.45, status: .safe)
-        BudgetProgressIndicator(budgetName: "Transport", progress: 0.85, status: .warning)
-        BudgetProgressIndicator(budgetName: "Shopping", progress: 1.25, status: .exceeded)
+        BudgetProgressIndicatorView(budgetName: "Groceries", progress: 0, status: .safe)
+        BudgetProgressIndicatorView(budgetName: "Food", progress: 0.45, status: .safe)
+        BudgetProgressIndicatorView(budgetName: "Transport", progress: 0.85, status: .warning)
+        BudgetProgressIndicatorView(budgetName: "Shopping", progress: 1.25, status: .exceeded)
     }
     .padding(AppSpacing.md)
     .background(AppColor.background)
