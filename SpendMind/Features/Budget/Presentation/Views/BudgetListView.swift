@@ -9,7 +9,7 @@ import SwiftUI
 
 struct BudgetListView: View {
     @State private var viewModel: BudgetListViewModel
-    @State private var showingAddBudgetUnavailable = false
+    @State private var showingCreateBudgetUnavailable = false
 
     init(viewModel: BudgetListViewModel) {
         self._viewModel = State(initialValue: viewModel)
@@ -35,14 +35,14 @@ struct BudgetListView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    showingAddBudgetUnavailable = true
+                    showingCreateBudgetUnavailable = true
                 } label: {
-                    Label("Add Budget", systemImage: "plus")
+                    Label("Create Budget", systemImage: "plus")
                 }
-                .accessibilityLabel("Add Budget")
+                .accessibilityLabel("Create Budget")
             }
         }
-        .alert("Add Budget", isPresented: $showingAddBudgetUnavailable) {
+        .alert("Create Budget", isPresented: $showingCreateBudgetUnavailable) {
             Button("OK", role: .cancel) { }
         } message: {
             Text("Budget creation will be added in the next budgeting task.")
@@ -56,11 +56,11 @@ struct BudgetListView: View {
 
     private var emptyState: some View {
         EmptyState(
-            title: "No budgets yet",
-            message: "Create a monthly or category budget to track spending.",
-            actionTitle: "Add Budget"
+            title: "Create your first budget",
+            message: "Set a monthly spending limit and track your progress throughout the month.",
+            actionTitle: "Create Budget"
         ) {
-            showingAddBudgetUnavailable = true
+            showingCreateBudgetUnavailable = true
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -107,8 +107,8 @@ struct BudgetListView: View {
             await viewModel.refresh()
         }
         .safeAreaInset(edge: .bottom) {
-            PrimaryButton(title: "Add Budget") {
-                showingAddBudgetUnavailable = true
+            PrimaryButton(title: "Create Budget") {
+                showingCreateBudgetUnavailable = true
             }
             .padding(AppSpacing.md)
             .background(AppColor.background.opacity(0.95))
