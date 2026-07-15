@@ -126,28 +126,16 @@ struct BudgetListView: View {
                 spent: viewModel.formattedTotalSpent,
                 remaining: viewModel.formattedTotalRemaining,
                 progress: viewModel.totalProgress,
-                percentage: percentage(viewModel.totalProgress),
-                status: totalStatusLabel,
-                statusColor: totalStatusColor,
+                status: totalStatus,
                 isTotal: true
             )
         }
     }
 
-    private var totalStatusLabel: String {
-        if viewModel.totalSpentAmount > viewModel.totalLimitAmount { return "Exceeded" }
-        if viewModel.totalProgress >= 0.8 { return "Warning" }
-        return "Safe"
-    }
-
-    private var totalStatusColor: Color {
-        if viewModel.totalSpentAmount > viewModel.totalLimitAmount { return AppColor.error }
-        if viewModel.totalProgress >= 0.8 { return AppColor.warning }
-        return AppColor.success
-    }
-
-    private func percentage(_ progress: Decimal) -> String {
-        "\(Int(NSDecimalNumber(decimal: progress * 100).doubleValue.rounded()))%"
+    private var totalStatus: BudgetStatus {
+        if viewModel.totalSpentAmount > viewModel.totalLimitAmount { return .exceeded }
+        if viewModel.totalProgress >= 0.8 { return .warning }
+        return .safe
     }
 }
 
@@ -167,19 +155,9 @@ private struct BudgetProgressCard: View {
                 spent: viewModel.formattedAmount(progress.spentAmount),
                 remaining: viewModel.formattedAmount(progress.remainingAmount),
                 progress: progress.progress,
-                percentage: viewModel.percentageUsed(for: progress),
-                status: viewModel.statusLabel(for: progress.status),
-                statusColor: statusColor,
+                status: progress.status,
                 isTotal: isTotal
             )
-        }
-    }
-
-    private var statusColor: Color {
-        switch progress.status {
-        case .safe: AppColor.success
-        case .warning: AppColor.warning
-        case .exceeded: AppColor.error
         }
     }
 }
@@ -193,9 +171,7 @@ private struct BudgetCardBody: View {
     let spent: String
     let remaining: String
     let progress: Decimal
-    let percentage: String
-    let status: String
-    let statusColor: Color
+    let status: BudgetStatus
     let isTotal: Bool
 
     var body: some View {
@@ -222,7 +198,7 @@ private struct BudgetCardBody: View {
 
                 Spacer(minLength: AppSpacing.sm)
 
-                Text(status)
+                Text(statusText)
                     .appFont(.caption)
                     .foregroundStyle(statusColor)
                     .padding(.horizontal, AppSpacing.sm)
@@ -237,32 +213,34 @@ private struct BudgetCardBody: View {
                 amountRow(label: "Remaining", value: remaining)
             }
 
-            ProgressView(value: min(max(progressValue, 0), 1))
-                .tint(statusColor)
-                .accessibilityLabel("Budget progress")
-                .accessibilityValue("\(percentage) used")
-
-            HStack {
-                Text("\(percentage) used")
-                    .appFont(.caption)
-                    .foregroundStyle(statusColor)
-
-                Spacer()
-
-                Text(status)
-                    .appFont(.caption)
-                    .foregroundStyle(AppColor.textSecondary)
-            }
+            BudgetProgressIndicator(budgetName: title, progress: progress, status: status)
         }
         .padding(isTotal ? AppSpacing.xs : AppSpacing.none)
         .background(isTotal ? AppColor.surfaceAlt.opacity(0.35) : Color.clear)
         .clipShape(RoundedRectangle(cornerRadius: Radius.medium))
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(title), \(subtitle), budget \(amount), spent \(spent), remaining \(remaining), \(percentage) used, status \(status)")
+        .accessibilityLabel("\(title), \(subtitle), budget \(amount), spent \(spent), remaining \(remaining), \(percentageText) used, status \(statusText)")
     }
 
-    private var progressValue: Double {
-        NSDecimalNumber(decimal: progress).doubleValue
+    private var statusText: String {
+        switch status {
+        case .safe: "Safe"
+        case .warning: "Warning"
+        case .exceeded: "Exceeded"
+        }
+    }
+
+    private var statusColor: Color {
+        switch status {
+        case .safe: AppColor.success
+        case .warning: AppColor.warning
+        case .exceeded: AppColor.error
+        }
+    }
+
+    private var percentageText: String {
+        let value = max(0, NSDecimalNumber(decimal: progress).doubleValue)
+        return "\(Int((value * 100).rounded()))%"
     }
 
     private func amountRow(label: String, value: String) -> some View {
