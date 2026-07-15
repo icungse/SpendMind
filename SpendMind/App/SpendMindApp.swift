@@ -124,6 +124,22 @@ private struct ContentView: View {
                 ),
                 currency: settings.currency
             )
+        case .budgets:
+            let expenseRepository = SwiftDataExpenseRepository(context: dependencies.modelContainer.mainContext)
+            let budgetRepository = SwiftDataBudgetRepository(modelContainer: dependencies.modelContainer)
+            let categoryRepository = SwiftDataCategoryRepository(context: dependencies.modelContainer.mainContext)
+
+            BudgetListView(
+                viewModel: BudgetListViewModel(
+                    getCurrentBudgetsUseCase: DefaultGetCurrentBudgetsUseCase(
+                        budgetRepository: budgetRepository,
+                        expenseRepository: expenseRepository
+                    ),
+                    categoryRepository: categoryRepository,
+                    currency: settings.currency
+                ),
+                createBudgetUseCase: DefaultCreateBudgetUseCase(repository: budgetRepository)
+            )
         }
     }
 

@@ -170,10 +170,19 @@ struct DashboardView: View {
     private var budgetCard: some View {
         Card {
             VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                SectionHeader(
-                    title: "Monthly Budget Progress",
-                    subtitle: "Limit: \(viewModel.budgetLimit.formattedCurrency(code: viewModel.currencyCode))"
-                )
+                HStack(alignment: .top) {
+                    SectionHeader(
+                        title: "Monthly Budget Progress",
+                        subtitle: "Limit: \(viewModel.budgetLimit.formattedCurrency(code: viewModel.currencyCode))"
+                    )
+
+                    Spacer()
+
+                    NavigationLink("Manage", value: AppRoute.budgets)
+                        .appFont(.caption)
+                        .foregroundStyle(AppColor.primary)
+                        .accessibilityLabel("Manage Budgets")
+                }
 
                 let progress = CGFloat(
                     viewModel.budgetLimit > 0
