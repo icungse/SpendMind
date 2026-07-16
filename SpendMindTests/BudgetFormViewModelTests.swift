@@ -32,14 +32,21 @@ final class BudgetFormViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.categoryError, "Category is required.")
     }
 
-    func testAlertThresholdMustBeBetweenZeroAndOne() {
+    func testAlertThresholdMustBeAProvidedOption() {
         let viewModel = makeViewModel()
 
         viewModel.amountText = "100"
-        viewModel.alertThresholdText = "1.5"
+        viewModel.alertThresholdPercent = 60
 
         XCTAssertFalse(viewModel.canSave)
-        XCTAssertEqual(viewModel.alertThresholdError, "Alert threshold must be between 0 and 1.")
+        XCTAssertEqual(viewModel.alertThresholdError, "Alert threshold must be valid.")
+    }
+
+    func testAlertThresholdDefaultsToEightyPercent() {
+        let viewModel = makeViewModel()
+
+        XCTAssertEqual(viewModel.alertThresholdPercent, 80)
+        XCTAssertEqual(viewModel.alertThresholdOptions, [50, 75, 80, 90])
     }
 
     func testSavesCategoryBudget() async {
@@ -52,7 +59,7 @@ final class BudgetFormViewModelTests: XCTestCase {
         viewModel.budgetType = .category
         viewModel.selectedCategoryID = category.id
         viewModel.amountText = "250"
-        viewModel.alertThresholdText = "0.7"
+        viewModel.alertThresholdPercent = 75
 
         XCTAssertTrue(viewModel.canSave)
         let didSave = await viewModel.save()
@@ -60,7 +67,7 @@ final class BudgetFormViewModelTests: XCTestCase {
         XCTAssertEqual(repository.createdBudgets.first?.name, "Food")
         XCTAssertEqual(repository.createdBudgets.first?.categoryID, category.id)
         XCTAssertEqual(repository.createdBudgets.first?.amount, 250)
-        XCTAssertEqual(repository.createdBudgets.first?.alertThreshold, 0.7)
+        XCTAssertEqual(repository.createdBudgets.first?.alertThreshold, 0.75)
     }
 
     func testDecimalInputUsesLocale() async {
@@ -86,15 +93,16 @@ final class BudgetFormViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.name, "Monthly")
         XCTAssertEqual(viewModel.budgetType, .category)
         XCTAssertEqual(viewModel.selectedCategoryID, category.id)
+        XCTAssertEqual(viewModel.alertThresholdPercent, 80)
 
         viewModel.amountText = "150"
-        viewModel.alertThresholdText = "0.6"
+        viewModel.alertThresholdPercent = 90
 
         let didSave = await viewModel.save()
         XCTAssertTrue(didSave)
         XCTAssertEqual(repository.updatedBudgets.first?.id, existingBudget.id)
         XCTAssertEqual(repository.updatedBudgets.first?.amount, 150)
-        XCTAssertEqual(repository.updatedBudgets.first?.alertThreshold, 0.6)
+        XCTAssertEqual(repository.updatedBudgets.first?.alertThreshold, 0.9)
     }
 
     func testDuplicateActiveBudgetShowsSaveError() async throws {

@@ -30,7 +30,7 @@ final class BudgetFormViewModel {
     var selectedCategoryID: UUID?
     var amountText = ""
     var month = Date()
-    var alertThresholdText = "0.8"
+    var alertThresholdPercent = 80
     private(set) var categories: [Category] = []
     private(set) var errorMessage: String?
     private(set) var isSaving = false
@@ -41,6 +41,7 @@ final class BudgetFormViewModel {
     private let budgetID: UUID?
     private let isActive: Bool
     private let locale: Locale
+    let alertThresholdOptions = [50, 75, 80, 90]
 
     init(
         createBudgetUseCase: any CreateBudgetUseCase,
@@ -62,7 +63,7 @@ final class BudgetFormViewModel {
             selectedCategoryID = budget.categoryID
             amountText = Self.formattedDecimal(budget.amount, locale: locale)
             month = budget.startDate
-            alertThresholdText = Self.formattedDecimal(budget.alertThreshold, locale: locale)
+            alertThresholdPercent = Self.percent(from: budget.alertThreshold)
         }
     }
 
@@ -94,20 +95,15 @@ final class BudgetFormViewModel {
     }
 
     var alertThresholdError: String? {
-        guard !alertThresholdText.trimmed.isEmpty else { return "Alert threshold is required." }
-        guard let alertThreshold else { return "Alert threshold must be a valid number." }
-        guard alertThreshold >= 0, alertThreshold <= 1 else {
-            return "Alert threshold must be between 0 and 1."
-        }
-        return nil
+        alertThresholdOptions.contains(alertThresholdPercent) ? nil : "Alert threshold must be valid."
     }
 
     func updateAmountText(_ value: String) {
         amountText = sanitizedDecimalText(value)
     }
 
-    func updateAlertThresholdText(_ value: String) {
-        alertThresholdText = sanitizedDecimalText(value)
+    func alertThresholdLabel(_ percent: Int) -> String {
+        "Alert at \(percent)%"
     }
 
     func loadCategories() {
@@ -173,7 +169,7 @@ final class BudgetFormViewModel {
     }
 
     private var alertThreshold: Decimal? {
-        decimal(from: alertThresholdText)
+        Decimal(alertThresholdPercent) / 100
     }
 
     private var firstValidationMessage: String? {
@@ -226,5 +222,10 @@ final class BudgetFormViewModel {
         formatter.maximumFractionDigits = 6
 
         return formatter.string(from: value as NSDecimalNumber) ?? NSDecimalNumber(decimal: value).stringValue
+    }
+
+    private static func percent(from threshold: Decimal) -> Int {
+        let percent = NSDecimalNumber(decimal: threshold * 100).intValue
+        return [50, 75, 80, 90].contains(percent) ? percent : 80
     }
 }

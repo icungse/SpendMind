@@ -10,6 +10,7 @@ import SwiftUI
 struct BudgetListView: View {
     @State private var viewModel: BudgetListViewModel
     @State private var showingCreateBudget = false
+    @State private var editingBudget: Budget?
     nonisolated(unsafe) private let createBudgetUseCase: any CreateBudgetUseCase
     nonisolated(unsafe) private let updateBudgetUseCase: any UpdateBudgetUseCase
     private let categoryRepository: any CategoryRepository
@@ -64,6 +65,23 @@ struct BudgetListView: View {
                 Task { await viewModel.load() }
             }
         }
+        .sheet(isPresented: Binding(
+            get: { editingBudget != nil },
+            set: { if !$0 { editingBudget = nil } }
+        )) {
+            if let editingBudget {
+                BudgetFormView(
+                    viewModel: BudgetFormViewModel(
+                        createBudgetUseCase: createBudgetUseCase,
+                        updateBudgetUseCase: updateBudgetUseCase,
+                        categoryRepository: categoryRepository,
+                        budget: editingBudget
+                    )
+                ) {
+                    Task { await viewModel.load() }
+                }
+            }
+        }
         .task {
             if case .idle = viewModel.state {
                 await viewModel.load()
@@ -104,7 +122,13 @@ struct BudgetListView: View {
                 monthlyTotalCard
 
                 if let totalBudget = viewModel.totalBudget {
-                    BudgetProgressCardView(progress: totalBudget, viewModel: viewModel, isTotal: true)
+                    Button {
+                        editingBudget = totalBudget.budget
+                    } label: {
+                        BudgetProgressCardView(progress: totalBudget, viewModel: viewModel, isTotal: true)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Edit \(totalBudget.budget.name)")
                 }
 
                 VStack(alignment: .leading, spacing: AppSpacing.sm) {
@@ -113,7 +137,13 @@ struct BudgetListView: View {
                         .foregroundStyle(AppColor.textPrimary)
 
                     ForEach(viewModel.categoryBudgets, id: \.budget.id) { progress in
-                        BudgetProgressCardView(progress: progress, viewModel: viewModel, isTotal: false)
+                        Button {
+                            editingBudget = progress.budget
+                        } label: {
+                            BudgetProgressCardView(progress: progress, viewModel: viewModel, isTotal: false)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Edit \(progress.budget.name)")
                     }
                 }
             }
@@ -178,19 +208,21 @@ private struct BudgetFormView: View {
 
         NavigationStack {
             Form {
-                Section("Budget") {
+                Section("Budget Type") {
+                    Picker("Type", selection: $viewModel.budgetType) {
+                        Text("Total spending").tag(BudgetFormViewModel.BudgetType.total)
+                        Text("Specific category").tag(BudgetFormViewModel.BudgetType.category)
+                    }
+                    .pickerStyle(.inline)
+                    .accessibilityLabel("Budget Type")
+                }
+
+                Section("Budget Details") {
                     TextField("Name", text: $viewModel.name)
                         .textInputAutocapitalization(.words)
                         .focused($focusedField, equals: .name)
                         .accessibilityLabel("Budget Name")
                     validationText(viewModel.nameError)
-
-                    Picker("Type", selection: $viewModel.budgetType) {
-                        ForEach(BudgetFormViewModel.BudgetType.allCases) { type in
-                            Text(type.title).tag(type)
-                        }
-                    }
-                    .accessibilityLabel("Budget Type")
 
                     if viewModel.budgetType == .category {
                         Picker("Category", selection: $viewModel.selectedCategoryID) {
@@ -214,13 +246,15 @@ private struct BudgetFormView: View {
 
                     DatePicker("Month", selection: $viewModel.month, displayedComponents: .date)
                         .accessibilityLabel("Budget Month")
+                }
 
-                    TextField("Alert Threshold", text: Binding(
-                        get: { viewModel.alertThresholdText },
-                        set: { viewModel.updateAlertThresholdText($0) }
-                    ))
-                    .keyboardType(.decimalPad)
-                    .focused($focusedField, equals: .alertThreshold)
+                Section("Alert Settings") {
+                    Picker("Alert threshold", selection: $viewModel.alertThresholdPercent) {
+                        ForEach(viewModel.alertThresholdOptions, id: \.self) { percent in
+                            Text(viewModel.alertThresholdLabel(percent)).tag(percent)
+                        }
+                    }
+                    .pickerStyle(.inline)
                     .accessibilityLabel("Budget Alert Threshold")
                     validationText(viewModel.alertThresholdError)
                 }
