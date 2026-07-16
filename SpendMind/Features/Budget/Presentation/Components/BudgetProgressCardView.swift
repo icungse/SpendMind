@@ -24,6 +24,7 @@ struct BudgetProgressCardView: View {
                 remaining: viewModel.formattedAmount(progress.remainingAmount),
                 progress: progress.progress,
                 status: progress.status,
+                warningMessage: viewModel.warningMessage(for: progress),
                 isTotal: isTotal
             )
         }

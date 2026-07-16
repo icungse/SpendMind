@@ -122,9 +122,40 @@ final class AddExpenseViewModelTests: XCTestCase {
         }
 
         XCTAssertTrue(viewModel.isBudgetImpactWarning)
+        XCTAssertEqual(viewModel.budgetImpactStatus, .exceeded)
         XCTAssertTrue(viewModel.budgetImpactMessage?.contains("exceed your Food budget") == true)
         XCTAssertTrue(viewModel.canSave)
         XCTAssertTrue(viewModel.save())
+    }
+
+    func testBudgetImpactWarningStateIsDistinctFromExceeded() async throws {
+        let expenseRepository = ViewModelExpenseRepository()
+        let category = SpendMind.Category(name: "Food", icon: "fork.knife", colorHex: "#5B7FFF")
+        let budget = try Budget(
+            categoryID: category.id,
+            name: "Food",
+            amount: 100,
+            period: .monthly,
+            startDate: Date(timeIntervalSince1970: 0),
+            endDate: Date(timeIntervalSince1970: 86_400),
+            alertThreshold: 0.8
+        )
+        let viewModel = makeViewModel(
+            expenseRepository: expenseRepository,
+            categories: [category],
+            previewBudgetImpactUseCase: ViewModelBudgetImpactUseCase(progress: BudgetProgress(budget: budget, spentAmount: 80))
+        )
+
+        viewModel.title = "Lunch"
+        viewModel.loadCategories()
+        viewModel.updateAmountText("80")
+        for _ in 0..<10 where viewModel.budgetImpactStatus != .warning {
+            await Task.yield()
+        }
+
+        XCTAssertEqual(viewModel.budgetImpactStatus, .warning)
+        XCTAssertTrue(viewModel.budgetImpactMessage?.contains("near its limit") == true)
+        XCTAssertTrue(viewModel.canSave)
     }
 
     private func makeViewModel(

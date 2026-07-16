@@ -24,7 +24,7 @@ final class AddExpenseViewModel {
     private(set) var errorMessage: String?
     private(set) var isSaving = false
     private(set) var budgetImpactMessage: String?
-    private(set) var isBudgetImpactWarning = false
+    private(set) var budgetImpactStatus: BudgetStatus?
 
     let currency: CurrencyCode
     let isEditing: Bool
@@ -65,6 +65,10 @@ final class AddExpenseViewModel {
 
     var formMessage: String? {
         errorMessage ?? (hasInput ? validationMessage : nil)
+    }
+
+    var isBudgetImpactWarning: Bool {
+        budgetImpactStatus == .warning || budgetImpactStatus == .exceeded
     }
 
     func loadCategories() {
@@ -160,7 +164,7 @@ final class AddExpenseViewModel {
 
         guard let previewBudgetImpactUseCase, let requestedAmount, let requestedCategoryID else {
             budgetImpactMessage = nil
-            isBudgetImpactWarning = false
+            budgetImpactStatus = nil
             return
         }
 
@@ -177,23 +181,32 @@ final class AddExpenseViewModel {
         } catch {
             guard requestedAmount == amount, requestedCategoryID == selectedCategoryID, requestedDate == date else { return }
             budgetImpactMessage = nil
-            isBudgetImpactWarning = false
+            budgetImpactStatus = nil
         }
     }
 
     private func applyBudgetImpact(_ progress: BudgetProgress?) {
         guard let progress else {
             budgetImpactMessage = nil
-            isBudgetImpactWarning = false
+            budgetImpactStatus = nil
             return
         }
 
-        if progress.remainingAmount < 0 {
-            isBudgetImpactWarning = true
-            budgetImpactMessage = "This expense will exceed your \(progress.budget.name) budget by \((-progress.remainingAmount).formattedCurrency(code: currency.rawValue))."
-        } else {
-            isBudgetImpactWarning = false
-            budgetImpactMessage = "\(progress.budget.name) budget remaining: \(progress.remainingAmount.formattedCurrency(code: currency.rawValue))"
+        budgetImpactStatus = progress.status
+
+        switch progress.status {
+        case .safe:
+            budgetImpactMessage = String(
+                localized: "\(progress.budget.name) budget remaining: \(progress.remainingAmount.formattedCurrency(code: currency.rawValue))"
+            )
+        case .warning:
+            budgetImpactMessage = String(
+                localized: "This expense brings \(progress.budget.name) near its limit. \(progress.remainingAmount.formattedCurrency(code: currency.rawValue)) remains."
+            )
+        case .exceeded:
+            budgetImpactMessage = String(
+                localized: "This expense will exceed your \(progress.budget.name) budget by \((-progress.remainingAmount).formattedCurrency(code: currency.rawValue))."
+            )
         }
     }
 

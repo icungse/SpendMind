@@ -217,6 +217,10 @@ struct DashboardView: View {
                             .foregroundStyle(AppColor.textSecondary)
                     }
                 }
+
+                if let budgetWarningMessage = viewModel.budgetWarningMessage {
+                    BudgetWarningBanner(status: viewModel.budgetStatus, message: budgetWarningMessage)
+                }
             }
         }
     }

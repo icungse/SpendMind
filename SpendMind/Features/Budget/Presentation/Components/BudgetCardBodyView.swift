@@ -17,6 +17,7 @@ struct BudgetCardBodyView: View {
     let remaining: String
     let progress: Decimal
     let status: BudgetStatus
+    let warningMessage: String?
     let isTotal: Bool
 
     var body: some View {
@@ -59,6 +60,10 @@ struct BudgetCardBodyView: View {
             }
 
             BudgetProgressIndicatorView(budgetName: title, progress: progress, status: status)
+
+            if let warningMessage, status != .safe {
+                BudgetWarningBanner(status: status, message: warningMessage)
+            }
         }
         .padding(isTotal ? AppSpacing.xs : AppSpacing.none)
         .background(isTotal ? AppColor.surfaceAlt.opacity(0.35) : Color.clear)

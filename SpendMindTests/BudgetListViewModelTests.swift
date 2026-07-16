@@ -179,6 +179,19 @@ final class BudgetListViewModelTests: XCTestCase {
         XCTAssertTrue(viewModel.shouldRefreshForExpenseChange(userInfo))
     }
 
+    func testWarningMessageExplainsWarningAndExceededStates() throws {
+        let locale = Locale(identifier: "en_US")
+        let viewModel = makeViewModel(useCase: BudgetListMockUseCase(results: []), currency: .USD, locale: locale)
+        let warning = BudgetProgress(budget: try budget(amount: 100), spentAmount: 80)
+        let exceeded = BudgetProgress(budget: try budget(amount: 100), spentAmount: 125)
+
+        XCTAssertEqual(
+            viewModel.warningMessage(for: warning),
+            "You've used $80.00 of Monthly. $20.00 remains."
+        )
+        XCTAssertEqual(viewModel.warningMessage(for: exceeded), "Monthly is exceeded by $25.00.")
+    }
+
     private func makeViewModel(
         useCase: any GetCurrentBudgetsUseCase,
         categoryRepository: (any CategoryRepository)? = nil,

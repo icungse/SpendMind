@@ -168,6 +168,28 @@ final class BudgetListViewModel {
         return "\(Int(percent))%"
     }
 
+    func warningMessage(for progress: BudgetProgress) -> String? {
+        warningMessage(
+            status: progress.status,
+            name: progress.budget.name,
+            spent: progress.spentAmount,
+            remaining: progress.remainingAmount
+        )
+    }
+
+    func warningMessage(status: BudgetStatus, name: String, spent: Decimal, remaining: Decimal) -> String? {
+        switch status {
+        case .safe:
+            return nil
+        case .warning:
+            return String(
+                localized: "You've used \(formattedAmount(spent)) of \(name). \(formattedAmount(remaining)) remains."
+            )
+        case .exceeded:
+            return String(localized: "\(name) is exceeded by \(formattedAmount(-remaining)).")
+        }
+    }
+
     private var currentBudgets: [BudgetProgress] {
         if case .loaded(let budgets) = state {
             return budgets

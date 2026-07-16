@@ -97,6 +97,25 @@ final class DashboardViewModelTests: XCTestCase {
         XCTAssertNil(viewModel.errorMessage)
     }
 
+    func testDashboardBudgetWarningAndExceededCopy() async {
+        let warningRepository = DashboardExpenseRepository(expenses: [Expense(amount: 1_300)])
+        let warningViewModel = DashboardViewModel(fetchExpensesUseCase: FetchExpensesUseCase(repository: warningRepository))
+
+        await warningViewModel.loadDashboardData(currency: .USD)
+
+        XCTAssertEqual(warningViewModel.budgetStatus, .warning)
+        XCTAssertTrue(warningViewModel.budgetWarningMessage?.contains("Monthly budget is near its limit.") == true)
+        XCTAssertTrue(warningViewModel.budgetWarningMessage?.contains("remains.") == true)
+
+        let exceededRepository = DashboardExpenseRepository(expenses: [Expense(amount: 1_700)])
+        let exceededViewModel = DashboardViewModel(fetchExpensesUseCase: FetchExpensesUseCase(repository: exceededRepository))
+
+        await exceededViewModel.loadDashboardData(currency: .USD)
+
+        XCTAssertEqual(exceededViewModel.budgetStatus, .exceeded)
+        XCTAssertTrue(exceededViewModel.budgetWarningMessage?.contains("Monthly budget is exceeded by") == true)
+    }
+
     private func date(year: Int, month: Int, day: Int) -> Date {
         DateComponents(
             calendar: Calendar(identifier: .gregorian),
