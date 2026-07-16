@@ -162,6 +162,29 @@ final class BudgetFormViewModelTests: XCTestCase {
         XCTAssertTrue(viewModel.canSave)
     }
 
+    func testDeletesEditingBudgetWhenConfirmed() async throws {
+        let existingBudget = try budget(categoryID: nil, amount: 100, alertThreshold: 0.8)
+        let repository = BudgetFormMockRepository(budgets: [existingBudget])
+        let viewModel = makeViewModel(repository: repository, budget: existingBudget)
+
+        let didDelete = await viewModel.delete(isConfirmed: true)
+
+        XCTAssertTrue(didDelete)
+        XCTAssertEqual(repository.deletedBudgetIDs, [existingBudget.id])
+    }
+
+    func testDeleteRequiresConfirmation() async throws {
+        let existingBudget = try budget(categoryID: nil, amount: 100, alertThreshold: 0.8)
+        let repository = BudgetFormMockRepository(budgets: [existingBudget])
+        let viewModel = makeViewModel(repository: repository, budget: existingBudget)
+
+        let didDelete = await viewModel.delete(isConfirmed: false)
+
+        XCTAssertFalse(didDelete)
+        XCTAssertTrue(repository.deletedBudgetIDs.isEmpty)
+        XCTAssertEqual(viewModel.formMessage, "Confirm delete before continuing.")
+    }
+
     private func makeViewModel(
         repository: BudgetFormMockRepository = BudgetFormMockRepository(),
         categories: [SpendMind.Category] = [],
@@ -171,6 +194,7 @@ final class BudgetFormViewModelTests: XCTestCase {
         BudgetFormViewModel(
             createBudgetUseCase: DefaultCreateBudgetUseCase(repository: repository, calendar: calendar),
             updateBudgetUseCase: DefaultUpdateBudgetUseCase(repository: repository, calendar: calendar),
+            deleteBudgetUseCase: DefaultDeleteBudgetUseCase(repository: repository),
             budgetRepository: repository,
             categoryRepository: BudgetFormCategoryRepository(categories: categories),
             budget: budget,
@@ -207,6 +231,7 @@ private final class BudgetFormMockRepository: BudgetRepository {
     private let activeBudgetResults: [Budget]
     private(set) var createdBudgets: [Budget] = []
     private(set) var updatedBudgets: [Budget] = []
+    private(set) var deletedBudgetIDs: [UUID] = []
 
     init(budgets: [Budget] = [], activeBudgets: [Budget] = []) {
         self.budgetsByID = Dictionary(uniqueKeysWithValues: budgets.map { ($0.id, $0) })
@@ -223,7 +248,10 @@ private final class BudgetFormMockRepository: BudgetRepository {
         budgetsByID[budget.id] = budget
     }
 
-    func delete(id: UUID) async throws { }
+    func delete(id: UUID) async throws {
+        deletedBudgetIDs.append(id)
+        budgetsByID[id] = nil
+    }
 
     func budget(id: UUID) async throws -> Budget? {
         budgetsByID[id]

@@ -13,6 +13,7 @@ struct BudgetListView: View {
     @State private var editingBudget: Budget?
     nonisolated(unsafe) private let createBudgetUseCase: any CreateBudgetUseCase
     nonisolated(unsafe) private let updateBudgetUseCase: any UpdateBudgetUseCase
+    nonisolated(unsafe) private let deleteBudgetUseCase: any DeleteBudgetUseCase
     nonisolated(unsafe) private let budgetRepository: any BudgetRepository
     private let categoryRepository: any CategoryRepository
 
@@ -20,12 +21,14 @@ struct BudgetListView: View {
         viewModel: BudgetListViewModel,
         createBudgetUseCase: any CreateBudgetUseCase,
         updateBudgetUseCase: any UpdateBudgetUseCase,
+        deleteBudgetUseCase: any DeleteBudgetUseCase,
         budgetRepository: any BudgetRepository,
         categoryRepository: any CategoryRepository
     ) {
         self._viewModel = State(initialValue: viewModel)
         self.createBudgetUseCase = createBudgetUseCase
         self.updateBudgetUseCase = updateBudgetUseCase
+        self.deleteBudgetUseCase = deleteBudgetUseCase
         self.budgetRepository = budgetRepository
         self.categoryRepository = categoryRepository
     }
@@ -62,6 +65,7 @@ struct BudgetListView: View {
                 viewModel: BudgetFormViewModel(
                     createBudgetUseCase: createBudgetUseCase,
                     updateBudgetUseCase: updateBudgetUseCase,
+                    deleteBudgetUseCase: deleteBudgetUseCase,
                     budgetRepository: budgetRepository,
                     categoryRepository: categoryRepository
                 )
@@ -78,6 +82,7 @@ struct BudgetListView: View {
                     viewModel: BudgetFormViewModel(
                         createBudgetUseCase: createBudgetUseCase,
                         updateBudgetUseCase: updateBudgetUseCase,
+                        deleteBudgetUseCase: deleteBudgetUseCase,
                         budgetRepository: budgetRepository,
                         categoryRepository: categoryRepository,
                         budget: editingBudget
@@ -195,6 +200,7 @@ private struct BudgetFormView: View {
     @Environment(\.dismiss) private var dismiss
     @FocusState private var focusedField: Field?
     @State private var viewModel: BudgetFormViewModel
+    @State private var showingDeleteConfirmation = false
     let onSaved: () -> Void
 
     private enum Field {
@@ -275,6 +281,15 @@ private struct BudgetFormView: View {
                     validationText(viewModel.alertThresholdError)
                 }
 
+                if viewModel.isEditing {
+                    Section {
+                        Button("Delete Budget", role: .destructive) {
+                            showingDeleteConfirmation = true
+                        }
+                        .accessibilityLabel("Delete Budget")
+                    }
+                }
+
                 if let message = viewModel.formMessage {
                     Text(message)
                         .appFont(.footnote)
@@ -324,6 +339,19 @@ private struct BudgetFormView: View {
             .onChange(of: viewModel.month) { _, _ in
                 Task { await viewModel.loadCategories() }
             }
+            .confirmationDialog(
+                "Delete this budget?",
+                isPresented: $showingDeleteConfirmation,
+                titleVisibility: .visible
+            ) {
+                Button("Delete", role: .destructive) {
+                    Task { await deleteBudget() }
+                }
+
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text("Your expenses will not be deleted.")
+            }
         }
     }
 
@@ -339,6 +367,12 @@ private struct BudgetFormView: View {
 
     private func save() async {
         guard await viewModel.save() else { return }
+        onSaved()
+        dismiss()
+    }
+
+    private func deleteBudget() async {
+        guard await viewModel.delete(isConfirmed: true) else { return }
         onSaved()
         dismiss()
     }

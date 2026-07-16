@@ -140,6 +140,7 @@ private struct ContentView: View {
                 ),
                 createBudgetUseCase: DefaultCreateBudgetUseCase(repository: budgetRepository),
                 updateBudgetUseCase: DefaultUpdateBudgetUseCase(repository: budgetRepository),
+                deleteBudgetUseCase: DefaultDeleteBudgetUseCase(repository: budgetRepository),
                 budgetRepository: budgetRepository,
                 categoryRepository: categoryRepository
             )

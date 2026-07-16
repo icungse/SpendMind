@@ -38,6 +38,7 @@ final class BudgetFormViewModel {
 
     nonisolated(unsafe) private let createBudgetUseCase: any CreateBudgetUseCase
     nonisolated(unsafe) private let updateBudgetUseCase: any UpdateBudgetUseCase
+    nonisolated(unsafe) private let deleteBudgetUseCase: any DeleteBudgetUseCase
     nonisolated(unsafe) private let budgetRepository: any BudgetRepository
     private let categoryRepository: (any CategoryRepository)?
     private let budgetID: UUID?
@@ -50,6 +51,7 @@ final class BudgetFormViewModel {
     init(
         createBudgetUseCase: any CreateBudgetUseCase,
         updateBudgetUseCase: any UpdateBudgetUseCase,
+        deleteBudgetUseCase: any DeleteBudgetUseCase,
         budgetRepository: any BudgetRepository,
         categoryRepository: (any CategoryRepository)? = nil,
         budget: Budget? = nil,
@@ -58,6 +60,7 @@ final class BudgetFormViewModel {
     ) {
         self.createBudgetUseCase = createBudgetUseCase
         self.updateBudgetUseCase = updateBudgetUseCase
+        self.deleteBudgetUseCase = deleteBudgetUseCase
         self.budgetRepository = budgetRepository
         self.categoryRepository = categoryRepository
         self.budgetID = budget?.id
@@ -195,6 +198,25 @@ final class BudgetFormViewModel {
                 )
             }
 
+            errorMessage = nil
+            return true
+        } catch {
+            errorMessage = AppError.wrap(error).errorDescription
+            return false
+        }
+    }
+
+    func delete(isConfirmed: Bool) async -> Bool {
+        guard let budgetID else {
+            errorMessage = "Budget not found."
+            return false
+        }
+
+        isSaving = true
+        defer { isSaving = false }
+
+        do {
+            try await deleteBudgetUseCase.execute(id: budgetID, isConfirmed: isConfirmed)
             errorMessage = nil
             return true
         } catch {
