@@ -13,12 +13,18 @@ import Observation
 final class AddExpenseViewModel {
     var title = ""
     var amountText = ""
-    var selectedCategoryID: UUID?
-    var date = Date()
+    var selectedCategoryID: UUID? {
+        didSet { refreshBudgetImpact() }
+    }
+    var date = Date() {
+        didSet { refreshBudgetImpact() }
+    }
     var note = ""
     private(set) var categories: [Category] = []
     private(set) var errorMessage: String?
     private(set) var isSaving = false
+    private(set) var budgetImpactMessage: String?
+    private(set) var isBudgetImpactWarning = false
 
     let currency: CurrencyCode
     let isEditing: Bool
@@ -26,17 +32,20 @@ final class AddExpenseViewModel {
     private let addExpenseUseCase: AddExpenseUseCase
     private let updateExpenseUseCase: UpdateExpenseUseCase?
     private let categoryRepository: any CategoryRepository
+    private let previewBudgetImpactUseCase: (any PreviewBudgetImpactUseCase)?
 
     init(
         addExpenseUseCase: AddExpenseUseCase,
         categoryRepository: any CategoryRepository,
         currency: CurrencyCode = .IDR,
         expense: Expense? = nil,
-        updateExpenseUseCase: UpdateExpenseUseCase? = nil
+        updateExpenseUseCase: UpdateExpenseUseCase? = nil,
+        previewBudgetImpactUseCase: (any PreviewBudgetImpactUseCase)? = nil
     ) {
         self.addExpenseUseCase = addExpenseUseCase
         self.updateExpenseUseCase = updateExpenseUseCase
         self.categoryRepository = categoryRepository
+        self.previewBudgetImpactUseCase = previewBudgetImpactUseCase
         self.currency = currency
         self.expenseID = expense?.id
         self.isEditing = expense != nil
@@ -109,6 +118,7 @@ final class AddExpenseViewModel {
 
     func updateAmountText(_ value: String) {
         amountText = sanitizedAmountText(from: value)
+        refreshBudgetImpact()
     }
 
     func formatAmount() {
@@ -137,6 +147,54 @@ final class AddExpenseViewModel {
 
     private var category: Category? {
         categories.first { $0.id == selectedCategoryID }
+    }
+
+    private func refreshBudgetImpact() {
+        Task { await loadBudgetImpact() }
+    }
+
+    private func loadBudgetImpact() async {
+        let requestedAmount = amount
+        let requestedCategoryID = selectedCategoryID
+        let requestedDate = date
+
+        guard let previewBudgetImpactUseCase, let requestedAmount, let requestedCategoryID else {
+            budgetImpactMessage = nil
+            isBudgetImpactWarning = false
+            return
+        }
+
+        do {
+            let progress = try await previewBudgetImpactUseCase.execute(
+                amount: requestedAmount,
+                categoryID: requestedCategoryID,
+                date: requestedDate,
+                editingExpenseID: expenseID
+            )
+
+            guard requestedAmount == amount, requestedCategoryID == selectedCategoryID, requestedDate == date else { return }
+            applyBudgetImpact(progress)
+        } catch {
+            guard requestedAmount == amount, requestedCategoryID == selectedCategoryID, requestedDate == date else { return }
+            budgetImpactMessage = nil
+            isBudgetImpactWarning = false
+        }
+    }
+
+    private func applyBudgetImpact(_ progress: BudgetProgress?) {
+        guard let progress else {
+            budgetImpactMessage = nil
+            isBudgetImpactWarning = false
+            return
+        }
+
+        if progress.remainingAmount < 0 {
+            isBudgetImpactWarning = true
+            budgetImpactMessage = "This expense will exceed your \(progress.budget.name) budget by \((-progress.remainingAmount).formattedCurrency(code: currency.rawValue))."
+        } else {
+            isBudgetImpactWarning = false
+            budgetImpactMessage = "\(progress.budget.name) budget remaining: \(progress.remainingAmount.formattedCurrency(code: currency.rawValue))"
+        }
     }
 
     private var validationMessage: String? {
