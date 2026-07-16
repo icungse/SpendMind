@@ -44,10 +44,14 @@ struct AddExpenseView: View {
                         .accessibilityLabel("Expense Amount in \(viewModel.currency.rawValue)")
 
                     if let budgetImpactMessage = viewModel.budgetImpactMessage {
-                        Text(budgetImpactMessage)
-                            .appFont(.footnote)
-                            .foregroundStyle(viewModel.isBudgetImpactWarning ? AppColor.warning : AppColor.textSecondary)
-                            .accessibilityLabel("Budget Impact: \(budgetImpactMessage)")
+                        if let status = viewModel.budgetImpactStatus, status != .safe {
+                            BudgetWarningBanner(status: status, message: budgetImpactMessage)
+                        } else {
+                            Text(LocalizedStringKey(budgetImpactMessage))
+                                .appFont(.footnote)
+                                .foregroundStyle(AppColor.textSecondary)
+                                .accessibilityLabel("Budget Impact: \(budgetImpactMessage)")
+                        }
                     }
                 }
 

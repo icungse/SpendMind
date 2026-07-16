@@ -10,7 +10,7 @@ import SwiftUI
 struct BudgetListView: View {
     @State private var viewModel: BudgetListViewModel
     @State private var showingCreateBudget = false
-    @State private var editingBudget: Budget?
+    @State private var editingProgress: BudgetProgress?
     nonisolated(unsafe) private let createBudgetUseCase: any CreateBudgetUseCase
     nonisolated(unsafe) private let updateBudgetUseCase: any UpdateBudgetUseCase
     nonisolated(unsafe) private let deleteBudgetUseCase: any DeleteBudgetUseCase
@@ -74,10 +74,10 @@ struct BudgetListView: View {
             }
         }
         .sheet(isPresented: Binding(
-            get: { editingBudget != nil },
-            set: { if !$0 { editingBudget = nil } }
+            get: { editingProgress != nil },
+            set: { if !$0 { editingProgress = nil } }
         )) {
-            if let editingBudget {
+            if let editingProgress {
                 BudgetFormView(
                     viewModel: BudgetFormViewModel(
                         createBudgetUseCase: createBudgetUseCase,
@@ -85,8 +85,10 @@ struct BudgetListView: View {
                         deleteBudgetUseCase: deleteBudgetUseCase,
                         budgetRepository: budgetRepository,
                         categoryRepository: categoryRepository,
-                        budget: editingBudget
-                    )
+                        budget: editingProgress.budget
+                    ),
+                    warningStatus: editingProgress.status,
+                    warningMessage: viewModel.warningMessage(for: editingProgress)
                 ) {
                     Task { await viewModel.load() }
                 }
@@ -137,7 +139,7 @@ struct BudgetListView: View {
 
                 if let totalBudget = viewModel.totalBudget {
                     Button {
-                        editingBudget = totalBudget.budget
+                        editingProgress = totalBudget
                     } label: {
                         BudgetProgressCardView(progress: totalBudget, viewModel: viewModel, isTotal: true)
                     }
@@ -152,7 +154,7 @@ struct BudgetListView: View {
 
                     ForEach(viewModel.categoryBudgets, id: \.budget.id) { progress in
                         Button {
-                            editingBudget = progress.budget
+                            editingProgress = progress
                         } label: {
                             BudgetProgressCardView(progress: progress, viewModel: viewModel, isTotal: false)
                         }
@@ -188,6 +190,12 @@ struct BudgetListView: View {
                 remaining: viewModel.formattedTotalRemaining,
                 progress: viewModel.totalProgress,
                 status: totalStatus,
+                warningMessage: viewModel.warningMessage(
+                    status: totalStatus,
+                    name: "Total Monthly Budget",
+                    spent: viewModel.totalSpentAmount,
+                    remaining: viewModel.totalRemainingAmount
+                ),
                 isTotal: true
             )
         }
@@ -205,6 +213,8 @@ private struct BudgetFormView: View {
     @FocusState private var focusedField: Field?
     @State private var viewModel: BudgetFormViewModel
     @State private var showingDeleteConfirmation = false
+    let warningStatus: BudgetStatus?
+    let warningMessage: String?
     let onSaved: () -> Void
 
     private enum Field {
@@ -213,8 +223,15 @@ private struct BudgetFormView: View {
         case alertThreshold
     }
 
-    init(viewModel: BudgetFormViewModel, onSaved: @escaping () -> Void = {}) {
+    init(
+        viewModel: BudgetFormViewModel,
+        warningStatus: BudgetStatus? = nil,
+        warningMessage: String? = nil,
+        onSaved: @escaping () -> Void = {}
+    ) {
         self._viewModel = State(initialValue: viewModel)
+        self.warningStatus = warningStatus
+        self.warningMessage = warningMessage
         self.onSaved = onSaved
     }
 
@@ -223,6 +240,12 @@ private struct BudgetFormView: View {
 
         NavigationStack {
             Form {
+                if let warningStatus, let warningMessage, warningStatus != .safe {
+                    Section {
+                        BudgetWarningBanner(status: warningStatus, message: warningMessage)
+                    }
+                }
+
                 Section("Budget Type") {
                     Picker("Type", selection: $viewModel.budgetType) {
                         Text("Total spending").tag(BudgetFormViewModel.BudgetType.total)

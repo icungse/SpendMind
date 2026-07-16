@@ -30,6 +30,9 @@ final class BudgetListViewModel {
     private let locale: Locale
     private let currentDate: Date
     private let calendar: Calendar
+    private let budgetAlertStateRepository: (any BudgetAlertStateRepository)?
+    private let budgetNotificationService: (any BudgetNotificationServiceProtocol)?
+    private let budgetNotificationsEnabled: Bool
     private var categoriesByID: [UUID: Category] = [:]
 
     init(
@@ -38,7 +41,10 @@ final class BudgetListViewModel {
         currency: CurrencyCode,
         locale: Locale = .current,
         currentDate: Date = .now,
-        calendar: Calendar = .current
+        calendar: Calendar = .current,
+        budgetAlertStateRepository: (any BudgetAlertStateRepository)? = nil,
+        budgetNotificationService: (any BudgetNotificationServiceProtocol)? = nil,
+        budgetNotificationsEnabled: Bool = false
     ) {
         self.getCurrentBudgetsUseCase = getCurrentBudgetsUseCase
         self.categoryRepository = categoryRepository
@@ -46,6 +52,9 @@ final class BudgetListViewModel {
         self.locale = locale
         self.currentDate = currentDate
         self.calendar = calendar
+        self.budgetAlertStateRepository = budgetAlertStateRepository
+        self.budgetNotificationService = budgetNotificationService
+        self.budgetNotificationsEnabled = budgetNotificationsEnabled
     }
 
     func load() async {
@@ -55,6 +64,7 @@ final class BudgetListViewModel {
             loadCategories()
             let budgets = try await getCurrentBudgetsUseCase.execute(referenceDate: currentDate)
             state = budgets.isEmpty ? .empty : .loaded(budgets)
+            await updateBudgetAlertStates(for: budgets)
         } catch {
             state = .failed(AppError.wrap(error))
         }
@@ -168,6 +178,28 @@ final class BudgetListViewModel {
         return "\(Int(percent))%"
     }
 
+    func warningMessage(for progress: BudgetProgress) -> String? {
+        warningMessage(
+            status: progress.status,
+            name: progress.budget.name,
+            spent: progress.spentAmount,
+            remaining: progress.remainingAmount
+        )
+    }
+
+    func warningMessage(status: BudgetStatus, name: String, spent: Decimal, remaining: Decimal) -> String? {
+        switch status {
+        case .safe:
+            return nil
+        case .warning:
+            return String(
+                localized: "You've used \(formattedAmount(spent)) of \(name). \(formattedAmount(remaining)) remains."
+            )
+        case .exceeded:
+            return String(localized: "\(name) is exceeded by \(formattedAmount(-remaining)).")
+        }
+    }
+
     private var currentBudgets: [BudgetProgress] {
         if case .loaded(let budgets) = state {
             return budgets
@@ -182,5 +214,25 @@ final class BudgetListViewModel {
         // category metadata is cosmetic; fallback icons beat failing the whole budget list.
         let categories = (try? categoryRepository.getCategories()) ?? []
         categoriesByID = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0) })
+    }
+
+    private func updateBudgetAlertStates(for budgets: [BudgetProgress]) async {
+        guard let budgetAlertStateRepository else { return }
+
+        let evaluator = BudgetAlertEvaluator()
+
+        for progress in budgets {
+            do {
+                let previousState = try await budgetAlertStateRepository.state(for: progress.budget.id)
+                let evaluation = evaluator.evaluate(progress: progress, previousState: previousState)
+                try await budgetAlertStateRepository.save(evaluation.state)
+
+                if budgetNotificationsEnabled, let event = evaluation.event {
+                    await budgetNotificationService?.notify(event: event)
+                }
+            } catch {
+                AppLogger.error("Failed to update budget alert state: \(error.localizedDescription)")
+            }
+        }
     }
 }

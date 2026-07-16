@@ -29,6 +29,7 @@ struct AppSettings: Equatable {
     var isBiometricEnabled: Bool
     var isAIEnabled: Bool
     var defaultCategoryId: UUID?
+    var isBudgetNotificationsEnabled: Bool
     var isFirstLaunchCompleted: Bool
 
     static var `default`: AppSettings {
@@ -39,6 +40,7 @@ struct AppSettings: Equatable {
             isBiometricEnabled: false,
             isAIEnabled: true,
             defaultCategoryId: nil,
+            isBudgetNotificationsEnabled: false,
             isFirstLaunchCompleted: false
         )
     }

@@ -74,6 +74,7 @@ Expense
 | ExpenseTag | Optional labels |
 | AIInsight | Cached AI analysis |
 | Budget | Spending limit for total or category expenses |
+| BudgetAlertState | Last local alert status for a budget |
 | AppSettings | User preferences |
 
 ---
@@ -400,6 +401,17 @@ struct BudgetProgress {
 ```
 
 `BudgetStatus` is `safe`, `warning`, or `exceeded`. Progress may be greater than `1` when spending exceeds the budget.
+
+Budget alert eligibility is stored locally so expense edits do not create duplicate alerts.
+
+```swift
+struct BudgetAlertState {
+    let budgetID: UUID
+    var status: BudgetStatus
+}
+```
+
+`BudgetAlertState` stores the last evaluated status for each budget. Dropping back to `safe` resets eligibility for a future threshold or exceeded alert.
 
 ---
 

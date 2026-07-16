@@ -131,6 +131,28 @@ final class DashboardViewModel {
         isLoading = false
     }
 
+    var budgetStatus: BudgetStatus {
+        guard budgetLimit > 0 else { return .safe }
+        if budgetSpent > budgetLimit { return .exceeded }
+        if budgetSpent / budgetLimit >= 0.8 { return .warning }
+        return .safe
+    }
+
+    var budgetWarningMessage: String? {
+        let remaining = budgetLimit - budgetSpent
+
+        switch budgetStatus {
+        case .safe:
+            return nil
+        case .warning:
+            return String(
+                localized: "Monthly budget is near its limit. \(remaining.formattedCurrency(code: currencyCode)) remains."
+            )
+        case .exceeded:
+            return String(localized: "Monthly budget is exceeded by \((-remaining).formattedCurrency(code: currencyCode)).")
+        }
+    }
+
     private func loadMonthlyExpenseTotal() {
         guard let fetchExpensesUseCase else { return }
         guard let monthInterval = calendar.dateInterval(of: .month, for: currentDate) else {

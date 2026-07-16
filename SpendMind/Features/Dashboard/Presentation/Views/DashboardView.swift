@@ -9,6 +9,7 @@ import SwiftData
 import SwiftUI
 
 struct DashboardView: View {
+    @Environment(\.dependencies) private var dependencies
     @Environment(\.modelContext) private var modelContext
     @Binding var settings: AppSettings
     @State private var viewModel: DashboardViewModel
@@ -58,6 +59,13 @@ struct DashboardView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
+                    Button(action: toggleBudgetNotifications) {
+                        Label(
+                            "Budget Notifications",
+                            systemImage: settings.isBudgetNotificationsEnabled ? "checkmark" : ""
+                        )
+                    }
+
                     Button(action: { settings.currency = .USD }) {
                         Label("USD ($)", systemImage: settings.currency == .USD ? "checkmark" : "")
                     }
@@ -83,6 +91,15 @@ struct DashboardView: View {
         }
         .sheet(isPresented: $showingQuickAdd) {
             quickAddSheet
+        }
+    }
+
+    private func toggleBudgetNotifications() {
+        let requestedValue = !settings.isBudgetNotificationsEnabled
+
+        Task {
+            let enabled = await dependencies.budgetNotificationService.setEnabled(requestedValue)
+            settings.isBudgetNotificationsEnabled = enabled
         }
     }
 
@@ -216,6 +233,10 @@ struct DashboardView: View {
                             .appFont(.caption2)
                             .foregroundStyle(AppColor.textSecondary)
                     }
+                }
+
+                if let budgetWarningMessage = viewModel.budgetWarningMessage {
+                    BudgetWarningBanner(status: viewModel.budgetStatus, message: budgetWarningMessage)
                 }
             }
         }

@@ -179,11 +179,65 @@ final class BudgetListViewModelTests: XCTestCase {
         XCTAssertTrue(viewModel.shouldRefreshForExpenseChange(userInfo))
     }
 
+    func testWarningMessageExplainsWarningAndExceededStates() throws {
+        let locale = Locale(identifier: "en_US")
+        let viewModel = makeViewModel(useCase: BudgetListMockUseCase(results: []), currency: .USD, locale: locale)
+        let warning = BudgetProgress(budget: try budget(amount: 100), spentAmount: 80)
+        let exceeded = BudgetProgress(budget: try budget(amount: 100), spentAmount: 125)
+
+        XCTAssertEqual(
+            viewModel.warningMessage(for: warning),
+            "You've used $80.00 of Monthly. $20.00 remains."
+        )
+        XCTAssertEqual(viewModel.warningMessage(for: exceeded), "Monthly is exceeded by $25.00.")
+    }
+
+    func testLoadRecordsAlertStateAndNotifiesWhenEnabled() async throws {
+        let progress = BudgetProgress(budget: try budget(amount: 100), spentAmount: 80)
+        let alertRepository = BudgetListMockAlertStateRepository()
+        let notificationService = BudgetListMockNotificationService()
+        let viewModel = makeViewModel(
+            useCase: BudgetListMockUseCase(results: [[progress]]),
+            budgetAlertStateRepository: alertRepository,
+            budgetNotificationService: notificationService,
+            budgetNotificationsEnabled: true
+        )
+
+        await viewModel.load()
+
+        let state = await alertRepository.state(for: progress.budget.id)
+        let events = await notificationService.sentEvents()
+        XCTAssertEqual(state?.status, .warning)
+        XCTAssertEqual(events, [.thresholdReached])
+    }
+
+    func testLoadRecordsAlertStateWithoutNotifyingWhenDisabled() async throws {
+        let progress = BudgetProgress(budget: try budget(amount: 100), spentAmount: 125)
+        let alertRepository = BudgetListMockAlertStateRepository()
+        let notificationService = BudgetListMockNotificationService()
+        let viewModel = makeViewModel(
+            useCase: BudgetListMockUseCase(results: [[progress]]),
+            budgetAlertStateRepository: alertRepository,
+            budgetNotificationService: notificationService,
+            budgetNotificationsEnabled: false
+        )
+
+        await viewModel.load()
+
+        let state = await alertRepository.state(for: progress.budget.id)
+        let events = await notificationService.sentEvents()
+        XCTAssertEqual(state?.status, .exceeded)
+        XCTAssertEqual(events, [])
+    }
+
     private func makeViewModel(
         useCase: any GetCurrentBudgetsUseCase,
         categoryRepository: (any CategoryRepository)? = nil,
         currency: CurrencyCode = .IDR,
-        locale: Locale = .current
+        locale: Locale = .current,
+        budgetAlertStateRepository: (any BudgetAlertStateRepository)? = nil,
+        budgetNotificationService: (any BudgetNotificationServiceProtocol)? = nil,
+        budgetNotificationsEnabled: Bool = false
     ) -> BudgetListViewModel {
         BudgetListViewModel(
             getCurrentBudgetsUseCase: useCase,
@@ -191,7 +245,10 @@ final class BudgetListViewModelTests: XCTestCase {
             currency: currency,
             locale: locale,
             currentDate: date(year: 2026, month: 7, day: 15),
-            calendar: calendar
+            calendar: calendar,
+            budgetAlertStateRepository: budgetAlertStateRepository,
+            budgetNotificationService: budgetNotificationService,
+            budgetNotificationsEnabled: budgetNotificationsEnabled
         )
     }
 
@@ -271,4 +328,36 @@ private final class BudgetListMockCategoryRepository: CategoryRepository {
     func getCategories() throws -> [SpendMind.Category] { categories }
     func getDefaultCategories() throws -> [SpendMind.Category] { categories.filter { $0.isSystem } }
     func seedDefaultCategoriesIfNeeded() throws { }
+}
+
+private actor BudgetListMockAlertStateRepository: BudgetAlertStateRepository {
+    private var states: [UUID: BudgetAlertState] = [:]
+
+    func state(for budgetID: UUID) -> BudgetAlertState? {
+        states[budgetID]
+    }
+
+    func save(_ state: BudgetAlertState) {
+        states[state.budgetID] = state
+    }
+
+    func delete(budgetID: UUID) {
+        states[budgetID] = nil
+    }
+}
+
+private actor BudgetListMockNotificationService: BudgetNotificationServiceProtocol {
+    private var events: [BudgetAlertEvent] = []
+
+    func setEnabled(_ enabled: Bool) -> Bool {
+        enabled
+    }
+
+    func notify(event: BudgetAlertEvent) {
+        events.append(event)
+    }
+
+    func sentEvents() -> [BudgetAlertEvent] {
+        events
+    }
 }

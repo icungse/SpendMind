@@ -18,6 +18,7 @@ final class SpendMindTests: XCTestCase {
     func testDependenciesCanBeMocked() {
         struct MockDependencies: AppDependencyProviding {
             let settingsManager: any AppSettingsManagerProtocol = AppSettingsManager(userDefaults: UserDefaults())
+            let budgetNotificationService: any BudgetNotificationServiceProtocol = BudgetNotificationService()
             let dateService: any DateServiceProtocol = DateService()
             let modelContainer: ModelContainer = SpendMindModelContainer.preview
         }
@@ -104,6 +105,7 @@ final class SpendMindTests: XCTestCase {
             isBiometricEnabled: true,
             isAIEnabled: false,
             defaultCategoryId: categoryId,
+            isBudgetNotificationsEnabled: true,
             isFirstLaunchCompleted: true
         )
 

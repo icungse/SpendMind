@@ -31,7 +31,12 @@ enum AppConstants {
         static let isBiometricEnabled = "settings.isBiometricEnabled"
         static let isAIEnabled = "settings.isAIEnabled"
         static let defaultCategoryId = "settings.defaultCategoryId"
+        static let isBudgetNotificationsEnabled = "settings.isBudgetNotificationsEnabled"
         static let isFirstLaunchCompleted = "settings.isFirstLaunchCompleted"
+    }
+
+    enum NotificationIdentifier {
+        static let budgetAlertPrefix = "budget-alert"
     }
 
     enum Layout {
