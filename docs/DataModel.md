@@ -166,6 +166,8 @@ final class Category {
 
     var isSystem: Bool
 
+    var isArchived: Bool
+
     var createdAt: Date
 
     @Relationship(inverse: \Expense.category)
@@ -184,6 +186,7 @@ final class Category {
 | icon | SF Symbol |
 | colorHex | String |
 | isSystem | Bool |
+| isArchived | Bool |
 | createdAt | Date |
 
 ---

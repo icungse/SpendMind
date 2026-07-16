@@ -13,17 +13,20 @@ struct BudgetListView: View {
     @State private var editingBudget: Budget?
     nonisolated(unsafe) private let createBudgetUseCase: any CreateBudgetUseCase
     nonisolated(unsafe) private let updateBudgetUseCase: any UpdateBudgetUseCase
+    nonisolated(unsafe) private let budgetRepository: any BudgetRepository
     private let categoryRepository: any CategoryRepository
 
     init(
         viewModel: BudgetListViewModel,
         createBudgetUseCase: any CreateBudgetUseCase,
         updateBudgetUseCase: any UpdateBudgetUseCase,
+        budgetRepository: any BudgetRepository,
         categoryRepository: any CategoryRepository
     ) {
         self._viewModel = State(initialValue: viewModel)
         self.createBudgetUseCase = createBudgetUseCase
         self.updateBudgetUseCase = updateBudgetUseCase
+        self.budgetRepository = budgetRepository
         self.categoryRepository = categoryRepository
     }
 
@@ -59,6 +62,7 @@ struct BudgetListView: View {
                 viewModel: BudgetFormViewModel(
                     createBudgetUseCase: createBudgetUseCase,
                     updateBudgetUseCase: updateBudgetUseCase,
+                    budgetRepository: budgetRepository,
                     categoryRepository: categoryRepository
                 )
             ) {
@@ -74,6 +78,7 @@ struct BudgetListView: View {
                     viewModel: BudgetFormViewModel(
                         createBudgetUseCase: createBudgetUseCase,
                         updateBudgetUseCase: updateBudgetUseCase,
+                        budgetRepository: budgetRepository,
                         categoryRepository: categoryRepository,
                         budget: editingBudget
                     )
@@ -228,7 +233,14 @@ private struct BudgetFormView: View {
                         Picker("Category", selection: $viewModel.selectedCategoryID) {
                             Text("Select Category").tag(UUID?.none)
                             ForEach(viewModel.categories, id: \.id) { category in
-                                Text(category.name).tag(Optional(category.id))
+                                CategoryPickerRow(
+                                    category: category,
+                                    isSelected: viewModel.selectedCategoryID == category.id,
+                                    subtitle: viewModel.categorySubtitle(for: category),
+                                    isDisabled: viewModel.isCategoryDisabled(category.id)
+                                )
+                                .tag(Optional(category.id))
+                                .disabled(viewModel.isCategoryDisabled(category.id))
                             }
                         }
                         .accessibilityLabel("Budget Category")
@@ -303,7 +315,10 @@ private struct BudgetFormView: View {
                 .background(AppColor.background)
             }
             .onAppear {
-                viewModel.loadCategories()
+                Task { await viewModel.loadCategories() }
+            }
+            .onChange(of: viewModel.month) { _, _ in
+                Task { await viewModel.loadCategories() }
             }
         }
     }

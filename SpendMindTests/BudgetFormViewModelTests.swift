@@ -54,7 +54,7 @@ final class BudgetFormViewModelTests: XCTestCase {
         let category = SpendMind.Category(name: "Food", icon: "fork.knife", colorHex: "#5B7FFF")
         let viewModel = makeViewModel(repository: repository, categories: [category])
 
-        viewModel.loadCategories()
+        await viewModel.loadCategories()
         viewModel.name = "Food"
         viewModel.budgetType = .category
         viewModel.selectedCategoryID = category.id
@@ -87,7 +87,7 @@ final class BudgetFormViewModelTests: XCTestCase {
         let repository = BudgetFormMockRepository(budgets: [existingBudget])
         let viewModel = makeViewModel(repository: repository, categories: [category], budget: existingBudget)
 
-        viewModel.loadCategories()
+        await viewModel.loadCategories()
 
         XCTAssertTrue(viewModel.isEditing)
         XCTAssertEqual(viewModel.name, "Monthly")
@@ -117,6 +117,51 @@ final class BudgetFormViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.formMessage, "An active budget already exists for this category and period.")
     }
 
+    func testLoadCategoriesHidesArchivedCategoriesUnlessSelected() async throws {
+        let active = SpendMind.Category(name: "Food", icon: "fork.knife", colorHex: "#5B7FFF")
+        let archived = SpendMind.Category(name: "Old", icon: "archivebox", colorHex: "#999999", isArchived: true)
+        let existingBudget = try budget(categoryID: archived.id, amount: 100, alertThreshold: 0.8)
+        let editViewModel = makeViewModel(categories: [active, archived], budget: existingBudget)
+        let createViewModel = makeViewModel(categories: [active, archived])
+
+        await editViewModel.loadCategories()
+        await createViewModel.loadCategories()
+
+        XCTAssertEqual(editViewModel.categories.map(\.id), [active.id, archived.id])
+        XCTAssertEqual(editViewModel.categorySubtitle(for: archived), "Archived")
+        XCTAssertEqual(createViewModel.categories.map(\.id), [active.id])
+    }
+
+    func testCategoryWithActiveBudgetIsDisabledForSelectedMonth() async throws {
+        let category = SpendMind.Category(name: "Food", icon: "fork.knife", colorHex: "#5B7FFF")
+        let existingBudget = try budget(categoryID: category.id, amount: 100, alertThreshold: 0.8)
+        let repository = BudgetFormMockRepository(activeBudgets: [existingBudget])
+        let viewModel = makeViewModel(repository: repository, categories: [category])
+
+        await viewModel.loadCategories()
+        viewModel.budgetType = .category
+        viewModel.selectedCategoryID = category.id
+        viewModel.amountText = "200"
+
+        XCTAssertTrue(viewModel.isCategoryDisabled(category.id))
+        XCTAssertEqual(viewModel.categorySubtitle(for: category), "Already budgeted")
+        XCTAssertFalse(viewModel.canSave)
+        XCTAssertEqual(viewModel.categoryError, "Category already has an active budget for this month.")
+    }
+
+    func testEditingBudgetDoesNotDisableItsOwnCategory() async throws {
+        let category = SpendMind.Category(name: "Food", icon: "fork.knife", colorHex: "#5B7FFF")
+        let existingBudget = try budget(categoryID: category.id, amount: 100, alertThreshold: 0.8)
+        let repository = BudgetFormMockRepository(budgets: [existingBudget], activeBudgets: [existingBudget])
+        let viewModel = makeViewModel(repository: repository, categories: [category], budget: existingBudget)
+
+        await viewModel.loadCategories()
+        viewModel.amountText = "200"
+
+        XCTAssertFalse(viewModel.isCategoryDisabled(category.id))
+        XCTAssertTrue(viewModel.canSave)
+    }
+
     private func makeViewModel(
         repository: BudgetFormMockRepository = BudgetFormMockRepository(),
         categories: [SpendMind.Category] = [],
@@ -126,6 +171,7 @@ final class BudgetFormViewModelTests: XCTestCase {
         BudgetFormViewModel(
             createBudgetUseCase: DefaultCreateBudgetUseCase(repository: repository, calendar: calendar),
             updateBudgetUseCase: DefaultUpdateBudgetUseCase(repository: repository, calendar: calendar),
+            budgetRepository: repository,
             categoryRepository: BudgetFormCategoryRepository(categories: categories),
             budget: budget,
             locale: locale

@@ -32,11 +32,13 @@ final class BudgetFormViewModel {
     var month = Date()
     var alertThresholdPercent = 80
     private(set) var categories: [Category] = []
+    private(set) var budgetedCategoryIDs: Set<UUID> = []
     private(set) var errorMessage: String?
     private(set) var isSaving = false
 
     nonisolated(unsafe) private let createBudgetUseCase: any CreateBudgetUseCase
     nonisolated(unsafe) private let updateBudgetUseCase: any UpdateBudgetUseCase
+    nonisolated(unsafe) private let budgetRepository: any BudgetRepository
     private let categoryRepository: (any CategoryRepository)?
     private let budgetID: UUID?
     private let isActive: Bool
@@ -46,12 +48,14 @@ final class BudgetFormViewModel {
     init(
         createBudgetUseCase: any CreateBudgetUseCase,
         updateBudgetUseCase: any UpdateBudgetUseCase,
+        budgetRepository: any BudgetRepository,
         categoryRepository: (any CategoryRepository)? = nil,
         budget: Budget? = nil,
         locale: Locale = .current
     ) {
         self.createBudgetUseCase = createBudgetUseCase
         self.updateBudgetUseCase = updateBudgetUseCase
+        self.budgetRepository = budgetRepository
         self.categoryRepository = categoryRepository
         self.budgetID = budget?.id
         self.isActive = budget?.isActive ?? true
@@ -91,7 +95,13 @@ final class BudgetFormViewModel {
     }
 
     var categoryError: String? {
-        budgetType == .category && selectedCategoryID == nil ? "Category is required." : nil
+        guard budgetType == .category else { return nil }
+        guard let selectedCategoryID else { return "Category is required." }
+        guard !isCategoryDisabled(selectedCategoryID) else {
+            return "Category already has an active budget for this month."
+        }
+
+        return nil
     }
 
     var alertThresholdError: String? {
@@ -106,17 +116,33 @@ final class BudgetFormViewModel {
         "Alert at \(percent)%"
     }
 
-    func loadCategories() {
-        guard categories.isEmpty, let categoryRepository else { return }
+    func loadCategories() async {
+        guard let categoryRepository else { return }
 
         do {
-            categories = try categoryRepository.getCategories()
+            let allCategories = try categoryRepository.getCategories()
+            categories = allCategories.filter { $0.isArchived != true || $0.id == selectedCategoryID }
+            budgetedCategoryIDs = Set(try await budgetRepository.activeBudgets(for: month).compactMap { budget in
+                guard budget.id != budgetID else { return nil }
+                return budget.categoryID
+            })
+
             if budgetType == .category {
-                selectedCategoryID = selectedCategoryID ?? categories.first?.id
+                selectedCategoryID = selectedCategoryID ?? categories.first { !isCategoryDisabled($0.id) }?.id
             }
         } catch {
             errorMessage = AppError.wrap(error).errorDescription
         }
+    }
+
+    func isCategoryDisabled(_ categoryID: UUID) -> Bool {
+        budgetedCategoryIDs.contains(categoryID)
+    }
+
+    func categorySubtitle(for category: Category) -> String? {
+        if isCategoryDisabled(category.id) { return "Already budgeted" }
+        if category.isArchived == true { return "Archived" }
+        return nil
     }
 
     func save() async -> Bool {
