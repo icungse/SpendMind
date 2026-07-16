@@ -1,0 +1,197 @@
+//
+//  BudgetFormViewModelTests.swift
+//  SpendMindTests
+//
+//  Created by Icung on 16/07/26.
+//
+
+import XCTest
+@testable import SpendMind
+
+@MainActor
+final class BudgetFormViewModelTests: XCTestCase {
+    func testSaveIsDisabledForInvalidInputAndShowsFieldErrors() {
+        let viewModel = makeViewModel()
+
+        viewModel.name = ""
+        viewModel.amountText = "0"
+
+        XCTAssertFalse(viewModel.canSave)
+        XCTAssertEqual(viewModel.nameError, "Budget name is required.")
+        XCTAssertEqual(viewModel.amountError, "Amount must be greater than zero.")
+    }
+
+    func testCategoryBudgetRequiresCategory() {
+        let viewModel = makeViewModel(categories: [])
+
+        viewModel.name = "Food"
+        viewModel.amountText = "100"
+        viewModel.budgetType = .category
+
+        XCTAssertFalse(viewModel.canSave)
+        XCTAssertEqual(viewModel.categoryError, "Category is required.")
+    }
+
+    func testAlertThresholdMustBeBetweenZeroAndOne() {
+        let viewModel = makeViewModel()
+
+        viewModel.amountText = "100"
+        viewModel.alertThresholdText = "1.5"
+
+        XCTAssertFalse(viewModel.canSave)
+        XCTAssertEqual(viewModel.alertThresholdError, "Alert threshold must be between 0 and 1.")
+    }
+
+    func testSavesCategoryBudget() async {
+        let repository = BudgetFormMockRepository()
+        let category = SpendMind.Category(name: "Food", icon: "fork.knife", colorHex: "#5B7FFF")
+        let viewModel = makeViewModel(repository: repository, categories: [category])
+
+        viewModel.loadCategories()
+        viewModel.name = "Food"
+        viewModel.budgetType = .category
+        viewModel.selectedCategoryID = category.id
+        viewModel.amountText = "250"
+        viewModel.alertThresholdText = "0.7"
+
+        XCTAssertTrue(viewModel.canSave)
+        let didSave = await viewModel.save()
+        XCTAssertTrue(didSave)
+        XCTAssertEqual(repository.createdBudgets.first?.name, "Food")
+        XCTAssertEqual(repository.createdBudgets.first?.categoryID, category.id)
+        XCTAssertEqual(repository.createdBudgets.first?.amount, 250)
+        XCTAssertEqual(repository.createdBudgets.first?.alertThreshold, 0.7)
+    }
+
+    func testDecimalInputUsesLocale() async {
+        let repository = BudgetFormMockRepository()
+        let viewModel = makeViewModel(repository: repository, locale: Locale(identifier: "id_ID"))
+
+        viewModel.updateAmountText("1,5")
+
+        let didSave = await viewModel.save()
+        XCTAssertTrue(didSave)
+        XCTAssertEqual(repository.createdBudgets.first?.amount, Decimal(string: "1.5"))
+    }
+
+    func testEditModePrefillsAndUpdatesExistingBudget() async throws {
+        let category = SpendMind.Category(name: "Food", icon: "fork.knife", colorHex: "#5B7FFF")
+        let existingBudget = try budget(categoryID: category.id, amount: 100, alertThreshold: 0.8)
+        let repository = BudgetFormMockRepository(budgets: [existingBudget])
+        let viewModel = makeViewModel(repository: repository, categories: [category], budget: existingBudget)
+
+        viewModel.loadCategories()
+
+        XCTAssertTrue(viewModel.isEditing)
+        XCTAssertEqual(viewModel.name, "Monthly")
+        XCTAssertEqual(viewModel.budgetType, .category)
+        XCTAssertEqual(viewModel.selectedCategoryID, category.id)
+
+        viewModel.amountText = "150"
+        viewModel.alertThresholdText = "0.6"
+
+        let didSave = await viewModel.save()
+        XCTAssertTrue(didSave)
+        XCTAssertEqual(repository.updatedBudgets.first?.id, existingBudget.id)
+        XCTAssertEqual(repository.updatedBudgets.first?.amount, 150)
+        XCTAssertEqual(repository.updatedBudgets.first?.alertThreshold, 0.6)
+    }
+
+    func testDuplicateActiveBudgetShowsSaveError() async throws {
+        let existingBudget = try budget(categoryID: nil, amount: 100, alertThreshold: 0.8)
+        let repository = BudgetFormMockRepository(activeBudgets: [existingBudget])
+        let viewModel = makeViewModel(repository: repository)
+
+        viewModel.amountText = "200"
+
+        let didSave = await viewModel.save()
+        XCTAssertFalse(didSave)
+        XCTAssertEqual(viewModel.formMessage, "An active budget already exists for this category and period.")
+    }
+
+    private func makeViewModel(
+        repository: BudgetFormMockRepository = BudgetFormMockRepository(),
+        categories: [SpendMind.Category] = [],
+        budget: Budget? = nil,
+        locale: Locale = Locale(identifier: "en_US")
+    ) -> BudgetFormViewModel {
+        BudgetFormViewModel(
+            createBudgetUseCase: DefaultCreateBudgetUseCase(repository: repository, calendar: calendar),
+            updateBudgetUseCase: DefaultUpdateBudgetUseCase(repository: repository, calendar: calendar),
+            categoryRepository: BudgetFormCategoryRepository(categories: categories),
+            budget: budget,
+            locale: locale
+        )
+    }
+
+    private func budget(categoryID: UUID?, amount: Decimal, alertThreshold: Decimal) throws -> Budget {
+        try Budget(
+            categoryID: categoryID,
+            name: "Monthly",
+            amount: amount,
+            period: .monthly,
+            startDate: date(year: 2026, month: 7, day: 1),
+            endDate: date(year: 2026, month: 7, day: 31),
+            alertThreshold: alertThreshold,
+            calendar: calendar
+        )
+    }
+
+    private var calendar: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0) ?? .gmt
+        return calendar
+    }
+
+    private func date(year: Int, month: Int, day: Int) -> Date {
+        DateComponents(calendar: calendar, year: year, month: month, day: day).date ?? Date()
+    }
+}
+
+private final class BudgetFormMockRepository: BudgetRepository {
+    private var budgetsByID: [UUID: Budget]
+    private let activeBudgetResults: [Budget]
+    private(set) var createdBudgets: [Budget] = []
+    private(set) var updatedBudgets: [Budget] = []
+
+    init(budgets: [Budget] = [], activeBudgets: [Budget] = []) {
+        self.budgetsByID = Dictionary(uniqueKeysWithValues: budgets.map { ($0.id, $0) })
+        self.activeBudgetResults = activeBudgets
+    }
+
+    func create(_ budget: Budget) async throws {
+        createdBudgets.append(budget)
+        budgetsByID[budget.id] = budget
+    }
+
+    func update(_ budget: Budget) async throws {
+        updatedBudgets.append(budget)
+        budgetsByID[budget.id] = budget
+    }
+
+    func delete(id: UUID) async throws { }
+
+    func budget(id: UUID) async throws -> Budget? {
+        budgetsByID[id]
+    }
+
+    func activeBudgets(for date: Date) async throws -> [Budget] {
+        activeBudgetResults
+    }
+
+    func budgets(from startDate: Date, to endDate: Date) async throws -> [Budget] {
+        Array(budgetsByID.values)
+    }
+}
+
+private final class BudgetFormCategoryRepository: CategoryRepository {
+    private let categories: [SpendMind.Category]
+
+    init(categories: [SpendMind.Category]) {
+        self.categories = categories
+    }
+
+    func getCategories() throws -> [SpendMind.Category] { categories }
+    func getDefaultCategories() throws -> [SpendMind.Category] { categories.filter(\.isSystem) }
+    func seedDefaultCategoriesIfNeeded() throws { }
+}

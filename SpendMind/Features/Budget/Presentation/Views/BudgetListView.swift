@@ -11,10 +11,19 @@ struct BudgetListView: View {
     @State private var viewModel: BudgetListViewModel
     @State private var showingCreateBudget = false
     nonisolated(unsafe) private let createBudgetUseCase: any CreateBudgetUseCase
+    nonisolated(unsafe) private let updateBudgetUseCase: any UpdateBudgetUseCase
+    private let categoryRepository: any CategoryRepository
 
-    init(viewModel: BudgetListViewModel, createBudgetUseCase: any CreateBudgetUseCase) {
+    init(
+        viewModel: BudgetListViewModel,
+        createBudgetUseCase: any CreateBudgetUseCase,
+        updateBudgetUseCase: any UpdateBudgetUseCase,
+        categoryRepository: any CategoryRepository
+    ) {
         self._viewModel = State(initialValue: viewModel)
         self.createBudgetUseCase = createBudgetUseCase
+        self.updateBudgetUseCase = updateBudgetUseCase
+        self.categoryRepository = categoryRepository
     }
 
     var body: some View {
@@ -45,8 +54,12 @@ struct BudgetListView: View {
             }
         }
         .sheet(isPresented: $showingCreateBudget) {
-            CreateBudgetView(
-                viewModel: CreateBudgetViewModel(createBudgetUseCase: createBudgetUseCase)
+            BudgetFormView(
+                viewModel: BudgetFormViewModel(
+                    createBudgetUseCase: createBudgetUseCase,
+                    updateBudgetUseCase: updateBudgetUseCase,
+                    categoryRepository: categoryRepository
+                )
             ) {
                 Task { await viewModel.load() }
             }
@@ -143,18 +156,19 @@ struct BudgetListView: View {
     }
 }
 
-private struct CreateBudgetView: View {
+private struct BudgetFormView: View {
     @Environment(\.dismiss) private var dismiss
     @FocusState private var focusedField: Field?
-    @State private var viewModel: CreateBudgetViewModel
+    @State private var viewModel: BudgetFormViewModel
     let onSaved: () -> Void
 
     private enum Field {
         case name
         case amount
+        case alertThreshold
     }
 
-    init(viewModel: CreateBudgetViewModel, onSaved: @escaping () -> Void = {}) {
+    init(viewModel: BudgetFormViewModel, onSaved: @escaping () -> Void = {}) {
         self._viewModel = State(initialValue: viewModel)
         self.onSaved = onSaved
     }
@@ -169,6 +183,25 @@ private struct CreateBudgetView: View {
                         .textInputAutocapitalization(.words)
                         .focused($focusedField, equals: .name)
                         .accessibilityLabel("Budget Name")
+                    validationText(viewModel.nameError)
+
+                    Picker("Type", selection: $viewModel.budgetType) {
+                        ForEach(BudgetFormViewModel.BudgetType.allCases) { type in
+                            Text(type.title).tag(type)
+                        }
+                    }
+                    .accessibilityLabel("Budget Type")
+
+                    if viewModel.budgetType == .category {
+                        Picker("Category", selection: $viewModel.selectedCategoryID) {
+                            Text("Select Category").tag(UUID?.none)
+                            ForEach(viewModel.categories, id: \.id) { category in
+                                Text(category.name).tag(Optional(category.id))
+                            }
+                        }
+                        .accessibilityLabel("Budget Category")
+                        validationText(viewModel.categoryError)
+                    }
 
                     TextField("Amount", text: Binding(
                         get: { viewModel.amountText },
@@ -177,9 +210,19 @@ private struct CreateBudgetView: View {
                     .keyboardType(.decimalPad)
                     .focused($focusedField, equals: .amount)
                     .accessibilityLabel("Budget Amount")
+                    validationText(viewModel.amountError)
 
                     DatePicker("Month", selection: $viewModel.month, displayedComponents: .date)
                         .accessibilityLabel("Budget Month")
+
+                    TextField("Alert Threshold", text: Binding(
+                        get: { viewModel.alertThresholdText },
+                        set: { viewModel.updateAlertThresholdText($0) }
+                    ))
+                    .keyboardType(.decimalPad)
+                    .focused($focusedField, equals: .alertThreshold)
+                    .accessibilityLabel("Budget Alert Threshold")
+                    validationText(viewModel.alertThresholdError)
                 }
 
                 if let message = viewModel.formMessage {
@@ -192,12 +235,12 @@ private struct CreateBudgetView: View {
             .scrollDismissesKeyboard(.interactively)
             .scrollContentBackground(.hidden)
             .background(AppColor.background)
-            .navigationTitle("Create Budget")
+            .navigationTitle(viewModel.isEditing ? "Edit Budget" : "Create Budget")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
-                        .accessibilityLabel("Cancel Create Budget")
+                        .accessibilityLabel("Cancel Budget Form")
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
@@ -216,7 +259,7 @@ private struct CreateBudgetView: View {
             }
             .safeAreaInset(edge: .bottom) {
                 PrimaryButton(
-                    title: "Save Budget",
+                    title: viewModel.isEditing ? "Update Budget" : "Save Budget",
                     isLoading: viewModel.isSaving,
                     isDisabled: !viewModel.canSave
                 ) {
@@ -225,6 +268,19 @@ private struct CreateBudgetView: View {
                 .padding(AppSpacing.md)
                 .background(AppColor.background)
             }
+            .onAppear {
+                viewModel.loadCategories()
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func validationText(_ message: String?) -> some View {
+        if let message {
+            Text(message)
+                .appFont(.footnote)
+                .foregroundStyle(AppColor.error)
+                .accessibilityLabel("Validation Error: \(message)")
         }
     }
 
