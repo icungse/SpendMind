@@ -138,7 +138,11 @@ private struct ContentView: View {
                     categoryRepository: categoryRepository,
                     currency: settings.currency
                 ),
-                createBudgetUseCase: DefaultCreateBudgetUseCase(repository: budgetRepository)
+                createBudgetUseCase: DefaultCreateBudgetUseCase(repository: budgetRepository),
+                updateBudgetUseCase: DefaultUpdateBudgetUseCase(repository: budgetRepository),
+                deleteBudgetUseCase: DefaultDeleteBudgetUseCase(repository: budgetRepository),
+                budgetRepository: budgetRepository,
+                categoryRepository: categoryRepository
             )
         }
     }
