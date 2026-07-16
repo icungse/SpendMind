@@ -244,12 +244,17 @@ struct ExpenseListView: View {
     private var addExpenseSheet: some View {
         let expenseRepository = SwiftDataExpenseRepository(context: modelContext)
         let categoryRepository = SwiftDataCategoryRepository(context: modelContext)
+        let budgetRepository = SwiftDataBudgetRepository(modelContainer: modelContext.container)
         
         return AddExpenseView(
             viewModel: AddExpenseViewModel(
                 addExpenseUseCase: AddExpenseUseCase(repository: expenseRepository),
                 categoryRepository: categoryRepository,
-                currency: currency
+                currency: currency,
+                previewBudgetImpactUseCase: DefaultPreviewBudgetImpactUseCase(
+                    budgetRepository: budgetRepository,
+                    expenseRepository: expenseRepository
+                )
             )
         ) {
             viewModel.load()

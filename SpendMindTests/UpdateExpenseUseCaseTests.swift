@@ -41,6 +41,37 @@ final class UpdateExpenseUseCaseTests: XCTestCase {
         XCTAssertEqual(updated.expenseDate, newDate)
     }
 
+    func testExecutePostsExpenseChangeNotificationForOldAndNewDates() throws {
+        let category = Category(name: "Food", icon: "fork.knife", colorHex: "#5B7FFF")
+        let oldDate = Date(timeIntervalSince1970: 100)
+        let newDate = Date(timeIntervalSince1970: 200)
+        let expense = Expense(amount: 10, expenseDate: oldDate, category: category)
+        let repository = UpdateExpenseMockRepository(expenses: [expense])
+        let expectation = expectation(description: "expense changed")
+        var notifiedDates: [Date] = []
+        let observer = NotificationCenter.default.addObserver(
+            forName: AppConstants.Notifications.expensesDidChange,
+            object: nil,
+            queue: nil
+        ) { notification in
+            notifiedDates = notification.userInfo?[AppConstants.Notifications.expenseDatesKey] as? [Date] ?? []
+            expectation.fulfill()
+        }
+        defer { NotificationCenter.default.removeObserver(observer) }
+
+        try UpdateExpenseUseCase(repository: repository).execute(
+            id: expense.id,
+            title: "Lunch",
+            amount: 20,
+            category: category,
+            note: "",
+            date: newDate
+        )
+
+        wait(for: [expectation], timeout: 1)
+        XCTAssertEqual(notifiedDates, [oldDate, newDate])
+    }
+
     func testExecuteRejectsMissingExpense() {
         XCTAssertThrowsError(
             try UpdateExpenseUseCase(repository: UpdateExpenseMockRepository()).execute(

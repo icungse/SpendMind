@@ -42,6 +42,13 @@ struct AddExpenseView: View {
                         .keyboardType(.decimalPad)
                         .focused($focusedField, equals: .amount)
                         .accessibilityLabel("Expense Amount in \(viewModel.currency.rawValue)")
+
+                    if let budgetImpactMessage = viewModel.budgetImpactMessage {
+                        Text(budgetImpactMessage)
+                            .appFont(.footnote)
+                            .foregroundStyle(viewModel.isBudgetImpactWarning ? AppColor.warning : AppColor.textSecondary)
+                            .accessibilityLabel("Budget Impact: \(budgetImpactMessage)")
+                    }
                 }
 
                 Section("Details") {

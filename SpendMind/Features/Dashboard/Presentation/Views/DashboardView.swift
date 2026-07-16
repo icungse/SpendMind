@@ -400,12 +400,17 @@ struct DashboardView: View {
     private var quickAddSheet: some View {
         let expenseRepository = SwiftDataExpenseRepository(context: modelContext)
         let categoryRepository = SwiftDataCategoryRepository(context: modelContext)
+        let budgetRepository = SwiftDataBudgetRepository(modelContainer: modelContext.container)
 
         return AddExpenseView(
             viewModel: AddExpenseViewModel(
                 addExpenseUseCase: AddExpenseUseCase(repository: expenseRepository),
                 categoryRepository: categoryRepository,
-                currency: settings.currency
+                currency: settings.currency,
+                previewBudgetImpactUseCase: DefaultPreviewBudgetImpactUseCase(
+                    budgetRepository: budgetRepository,
+                    expenseRepository: expenseRepository
+                )
             )
         ) {
             Task {

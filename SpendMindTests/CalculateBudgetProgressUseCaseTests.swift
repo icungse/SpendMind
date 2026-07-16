@@ -81,6 +81,65 @@ final class CalculateBudgetProgressUseCaseTests: XCTestCase {
         XCTAssertEqual(progress.spentAmount, 55)
     }
 
+    func testPreviewBudgetImpactDetectsMatchingCategoryBudget() async throws {
+        let food = SpendMind.Category(name: "Food", icon: "fork.knife", colorHex: "#FF7444")
+        let transport = SpendMind.Category(name: "Transport", icon: "car.fill", colorHex: "#576A8F")
+        let foodBudget = try budget(categoryID: food.id, amount: 100)
+        let expenses = [expense(amount: 20, category: food), expense(amount: 40, category: transport)]
+
+        let progress = try await previewUseCase(budgets: [foodBudget], expenses: expenses)
+            .execute(amount: 30, categoryID: food.id, date: date(year: 2026, month: 7, day: 14), editingExpenseID: nil)
+
+        XCTAssertEqual(progress?.budget, foodBudget)
+        XCTAssertEqual(progress?.spentAmount, 50)
+        XCTAssertEqual(progress?.remainingAmount, 50)
+    }
+
+    func testPreviewBudgetImpactUsesDraftAmountBeforeSave() async throws {
+        let food = SpendMind.Category(name: "Food", icon: "fork.knife", colorHex: "#FF7444")
+        let foodBudget = try budget(categoryID: food.id, amount: 100)
+
+        let progress = try await previewUseCase(budgets: [foodBudget], expenses: [expense(amount: 20, category: food)])
+            .execute(amount: 25, categoryID: food.id, date: date(year: 2026, month: 7, day: 14), editingExpenseID: nil)
+
+        XCTAssertEqual(progress?.spentAmount, 45)
+        XCTAssertEqual(progress?.remainingAmount, 55)
+    }
+
+    func testPreviewBudgetImpactCalculatesExceededAmount() async throws {
+        let food = SpendMind.Category(name: "Food", icon: "fork.knife", colorHex: "#FF7444")
+        let foodBudget = try budget(categoryID: food.id, amount: 100)
+
+        let progress = try await previewUseCase(budgets: [foodBudget], expenses: [expense(amount: 80, category: food)])
+            .execute(amount: 50, categoryID: food.id, date: date(year: 2026, month: 7, day: 14), editingExpenseID: nil)
+
+        XCTAssertEqual(progress?.remainingAmount, -30)
+        XCTAssertEqual(progress?.status, .exceeded)
+    }
+
+    func testPreviewBudgetImpactExcludesEditedExpense() async throws {
+        let food = SpendMind.Category(name: "Food", icon: "fork.knife", colorHex: "#FF7444")
+        let foodBudget = try budget(categoryID: food.id, amount: 100)
+        let existing = expense(amount: 40, category: food)
+
+        let progress = try await previewUseCase(budgets: [foodBudget], expenses: [existing])
+            .execute(amount: 25, categoryID: food.id, date: date(year: 2026, month: 7, day: 14), editingExpenseID: existing.id)
+
+        XCTAssertEqual(progress?.spentAmount, 25)
+        XCTAssertEqual(progress?.remainingAmount, 75)
+    }
+
+    func testPreviewBudgetImpactReturnsNilWhenNoMatchingBudgetExists() async throws {
+        let food = SpendMind.Category(name: "Food", icon: "fork.knife", colorHex: "#FF7444")
+        let transport = SpendMind.Category(name: "Transport", icon: "car.fill", colorHex: "#576A8F")
+        let transportBudget = try budget(categoryID: transport.id, amount: 100)
+
+        let progress = try await previewUseCase(budgets: [transportBudget], expenses: [])
+            .execute(amount: 25, categoryID: food.id, date: date(year: 2026, month: 7, day: 14), editingExpenseID: nil)
+
+        XCTAssertNil(progress)
+    }
+
     private var useCase: DefaultCalculateBudgetProgressUseCase {
         DefaultCalculateBudgetProgressUseCase(calendar: calendar)
     }
@@ -126,5 +185,47 @@ final class CalculateBudgetProgressUseCaseTests: XCTestCase {
 
     private func decimal(_ value: String) -> Decimal {
         Decimal(string: value) ?? 0
+    }
+
+    private func previewUseCase(budgets: [Budget], expenses: [Expense]) -> DefaultPreviewBudgetImpactUseCase {
+        DefaultPreviewBudgetImpactUseCase(
+            budgetRepository: PreviewBudgetMockBudgetRepository(budgets: budgets),
+            expenseRepository: PreviewBudgetMockExpenseRepository(expenses: expenses),
+            calendar: calendar
+        )
+    }
+}
+
+private final class PreviewBudgetMockBudgetRepository: BudgetRepository {
+    private let budgets: [Budget]
+
+    init(budgets: [Budget]) {
+        self.budgets = budgets
+    }
+
+    func create(_ budget: Budget) async throws { }
+    func update(_ budget: Budget) async throws { }
+    func delete(id: UUID) async throws { }
+    func budget(id: UUID) async throws -> Budget? { budgets.first { $0.id == id } }
+    func activeBudgets(for date: Date) async throws -> [Budget] { budgets.filter(\.isActive) }
+    func budgets(from startDate: Date, to endDate: Date) async throws -> [Budget] { budgets }
+}
+
+private final class PreviewBudgetMockExpenseRepository: ExpenseRepository {
+    private let expenses: [Expense]
+
+    init(expenses: [Expense]) {
+        self.expenses = expenses
+    }
+
+    func createExpense(_ expense: Expense) throws { }
+    func updateExpense(_ expense: Expense) throws { }
+    func deleteExpense(id: UUID) throws { }
+    func getExpense(id: UUID) throws -> Expense? { expenses.first { $0.id == id } }
+    func getExpenses() throws -> [Expense] { expenses }
+    func getExpensesByMonth(_ month: Date) throws -> [Expense] { expenses }
+
+    func getExpenses(from startDate: Date, to endDate: Date) throws -> [Expense] {
+        expenses.filter { $0.expenseDate >= startDate && $0.expenseDate < endDate }
     }
 }

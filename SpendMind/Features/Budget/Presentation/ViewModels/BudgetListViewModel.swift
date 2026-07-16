@@ -29,6 +29,7 @@ final class BudgetListViewModel {
     private let currency: CurrencyCode
     private let locale: Locale
     private let currentDate: Date
+    private let calendar: Calendar
     private var categoriesByID: [UUID: Category] = [:]
 
     init(
@@ -36,13 +37,15 @@ final class BudgetListViewModel {
         categoryRepository: (any CategoryRepository)? = nil,
         currency: CurrencyCode,
         locale: Locale = .current,
-        currentDate: Date = .now
+        currentDate: Date = .now,
+        calendar: Calendar = .current
     ) {
         self.getCurrentBudgetsUseCase = getCurrentBudgetsUseCase
         self.categoryRepository = categoryRepository
         self.currency = currency
         self.locale = locale
         self.currentDate = currentDate
+        self.calendar = calendar
     }
 
     func load() async {
@@ -71,6 +74,29 @@ final class BudgetListViewModel {
 
     var currentMonthLabel: String {
         currentDate.formatted(.dateTime.month(.wide).year().locale(locale))
+    }
+
+    func shouldRefreshForExpenseChange(_ userInfo: [AnyHashable: Any]?) -> Bool {
+        guard let dates = userInfo?[AppConstants.Notifications.expenseDatesKey] as? [Date] else {
+            return true
+        }
+
+        // month-level invalidation is enough while budgets are monthly only.
+        guard dates.contains(where: { calendar.isDate($0, equalTo: currentDate, toGranularity: .month) }) else {
+            return false
+        }
+
+        guard let categoryIDs = userInfo?[AppConstants.Notifications.expenseCategoryIDsKey] as? [UUID] else {
+            return true
+        }
+
+        let budgets = currentBudgets
+        guard !budgets.isEmpty, !budgets.contains(where: { $0.budget.isTotalBudget }) else {
+            return true
+        }
+
+        let budgetCategoryIDs = Set(budgets.compactMap(\.budget.categoryID))
+        return categoryIDs.contains { budgetCategoryIDs.contains($0) }
     }
 
     var totalBudget: BudgetProgress? {

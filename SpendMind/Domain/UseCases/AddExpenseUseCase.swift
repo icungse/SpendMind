@@ -47,6 +47,14 @@ struct AddExpenseUseCase {
             category: category
         )
         try repository.createExpense(expense)
+        NotificationCenter.default.post(
+            name: AppConstants.Notifications.expensesDidChange,
+            object: nil,
+            userInfo: [
+                AppConstants.Notifications.expenseDatesKey: [expense.expenseDate],
+                AppConstants.Notifications.expenseCategoryIDsKey: [category.id]
+            ]
+        )
         return expense
     }
 }

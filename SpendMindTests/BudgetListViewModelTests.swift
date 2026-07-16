@@ -135,6 +135,50 @@ final class BudgetListViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.percentageUsed(for: progress), "25%")
     }
 
+    func testExpenseChangeRefreshesWhenItTouchesCurrentMonth() {
+        let viewModel = makeViewModel(useCase: BudgetListMockUseCase(results: []))
+        let userInfo = [AppConstants.Notifications.expenseDatesKey: [date(year: 2026, month: 6, day: 30), date(year: 2026, month: 7, day: 1)]]
+
+        XCTAssertTrue(viewModel.shouldRefreshForExpenseChange(userInfo))
+    }
+
+    func testExpenseChangeSkipsRefreshWhenItDoesNotTouchCurrentMonth() {
+        let viewModel = makeViewModel(useCase: BudgetListMockUseCase(results: []))
+        let userInfo = [AppConstants.Notifications.expenseDatesKey: [date(year: 2026, month: 6, day: 30), date(year: 2026, month: 8, day: 1)]]
+
+        XCTAssertFalse(viewModel.shouldRefreshForExpenseChange(userInfo))
+    }
+
+    func testExpenseChangeSkipsRefreshForUnbudgetedCategoryWhenNoTotalBudgetExists() async throws {
+        let budgetedCategoryID = UUID()
+        let unbudgetedCategoryID = UUID()
+        let progress = BudgetProgress(budget: try budget(categoryID: budgetedCategoryID, amount: 100), spentAmount: 25)
+        let viewModel = makeViewModel(useCase: BudgetListMockUseCase(results: [[progress]]))
+
+        await viewModel.load()
+
+        let userInfo: [String: Any] = [
+            AppConstants.Notifications.expenseDatesKey: [date(year: 2026, month: 7, day: 15)],
+            AppConstants.Notifications.expenseCategoryIDsKey: [unbudgetedCategoryID]
+        ]
+        XCTAssertFalse(viewModel.shouldRefreshForExpenseChange(userInfo))
+    }
+
+    func testExpenseChangeRefreshesForOldOrNewBudgetedCategory() async throws {
+        let oldCategoryID = UUID()
+        let newCategoryID = UUID()
+        let progress = BudgetProgress(budget: try budget(categoryID: oldCategoryID, amount: 100), spentAmount: 25)
+        let viewModel = makeViewModel(useCase: BudgetListMockUseCase(results: [[progress]]))
+
+        await viewModel.load()
+
+        let userInfo: [String: Any] = [
+            AppConstants.Notifications.expenseDatesKey: [date(year: 2026, month: 7, day: 15)],
+            AppConstants.Notifications.expenseCategoryIDsKey: [oldCategoryID, newCategoryID]
+        ]
+        XCTAssertTrue(viewModel.shouldRefreshForExpenseChange(userInfo))
+    }
+
     private func makeViewModel(
         useCase: any GetCurrentBudgetsUseCase,
         categoryRepository: (any CategoryRepository)? = nil,
@@ -146,7 +190,8 @@ final class BudgetListViewModelTests: XCTestCase {
             categoryRepository: categoryRepository,
             currency: currency,
             locale: locale,
-            currentDate: date(year: 2026, month: 7, day: 15)
+            currentDate: date(year: 2026, month: 7, day: 15),
+            calendar: calendar
         )
     }
 

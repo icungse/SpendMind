@@ -68,6 +68,7 @@ struct ExpenseDetailView: View {
     private var editExpenseSheet: some View {
         let expenseRepository = SwiftDataExpenseRepository(context: modelContext)
         let categoryRepository = SwiftDataCategoryRepository(context: modelContext)
+        let budgetRepository = SwiftDataBudgetRepository(modelContainer: modelContext.container)
 
         // reuse add/edit form; split only when detail edit needs a different flow.
         return AddExpenseView(
@@ -76,7 +77,11 @@ struct ExpenseDetailView: View {
                 categoryRepository: categoryRepository,
                 currency: currency,
                 expense: expense,
-                updateExpenseUseCase: UpdateExpenseUseCase(repository: expenseRepository)
+                updateExpenseUseCase: UpdateExpenseUseCase(repository: expenseRepository),
+                previewBudgetImpactUseCase: DefaultPreviewBudgetImpactUseCase(
+                    budgetRepository: budgetRepository,
+                    expenseRepository: expenseRepository
+                )
             )
         ) {
             onSaved()

@@ -96,21 +96,66 @@ final class AddExpenseViewModelTests: XCTestCase {
         }
     }
 
+    func testBudgetImpactWarningDoesNotDisableSave() async throws {
+        let expenseRepository = ViewModelExpenseRepository()
+        let category = SpendMind.Category(name: "Food", icon: "fork.knife", colorHex: "#5B7FFF")
+        let budget = try Budget(
+            categoryID: category.id,
+            name: "Food",
+            amount: 100,
+            period: .monthly,
+            startDate: Date(timeIntervalSince1970: 0),
+            endDate: Date(timeIntervalSince1970: 86_400),
+            alertThreshold: 0.8
+        )
+        let viewModel = makeViewModel(
+            expenseRepository: expenseRepository,
+            categories: [category],
+            previewBudgetImpactUseCase: ViewModelBudgetImpactUseCase(progress: BudgetProgress(budget: budget, spentAmount: 125))
+        )
+
+        viewModel.title = "Lunch"
+        viewModel.loadCategories()
+        viewModel.updateAmountText("125")
+        for _ in 0..<10 where !viewModel.isBudgetImpactWarning {
+            await Task.yield()
+        }
+
+        XCTAssertTrue(viewModel.isBudgetImpactWarning)
+        XCTAssertTrue(viewModel.budgetImpactMessage?.contains("exceed your Food budget") == true)
+        XCTAssertTrue(viewModel.canSave)
+        XCTAssertTrue(viewModel.save())
+    }
+
     private func makeViewModel(
         expenseRepository: ViewModelExpenseRepository = ViewModelExpenseRepository(),
         categories: [SpendMind.Category] = [
             SpendMind.Category(name: "Food", icon: "fork.knife", colorHex: "#5B7FFF")
         ],
         currency: CurrencyCode = .IDR,
-        existingExpense: Expense? = nil
+        existingExpense: Expense? = nil,
+        previewBudgetImpactUseCase: (any PreviewBudgetImpactUseCase)? = nil
     ) -> AddExpenseViewModel {
         AddExpenseViewModel(
             addExpenseUseCase: AddExpenseUseCase(repository: expenseRepository),
             categoryRepository: ViewModelCategoryRepository(categories: categories),
             currency: currency,
             expense: existingExpense,
-            updateExpenseUseCase: UpdateExpenseUseCase(repository: expenseRepository)
+            updateExpenseUseCase: UpdateExpenseUseCase(repository: expenseRepository),
+            previewBudgetImpactUseCase: previewBudgetImpactUseCase
         )
+    }
+}
+
+private final class ViewModelBudgetImpactUseCase: PreviewBudgetImpactUseCase, @unchecked Sendable {
+    private let progress: BudgetProgress?
+
+    init(progress: BudgetProgress?) {
+        self.progress = progress
+    }
+
+    func execute(amount: Decimal, categoryID: UUID, date: Date, editingExpenseID: UUID?) async throws -> BudgetProgress? {
+        progress
     }
 }
 

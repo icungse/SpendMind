@@ -97,6 +97,10 @@ struct BudgetListView: View {
                 await viewModel.load()
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: AppConstants.Notifications.expensesDidChange)) { notification in
+            guard viewModel.shouldRefreshForExpenseChange(notification.userInfo) else { return }
+            Task { await viewModel.refresh() }
+        }
     }
 
     private var emptyState: some View {
