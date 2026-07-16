@@ -29,6 +29,7 @@ struct AppSettingsManager: AppSettingsManagerProtocol, @unchecked Sendable {
             isBiometricEnabled: userDefaults.bool(forKey: AppConstants.SettingsKey.isBiometricEnabled),
             isAIEnabled: userDefaults.object(forKey: AppConstants.SettingsKey.isAIEnabled) as? Bool ?? defaults.isAIEnabled,
             defaultCategoryId: defaultCategoryId,
+            isBudgetNotificationsEnabled: userDefaults.bool(forKey: AppConstants.SettingsKey.isBudgetNotificationsEnabled),
             isFirstLaunchCompleted: userDefaults.bool(forKey: AppConstants.SettingsKey.isFirstLaunchCompleted)
         )
     }
@@ -40,6 +41,7 @@ struct AppSettingsManager: AppSettingsManagerProtocol, @unchecked Sendable {
         userDefaults.set(settings.isBiometricEnabled, forKey: AppConstants.SettingsKey.isBiometricEnabled)
         userDefaults.set(settings.isAIEnabled, forKey: AppConstants.SettingsKey.isAIEnabled)
         userDefaults.set(settings.defaultCategoryId?.uuidString, forKey: AppConstants.SettingsKey.defaultCategoryId)
+        userDefaults.set(settings.isBudgetNotificationsEnabled, forKey: AppConstants.SettingsKey.isBudgetNotificationsEnabled)
         userDefaults.set(settings.isFirstLaunchCompleted, forKey: AppConstants.SettingsKey.isFirstLaunchCompleted)
     }
 

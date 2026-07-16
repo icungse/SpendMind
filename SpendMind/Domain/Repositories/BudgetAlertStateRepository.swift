@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol BudgetAlertStateRepository {
+protocol BudgetAlertStateRepository: Sendable {
     func state(for budgetID: UUID) async throws -> BudgetAlertState?
     func save(_ state: BudgetAlertState) async throws
     func delete(budgetID: UUID) async throws

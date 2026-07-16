@@ -127,6 +127,7 @@ private struct ContentView: View {
         case .budgets:
             let expenseRepository = SwiftDataExpenseRepository(context: dependencies.modelContainer.mainContext)
             let budgetRepository = SwiftDataBudgetRepository(modelContainer: dependencies.modelContainer)
+            let budgetAlertStateRepository = SwiftDataBudgetAlertStateRepository(modelContainer: dependencies.modelContainer)
             let categoryRepository = SwiftDataCategoryRepository(context: dependencies.modelContainer.mainContext)
 
             BudgetListView(
@@ -136,7 +137,10 @@ private struct ContentView: View {
                         expenseRepository: expenseRepository
                     ),
                     categoryRepository: categoryRepository,
-                    currency: settings.currency
+                    currency: settings.currency,
+                    budgetAlertStateRepository: budgetAlertStateRepository,
+                    budgetNotificationService: dependencies.budgetNotificationService,
+                    budgetNotificationsEnabled: settings.isBudgetNotificationsEnabled
                 ),
                 createBudgetUseCase: DefaultCreateBudgetUseCase(repository: budgetRepository),
                 updateBudgetUseCase: DefaultUpdateBudgetUseCase(repository: budgetRepository),

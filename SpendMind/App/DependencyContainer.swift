@@ -10,21 +10,25 @@ import SwiftData
 
 protocol AppDependencyProviding: Sendable {
     var settingsManager: any AppSettingsManagerProtocol { get }
+    var budgetNotificationService: any BudgetNotificationServiceProtocol { get }
     var dateService: any DateServiceProtocol { get }
     var modelContainer: ModelContainer { get }
 }
 
 struct DependencyContainer: AppDependencyProviding {
     let settingsManager: any AppSettingsManagerProtocol
+    let budgetNotificationService: any BudgetNotificationServiceProtocol
     let dateService: any DateServiceProtocol
     let modelContainer: ModelContainer
 
     init(
         settingsManager: any AppSettingsManagerProtocol = AppSettingsManager(),
+        budgetNotificationService: any BudgetNotificationServiceProtocol = BudgetNotificationService(),
         dateService: any DateServiceProtocol = DateService(),
         modelContainer: ModelContainer = SpendMindModelContainer.app
     ) {
         self.settingsManager = settingsManager
+        self.budgetNotificationService = budgetNotificationService
         self.dateService = dateService
         self.modelContainer = modelContainer
     }
