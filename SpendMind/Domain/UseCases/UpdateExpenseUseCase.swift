@@ -42,6 +42,8 @@ struct UpdateExpenseUseCase {
         }
 
         // Expense has no title field; merchant carries the display title until the model changes.
+        let oldDate = expense.expenseDate
+        let oldCategoryID = expense.category?.id
         expense.merchant = title
         expense.amount = amount
         expense.category = category
@@ -49,6 +51,14 @@ struct UpdateExpenseUseCase {
         expense.expenseDate = date
 
         try repository.updateExpense(expense)
+        NotificationCenter.default.post(
+            name: AppConstants.Notifications.expensesDidChange,
+            object: nil,
+            userInfo: [
+                AppConstants.Notifications.expenseDatesKey: [oldDate, expense.expenseDate],
+                AppConstants.Notifications.expenseCategoryIDsKey: [oldCategoryID, category.id].compactMap { $0 }
+            ]
+        )
         return expense
     }
 }

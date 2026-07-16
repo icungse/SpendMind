@@ -6,6 +6,7 @@
 //
 
 import CoreGraphics
+import Foundation
 
 enum AppConstants {
     static let appName = "SpendMind"
@@ -35,5 +36,11 @@ enum AppConstants {
 
     enum Layout {
         static let minimumControlHeight: CGFloat = 44
+    }
+
+    enum Notifications {
+        static let expensesDidChange = Notification.Name("expensesDidChange")
+        static let expenseDatesKey = "expenseDates"
+        static let expenseCategoryIDsKey = "expenseCategoryIDs"
     }
 }

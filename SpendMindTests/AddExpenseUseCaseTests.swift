@@ -35,6 +35,29 @@ final class AddExpenseUseCaseTests: XCTestCase {
         XCTAssertEqual(expense.expenseDate, date)
     }
 
+    func testExecutePostsExpenseChangeNotification() throws {
+        let repository = AddExpenseMockRepository()
+        let category = Category(name: "Food", icon: "fork.knife", colorHex: "#5B7FFF")
+        let useCase = AddExpenseUseCase(repository: repository)
+        let date = Date(timeIntervalSince1970: 200)
+        let expectation = expectation(description: "expense changed")
+        var notifiedDates: [Date] = []
+        let observer = NotificationCenter.default.addObserver(
+            forName: AppConstants.Notifications.expensesDidChange,
+            object: nil,
+            queue: nil
+        ) { notification in
+            notifiedDates = notification.userInfo?[AppConstants.Notifications.expenseDatesKey] as? [Date] ?? []
+            expectation.fulfill()
+        }
+        defer { NotificationCenter.default.removeObserver(observer) }
+
+        try useCase.execute(title: "Lunch", amount: 25, category: category, date: date)
+
+        wait(for: [expectation], timeout: 1)
+        XCTAssertEqual(notifiedDates, [date])
+    }
+
     func testExecuteRejectsEmptyTitle() {
         XCTAssertThrowsError(
             try AddExpenseUseCase(repository: AddExpenseMockRepository())

@@ -20,6 +20,28 @@ final class DeleteExpenseUseCaseTests: XCTestCase {
         XCTAssertEqual(repository.updatedExpenseId, expense.id)
     }
 
+    func testExecutePostsExpenseChangeNotification() throws {
+        let date = Date(timeIntervalSince1970: 100)
+        let expense = Expense(amount: 10, expenseDate: date)
+        let repository = DeleteExpenseMockRepository(expenses: [expense])
+        let expectation = expectation(description: "expense changed")
+        var notifiedDates: [Date] = []
+        let observer = NotificationCenter.default.addObserver(
+            forName: AppConstants.Notifications.expensesDidChange,
+            object: nil,
+            queue: nil
+        ) { notification in
+            notifiedDates = notification.userInfo?[AppConstants.Notifications.expenseDatesKey] as? [Date] ?? []
+            expectation.fulfill()
+        }
+        defer { NotificationCenter.default.removeObserver(observer) }
+
+        try DeleteExpenseUseCase(repository: repository).execute(id: expense.id, isConfirmed: true)
+
+        wait(for: [expectation], timeout: 1)
+        XCTAssertEqual(notifiedDates, [date])
+    }
+
     func testExecuteRejectsUnconfirmedDelete() {
         let expense = Expense(amount: 10)
 

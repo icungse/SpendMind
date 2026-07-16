@@ -26,5 +26,13 @@ struct DeleteExpenseUseCase {
         // soft delete matches DataModel.md; hard cleanup can exist when restore/cleanup exists.
         expense.isDeleted = true
         try repository.updateExpense(expense)
+        NotificationCenter.default.post(
+            name: AppConstants.Notifications.expensesDidChange,
+            object: nil,
+            userInfo: [
+                AppConstants.Notifications.expenseDatesKey: [expense.expenseDate],
+                AppConstants.Notifications.expenseCategoryIDsKey: [expense.category?.id].compactMap { $0 }
+            ]
+        )
     }
 }
