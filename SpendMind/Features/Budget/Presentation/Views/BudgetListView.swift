@@ -256,8 +256,12 @@ private struct BudgetFormView: View {
                     .accessibilityLabel("Budget Amount")
                     validationText(viewModel.amountError)
 
-                    DatePicker("Month", selection: $viewModel.month, displayedComponents: .date)
-                        .accessibilityLabel("Budget Month")
+                    MonthPicker(
+                        selection: $viewModel.month,
+                        selectedDate: viewModel.monthPickerSelectedDate,
+                        calendar: viewModel.calendar,
+                        locale: viewModel.monthPickerLocale
+                    )
                 }
 
                 Section("Alert Settings") {

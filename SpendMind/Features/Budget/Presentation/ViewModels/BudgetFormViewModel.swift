@@ -29,7 +29,7 @@ final class BudgetFormViewModel {
     var budgetType = BudgetType.total
     var selectedCategoryID: UUID?
     var amountText = ""
-    var month = Date()
+    var month: Date
     var alertThresholdPercent = 80
     private(set) var categories: [Category] = []
     private(set) var budgetedCategoryIDs: Set<UUID> = []
@@ -42,7 +42,9 @@ final class BudgetFormViewModel {
     private let categoryRepository: (any CategoryRepository)?
     private let budgetID: UUID?
     private let isActive: Bool
+    let calendar: Calendar
     private let locale: Locale
+    private let originalMonth: Date?
     let alertThresholdOptions = [50, 75, 80, 90]
 
     init(
@@ -51,6 +53,7 @@ final class BudgetFormViewModel {
         budgetRepository: any BudgetRepository,
         categoryRepository: (any CategoryRepository)? = nil,
         budget: Budget? = nil,
+        calendar: Calendar = .current,
         locale: Locale = .current
     ) {
         self.createBudgetUseCase = createBudgetUseCase
@@ -59,14 +62,16 @@ final class BudgetFormViewModel {
         self.categoryRepository = categoryRepository
         self.budgetID = budget?.id
         self.isActive = budget?.isActive ?? true
+        self.calendar = calendar
         self.locale = locale
+        self.originalMonth = budget?.startDate
+        self.month = Self.startOfMonth(for: budget?.startDate ?? .now, calendar: calendar)
 
         if let budget {
             name = budget.name
             budgetType = budget.categoryID == nil ? .total : .category
             selectedCategoryID = budget.categoryID
             amountText = Self.formattedDecimal(budget.amount, locale: locale)
-            month = budget.startDate
             alertThresholdPercent = Self.percent(from: budget.alertThreshold)
         }
     }
@@ -81,6 +86,14 @@ final class BudgetFormViewModel {
 
     var formMessage: String? {
         errorMessage
+    }
+
+    var monthPickerSelectedDate: Date? {
+        isEditing ? originalMonth : nil
+    }
+
+    var monthPickerLocale: Locale {
+        locale
     }
 
     var nameError: String? {
@@ -253,5 +266,9 @@ final class BudgetFormViewModel {
     private static func percent(from threshold: Decimal) -> Int {
         let percent = NSDecimalNumber(decimal: threshold * 100).intValue
         return [50, 75, 80, 90].contains(percent) ? percent : 80
+    }
+
+    private static func startOfMonth(for date: Date, calendar: Calendar) -> Date {
+        calendar.dateInterval(of: .month, for: date)?.start ?? calendar.startOfDay(for: date)
     }
 }
