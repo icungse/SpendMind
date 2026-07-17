@@ -87,11 +87,16 @@ private struct ContentView: View {
 
     private var rootView: some View {
         let expenseRepository = SwiftDataExpenseRepository(context: dependencies.modelContainer.mainContext)
+        let budgetRepository = SwiftDataBudgetRepository(modelContainer: dependencies.modelContainer)
 
         return DashboardView(
             viewModel: DashboardViewModel(
                 dateService: dependencies.dateService,
-                fetchExpensesUseCase: FetchExpensesUseCase(repository: expenseRepository)
+                fetchExpensesUseCase: FetchExpensesUseCase(repository: expenseRepository),
+                getCurrentBudgetsUseCase: DefaultGetCurrentBudgetsUseCase(
+                    budgetRepository: budgetRepository,
+                    expenseRepository: expenseRepository
+                )
             ),
             settings: $settings
         )
@@ -102,11 +107,16 @@ private struct ContentView: View {
         switch route {
         case .dashboard:
             let expenseRepository = SwiftDataExpenseRepository(context: dependencies.modelContainer.mainContext)
+            let budgetRepository = SwiftDataBudgetRepository(modelContainer: dependencies.modelContainer)
 
             DashboardView(
                 viewModel: DashboardViewModel(
                     dateService: dependencies.dateService,
-                    fetchExpensesUseCase: FetchExpensesUseCase(repository: expenseRepository)
+                    fetchExpensesUseCase: FetchExpensesUseCase(repository: expenseRepository),
+                    getCurrentBudgetsUseCase: DefaultGetCurrentBudgetsUseCase(
+                        budgetRepository: budgetRepository,
+                        expenseRepository: expenseRepository
+                    )
                 ),
                 settings: $settings
             )

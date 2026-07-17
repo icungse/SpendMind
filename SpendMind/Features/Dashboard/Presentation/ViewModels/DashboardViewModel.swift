@@ -37,6 +37,9 @@ final class DashboardViewModel {
     private(set) var balance: Decimal = 0
     private(set) var budgetLimit: Decimal = 0
     private(set) var budgetSpent: Decimal = 0
+    private(set) var budgetWarningCount: Int = 0
+    private(set) var budgetExceededCount: Int = 0
+    private(set) var hasBudgets: Bool = false
     private(set) var recentTransactions: [DashboardTransaction] = []
     private(set) var categorySpendings: [DashboardCategorySpending] = []
     private(set) var financialSuggestions: [String] = []
@@ -46,17 +49,22 @@ final class DashboardViewModel {
 
     private let dateService: any DateServiceProtocol
     private let fetchExpensesUseCase: FetchExpensesUseCase?
+    nonisolated(unsafe) private let getCurrentBudgetsUseCase: any GetCurrentBudgetsUseCase
+    private let hasBudgetUseCase: Bool
     private let calendar: Calendar
     private let currentDate: Date
 
     init(
         dateService: any DateServiceProtocol = DateService(),
         fetchExpensesUseCase: FetchExpensesUseCase? = nil,
+        getCurrentBudgetsUseCase: (any GetCurrentBudgetsUseCase)? = nil,
         calendar: Calendar = .current,
         currentDate: Date = .now
     ) {
         self.dateService = dateService
         self.fetchExpensesUseCase = fetchExpensesUseCase
+        self.getCurrentBudgetsUseCase = getCurrentBudgetsUseCase ?? EmptyDashboardBudgetsUseCase()
+        self.hasBudgetUseCase = getCurrentBudgetsUseCase != nil
         self.calendar = calendar
         self.currentDate = currentDate
     }
@@ -89,6 +97,7 @@ final class DashboardViewModel {
         }
 
         loadMonthlyExpenseTotal()
+        await loadBudgetSummary()
 
         let now = Date()
         recentTransactions = [
@@ -138,19 +147,39 @@ final class DashboardViewModel {
         return .safe
     }
 
-    var budgetWarningMessage: String? {
-        let remaining = budgetLimit - budgetSpent
+    var budgetRemaining: Decimal {
+        budgetLimit - budgetSpent
+    }
 
+    var budgetProgress: Decimal {
+        budgetLimit > 0 ? budgetSpent / budgetLimit : 0
+    }
+
+    var budgetProgressPercentText: String {
+        let percent = NSDecimalNumber(decimal: budgetProgress * 100).doubleValue.rounded()
+        return "\(Int(percent))%"
+    }
+
+    var budgetWarningMessage: String? {
         switch budgetStatus {
         case .safe:
             return nil
         case .warning:
             return String(
-                localized: "Monthly budget is near its limit. \(remaining.formattedCurrency(code: currencyCode)) remains."
+                localized: "Monthly budget is near its limit. \(budgetRemaining.formattedCurrency(code: currencyCode)) remains."
             )
         case .exceeded:
-            return String(localized: "Monthly budget is exceeded by \((-remaining).formattedCurrency(code: currencyCode)).")
+            return String(localized: "Monthly budget is exceeded by \((-budgetRemaining).formattedCurrency(code: currencyCode)).")
         }
+    }
+
+    func shouldRefreshForExpenseChange(_ userInfo: [AnyHashable: Any]?) -> Bool {
+        guard let dates = userInfo?[AppConstants.Notifications.expenseDatesKey] as? [Date] else {
+            return true
+        }
+
+        // budgets are monthly only, so month-level invalidation is enough.
+        return dates.contains { calendar.isDate($0, equalTo: currentDate, toGranularity: .month) }
     }
 
     private func loadMonthlyExpenseTotal() {
@@ -167,6 +196,27 @@ final class DashboardViewModel {
             totalExpense = total
             budgetSpent = total
             loadCategorySpendings(from: expenses)
+            errorMessage = nil
+        } catch {
+            errorMessage = AppError.wrap(error).errorDescription
+        }
+    }
+
+    private func loadBudgetSummary() async {
+        guard hasBudgetUseCase else {
+            hasBudgets = budgetLimit > 0
+            budgetWarningCount = budgetStatus == .warning ? 1 : 0
+            budgetExceededCount = budgetStatus == .exceeded ? 1 : 0
+            return
+        }
+
+        do {
+            let budgets = try await getCurrentBudgetsUseCase.execute(referenceDate: currentDate)
+            budgetLimit = budgets.reduce(0) { $0 + $1.budget.amount }
+            budgetSpent = budgets.reduce(0) { $0 + $1.spentAmount }
+            budgetWarningCount = budgets.filter { $0.status == .warning }.count
+            budgetExceededCount = budgets.filter { $0.status == .exceeded }.count
+            hasBudgets = !budgets.isEmpty
             errorMessage = nil
         } catch {
             errorMessage = AppError.wrap(error).errorDescription
@@ -190,5 +240,11 @@ final class DashboardViewModel {
         }
 
         categorySpendings = totals.values.sorted { $0.amount > $1.amount }
+    }
+}
+
+private struct EmptyDashboardBudgetsUseCase: GetCurrentBudgetsUseCase {
+    func execute(referenceDate: Date) async throws -> [BudgetProgress] {
+        []
     }
 }
