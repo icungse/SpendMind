@@ -22,6 +22,10 @@ final class DashboardViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.balance, 0)
         XCTAssertEqual(viewModel.budgetLimit, 0)
         XCTAssertEqual(viewModel.budgetSpent, 0)
+        XCTAssertEqual(viewModel.budgetWarningCount, 0)
+        XCTAssertEqual(viewModel.budgetExceededCount, 0)
+        XCTAssertFalse(viewModel.hasBudgets)
+        XCTAssertTrue(viewModel.budgetInsights.isEmpty)
         XCTAssertTrue(viewModel.recentTransactions.isEmpty)
         XCTAssertTrue(viewModel.financialSuggestions.isEmpty)
         XCTAssertFalse(viewModel.isLoading)
@@ -116,6 +120,57 @@ final class DashboardViewModelTests: XCTestCase {
         XCTAssertTrue(exceededViewModel.budgetWarningMessage?.contains("Monthly budget is exceeded by") == true)
     }
 
+    func testDashboardLoadsBudgetSummaryFromCurrentBudgets() async throws {
+        let budgets = [
+            BudgetProgress(budget: try budget(amount: 100), spentAmount: 40),
+            BudgetProgress(budget: try budget(categoryID: UUID(), amount: 50), spentAmount: 60),
+            BudgetProgress(budget: try budget(categoryID: UUID(), amount: 200), spentAmount: 160)
+        ]
+        let viewModel = DashboardViewModel(getCurrentBudgetsUseCase: DashboardBudgetUseCase(budgets: budgets))
+
+        await viewModel.loadDashboardData(currency: .USD)
+
+        XCTAssertTrue(viewModel.hasBudgets)
+        XCTAssertEqual(viewModel.budgetLimit, 350)
+        XCTAssertEqual(viewModel.budgetSpent, 260)
+        XCTAssertEqual(viewModel.budgetRemaining, 90)
+        XCTAssertEqual(viewModel.budgetWarningCount, 1)
+        XCTAssertEqual(viewModel.budgetExceededCount, 1)
+        XCTAssertEqual(viewModel.budgetProgressPercentText, "74%")
+        XCTAssertEqual(viewModel.budgetInsights.map(\.id), [
+            "overallMonthlyProgress",
+            "categoryApproachingLimit",
+            "categoryBudgetsExceeded"
+        ])
+    }
+
+    func testDashboardBudgetSummaryHandlesNoBudgets() async {
+        let viewModel = DashboardViewModel(getCurrentBudgetsUseCase: DashboardBudgetUseCase(budgets: []))
+
+        await viewModel.loadDashboardData(currency: .USD)
+
+        XCTAssertFalse(viewModel.hasBudgets)
+        XCTAssertEqual(viewModel.budgetLimit, 0)
+        XCTAssertEqual(viewModel.budgetSpent, 0)
+        XCTAssertEqual(viewModel.budgetRemaining, 0)
+        XCTAssertEqual(viewModel.budgetProgressPercentText, "0%")
+        XCTAssertEqual(viewModel.budgetWarningCount, 0)
+        XCTAssertEqual(viewModel.budgetExceededCount, 0)
+        XCTAssertTrue(viewModel.budgetInsights.isEmpty)
+    }
+
+    func testDashboardBudgetRefreshesOnlyForCurrentMonthExpenseChanges() {
+        let viewModel = DashboardViewModel(currentDate: date(year: 2026, month: 7, day: 13))
+
+        XCTAssertTrue(viewModel.shouldRefreshForExpenseChange([
+            AppConstants.Notifications.expenseDatesKey: [date(year: 2026, month: 7, day: 1)]
+        ]))
+        XCTAssertFalse(viewModel.shouldRefreshForExpenseChange([
+            AppConstants.Notifications.expenseDatesKey: [date(year: 2026, month: 8, day: 1)]
+        ]))
+        XCTAssertTrue(viewModel.shouldRefreshForExpenseChange(nil))
+    }
+
     private func date(year: Int, month: Int, day: Int) -> Date {
         DateComponents(
             calendar: Calendar(identifier: .gregorian),
@@ -123,6 +178,31 @@ final class DashboardViewModelTests: XCTestCase {
             month: month,
             day: day
         ).date ?? Date()
+    }
+
+    private func budget(categoryID: UUID? = nil, amount: Decimal) throws -> Budget {
+        try Budget(
+            categoryID: categoryID,
+            name: "Monthly",
+            amount: amount,
+            period: .monthly,
+            startDate: date(year: 2026, month: 7, day: 1),
+            endDate: date(year: 2026, month: 7, day: 31),
+            alertThreshold: 0.8,
+            calendar: Calendar(identifier: .gregorian)
+        )
+    }
+}
+
+private final class DashboardBudgetUseCase: GetCurrentBudgetsUseCase {
+    let budgets: [BudgetProgress]
+
+    init(budgets: [BudgetProgress]) {
+        self.budgets = budgets
+    }
+
+    func execute(referenceDate: Date) async throws -> [BudgetProgress] {
+        budgets
     }
 }
 

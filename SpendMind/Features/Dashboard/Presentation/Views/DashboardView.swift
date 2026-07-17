@@ -38,7 +38,7 @@ struct DashboardView: View {
 
                         categorySpendingSection
 
-                        suggestionsSection
+                        budgetInsightsSection
 
                         recentTransactionsSection
 
@@ -87,6 +87,12 @@ struct DashboardView: View {
         .onChange(of: settings.currency) { _, newCurrency in
             Task {
                 await viewModel.loadDashboardData(currency: newCurrency)
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: AppConstants.Notifications.expensesDidChange)) { notification in
+            guard viewModel.shouldRefreshForExpenseChange(notification.userInfo) else { return }
+            Task {
+                await viewModel.loadDashboardData(currency: settings.currency)
             }
         }
         .sheet(isPresented: $showingQuickAdd) {
@@ -185,61 +191,105 @@ struct DashboardView: View {
     }
 
     private var budgetCard: some View {
-        Card {
-            VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                HStack(alignment: .top) {
-                    SectionHeader(
-                        title: "Monthly Budget Progress",
-                        subtitle: "Limit: \(viewModel.budgetLimit.formattedCurrency(code: viewModel.currencyCode))"
-                    )
-
-                    Spacer()
-
-                    NavigationLink("Manage", value: AppRoute.budgets)
-                        .appFont(.caption)
-                        .foregroundStyle(AppColor.primary)
-                        .accessibilityLabel("Manage Budgets")
-                }
-
-                let progress = CGFloat(
-                    viewModel.budgetLimit > 0
-                    ? NSDecimalNumber(decimal: viewModel.budgetSpent / viewModel.budgetLimit).doubleValue
-                    : 0.0
-                )
-
-                VStack(spacing: AppSpacing.xs) {
-                    GeometryReader { geo in
-                        ZStack(alignment: .leading) {
-                            Capsule()
-                                .fill(AppColor.surfaceAlt)
-                                .frame(height: 8)
-
-                            Capsule()
-                                .fill(progress > 0.8 ? AppColor.error : AppColor.secondary)
-                                .frame(width: geo.size.width * min(progress, 1.0), height: 8)
-                        }
-                    }
-                    .frame(height: 8)
-
-                    HStack {
-                        Text("\(Int(progress * 100))% Spent")
-                            .appFont(.caption2)
-                            .foregroundStyle(progress > 0.8 ? AppColor.error : AppColor.textSecondary)
+        NavigationLink(value: AppRoute.budgets) {
+            Card {
+                VStack(alignment: .leading, spacing: AppSpacing.md) {
+                    HStack(alignment: .top) {
+                        SectionHeader(
+                            title: "Budget Summary",
+                            subtitle: viewModel.hasBudgets ? "Current month" : "No budgets yet"
+                        )
 
                         Spacer()
 
-                        let remaining = viewModel.budgetLimit - viewModel.budgetSpent
-                        Text("\(remaining.formattedCurrency(code: viewModel.currencyCode)) Left")
-                            .appFont(.caption2)
+                        Image(systemName: "chevron.right")
+                            .appFont(.caption)
+                            .foregroundStyle(AppColor.textSecondary)
+                            .accessibilityHidden(true)
+                    }
+
+                    if viewModel.hasBudgets {
+                        budgetSummaryContent
+                    } else {
+                        Text("Create a budget to track monthly spending.")
+                            .appFont(.footnote)
                             .foregroundStyle(AppColor.textSecondary)
                     }
                 }
-
-                if let budgetWarningMessage = viewModel.budgetWarningMessage {
-                    BudgetWarningBanner(status: viewModel.budgetStatus, message: budgetWarningMessage)
-                }
             }
         }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(budgetSummaryAccessibilityLabel)
+        .accessibilityHint("Opens budget list")
+    }
+
+    private var budgetSummaryContent: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+            let progress = CGFloat(NSDecimalNumber(decimal: viewModel.budgetProgress).doubleValue)
+
+            VStack(spacing: AppSpacing.xs) {
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        Capsule()
+                            .fill(AppColor.surfaceAlt)
+                            .frame(height: 8)
+
+                        Capsule()
+                            .fill(viewModel.budgetStatus == .exceeded ? AppColor.error : AppColor.secondary)
+                            .frame(width: geo.size.width * min(progress, 1.0), height: 8)
+                    }
+                }
+                .frame(height: 8)
+
+                HStack {
+                    Text("\(viewModel.budgetProgressPercentText) spent")
+                        .appFont(.caption2)
+                        .foregroundStyle(viewModel.budgetStatus == .safe ? AppColor.textSecondary : AppColor.error)
+
+                    Spacer()
+
+                    Text("\(viewModel.budgetRemaining.formattedCurrency(code: viewModel.currencyCode)) left")
+                        .appFont(.caption2)
+                        .foregroundStyle(AppColor.textSecondary)
+                }
+            }
+
+            VStack(spacing: AppSpacing.xs) {
+                budgetSummaryRow("Total budget", viewModel.budgetLimit.formattedCurrency(code: viewModel.currencyCode))
+                budgetSummaryRow("Total spent", viewModel.budgetSpent.formattedCurrency(code: viewModel.currencyCode))
+                budgetSummaryRow("Remaining", viewModel.budgetRemaining.formattedCurrency(code: viewModel.currencyCode))
+                budgetSummaryRow("Warning", "\(viewModel.budgetWarningCount)")
+                budgetSummaryRow("Exceeded", "\(viewModel.budgetExceededCount)")
+            }
+
+            if let budgetWarningMessage = viewModel.budgetWarningMessage {
+                BudgetWarningBanner(status: viewModel.budgetStatus, message: budgetWarningMessage)
+            }
+        }
+    }
+
+    private func budgetSummaryRow(_ title: LocalizedStringKey, _ value: String) -> some View {
+        HStack(alignment: .firstTextBaseline) {
+            Text(title)
+                .appFont(.footnote)
+                .foregroundStyle(AppColor.textSecondary)
+
+            Spacer(minLength: AppSpacing.md)
+
+            Text(value)
+                .appFont(.footnote)
+                .foregroundStyle(AppColor.textPrimary)
+                .multilineTextAlignment(.trailing)
+        }
+    }
+
+    private var budgetSummaryAccessibilityLabel: String {
+        guard viewModel.hasBudgets else {
+            return "Budget Summary. No budgets yet. Create a budget to track monthly spending."
+        }
+
+        return "Budget Summary. Total budget \(viewModel.budgetLimit.formattedCurrency(code: viewModel.currencyCode)). Total spent \(viewModel.budgetSpent.formattedCurrency(code: viewModel.currencyCode)). Remaining \(viewModel.budgetRemaining.formattedCurrency(code: viewModel.currencyCode)). Overall progress \(viewModel.budgetProgressPercentText). \(viewModel.budgetWarningCount) budgets in warning. \(viewModel.budgetExceededCount) budgets exceeded."
     }
 
     private var categorySpendingSection: some View {
@@ -292,38 +342,47 @@ struct DashboardView: View {
         }
     }
 
-    private var suggestionsSection: some View {
+    private var budgetInsightsSection: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
             HStack(spacing: AppSpacing.xs) {
-                Image(systemName: "sparkles")
-                    .foregroundStyle(AppColor.brandLavender)
-                    .symbolEffect(.bounce, options: .repeating)
+                Image(systemName: "chart.bar.doc.horizontal")
+                    .foregroundStyle(AppColor.primary)
+                    .accessibilityHidden(true)
 
-                SectionHeader(title: "AI Financial Suggestions")
+                SectionHeader(title: "Budget Insights")
             }
 
-            VStack(spacing: AppSpacing.sm) {
-                ForEach(viewModel.financialSuggestions, id: \.self) { suggestion in
-                    HStack(spacing: AppSpacing.md) {
-                        Image(systemName: "lightbulb.fill")
-                            .foregroundStyle(AppColor.warning)
-                            .frame(width: 24, height: 24)
-                            .background(AppColor.surfaceAlt)
-                            .clipShape(Circle())
+            if viewModel.budgetInsights.isEmpty {
+                EmptyState(
+                    title: "No budget insights yet",
+                    message: "Create a budget or add expenses this month to see insights."
+                )
+            } else {
+                VStack(spacing: AppSpacing.sm) {
+                    ForEach(viewModel.budgetInsights) { insight in
+                        HStack(spacing: AppSpacing.md) {
+                            Image(systemName: "chart.line.uptrend.xyaxis")
+                                .foregroundStyle(AppColor.primary)
+                                .frame(width: 24, height: 24)
+                                .background(AppColor.surfaceAlt)
+                                .clipShape(Circle())
+                                .accessibilityHidden(true)
 
-                        Text(suggestion)
-                            .appFont(.footnote)
-                            .foregroundStyle(AppColor.textPrimary)
-                            .lineLimit(2)
+                            Text(LocalizedStringKey(insight.message))
+                                .appFont(.footnote)
+                                .foregroundStyle(AppColor.textPrimary)
+                                .fixedSize(horizontal: false, vertical: true)
 
-                        Spacer()
-                    }
-                    .padding(AppSpacing.sm)
-                    .background(AppColor.surface)
-                    .clipShape(RoundedRectangle(cornerRadius: Radius.medium))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: Radius.medium)
-                            .stroke(AppColor.border)
+                            Spacer()
+                        }
+                        .padding(AppSpacing.sm)
+                        .background(AppColor.surface)
+                        .clipShape(RoundedRectangle(cornerRadius: Radius.medium))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: Radius.medium)
+                                .stroke(AppColor.border)
+                        }
+                        .accessibilityElement(children: .combine)
                     }
                 }
             }
