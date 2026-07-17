@@ -40,6 +40,7 @@ final class DashboardViewModel {
     private(set) var budgetWarningCount: Int = 0
     private(set) var budgetExceededCount: Int = 0
     private(set) var hasBudgets: Bool = false
+    private(set) var budgetInsights: [BudgetInsight] = []
     private(set) var recentTransactions: [DashboardTransaction] = []
     private(set) var categorySpendings: [DashboardCategorySpending] = []
     private(set) var financialSuggestions: [String] = []
@@ -50,6 +51,7 @@ final class DashboardViewModel {
     private let dateService: any DateServiceProtocol
     private let fetchExpensesUseCase: FetchExpensesUseCase?
     nonisolated(unsafe) private let getCurrentBudgetsUseCase: any GetCurrentBudgetsUseCase
+    private let generateBudgetInsightsUseCase: DefaultGenerateBudgetInsightsUseCase
     private let hasBudgetUseCase: Bool
     private let calendar: Calendar
     private let currentDate: Date
@@ -58,12 +60,14 @@ final class DashboardViewModel {
         dateService: any DateServiceProtocol = DateService(),
         fetchExpensesUseCase: FetchExpensesUseCase? = nil,
         getCurrentBudgetsUseCase: (any GetCurrentBudgetsUseCase)? = nil,
+        generateBudgetInsightsUseCase: DefaultGenerateBudgetInsightsUseCase = DefaultGenerateBudgetInsightsUseCase(),
         calendar: Calendar = .current,
         currentDate: Date = .now
     ) {
         self.dateService = dateService
         self.fetchExpensesUseCase = fetchExpensesUseCase
         self.getCurrentBudgetsUseCase = getCurrentBudgetsUseCase ?? EmptyDashboardBudgetsUseCase()
+        self.generateBudgetInsightsUseCase = generateBudgetInsightsUseCase
         self.hasBudgetUseCase = getCurrentBudgetsUseCase != nil
         self.calendar = calendar
         self.currentDate = currentDate
@@ -207,6 +211,7 @@ final class DashboardViewModel {
             hasBudgets = budgetLimit > 0
             budgetWarningCount = budgetStatus == .warning ? 1 : 0
             budgetExceededCount = budgetStatus == .exceeded ? 1 : 0
+            budgetInsights = []
             return
         }
 
@@ -217,8 +222,10 @@ final class DashboardViewModel {
             budgetWarningCount = budgets.filter { $0.status == .warning }.count
             budgetExceededCount = budgets.filter { $0.status == .exceeded }.count
             hasBudgets = !budgets.isEmpty
+            budgetInsights = generateBudgetInsightsUseCase.execute(progress: budgets, referenceDate: currentDate)
             errorMessage = nil
         } catch {
+            budgetInsights = []
             errorMessage = AppError.wrap(error).errorDescription
         }
     }

@@ -38,7 +38,7 @@ struct DashboardView: View {
 
                         categorySpendingSection
 
-                        suggestionsSection
+                        budgetInsightsSection
 
                         recentTransactionsSection
 
@@ -342,38 +342,47 @@ struct DashboardView: View {
         }
     }
 
-    private var suggestionsSection: some View {
+    private var budgetInsightsSection: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
             HStack(spacing: AppSpacing.xs) {
-                Image(systemName: "sparkles")
-                    .foregroundStyle(AppColor.brandLavender)
-                    .symbolEffect(.bounce, options: .repeating)
+                Image(systemName: "chart.bar.doc.horizontal")
+                    .foregroundStyle(AppColor.primary)
+                    .accessibilityHidden(true)
 
-                SectionHeader(title: "AI Financial Suggestions")
+                SectionHeader(title: "Budget Insights")
             }
 
-            VStack(spacing: AppSpacing.sm) {
-                ForEach(viewModel.financialSuggestions, id: \.self) { suggestion in
-                    HStack(spacing: AppSpacing.md) {
-                        Image(systemName: "lightbulb.fill")
-                            .foregroundStyle(AppColor.warning)
-                            .frame(width: 24, height: 24)
-                            .background(AppColor.surfaceAlt)
-                            .clipShape(Circle())
+            if viewModel.budgetInsights.isEmpty {
+                EmptyState(
+                    title: "No budget insights yet",
+                    message: "Create a budget or add expenses this month to see insights."
+                )
+            } else {
+                VStack(spacing: AppSpacing.sm) {
+                    ForEach(viewModel.budgetInsights) { insight in
+                        HStack(spacing: AppSpacing.md) {
+                            Image(systemName: "chart.line.uptrend.xyaxis")
+                                .foregroundStyle(AppColor.primary)
+                                .frame(width: 24, height: 24)
+                                .background(AppColor.surfaceAlt)
+                                .clipShape(Circle())
+                                .accessibilityHidden(true)
 
-                        Text(suggestion)
-                            .appFont(.footnote)
-                            .foregroundStyle(AppColor.textPrimary)
-                            .lineLimit(2)
+                            Text(LocalizedStringKey(insight.message))
+                                .appFont(.footnote)
+                                .foregroundStyle(AppColor.textPrimary)
+                                .fixedSize(horizontal: false, vertical: true)
 
-                        Spacer()
-                    }
-                    .padding(AppSpacing.sm)
-                    .background(AppColor.surface)
-                    .clipShape(RoundedRectangle(cornerRadius: Radius.medium))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: Radius.medium)
-                            .stroke(AppColor.border)
+                            Spacer()
+                        }
+                        .padding(AppSpacing.sm)
+                        .background(AppColor.surface)
+                        .clipShape(RoundedRectangle(cornerRadius: Radius.medium))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: Radius.medium)
+                                .stroke(AppColor.border)
+                        }
+                        .accessibilityElement(children: .combine)
                     }
                 }
             }

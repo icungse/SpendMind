@@ -25,6 +25,7 @@ final class DashboardViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.budgetWarningCount, 0)
         XCTAssertEqual(viewModel.budgetExceededCount, 0)
         XCTAssertFalse(viewModel.hasBudgets)
+        XCTAssertTrue(viewModel.budgetInsights.isEmpty)
         XCTAssertTrue(viewModel.recentTransactions.isEmpty)
         XCTAssertTrue(viewModel.financialSuggestions.isEmpty)
         XCTAssertFalse(viewModel.isLoading)
@@ -122,8 +123,8 @@ final class DashboardViewModelTests: XCTestCase {
     func testDashboardLoadsBudgetSummaryFromCurrentBudgets() async throws {
         let budgets = [
             BudgetProgress(budget: try budget(amount: 100), spentAmount: 40),
-            BudgetProgress(budget: try budget(amount: 50), spentAmount: 60),
-            BudgetProgress(budget: try budget(amount: 200), spentAmount: 160)
+            BudgetProgress(budget: try budget(categoryID: UUID(), amount: 50), spentAmount: 60),
+            BudgetProgress(budget: try budget(categoryID: UUID(), amount: 200), spentAmount: 160)
         ]
         let viewModel = DashboardViewModel(getCurrentBudgetsUseCase: DashboardBudgetUseCase(budgets: budgets))
 
@@ -136,6 +137,11 @@ final class DashboardViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.budgetWarningCount, 1)
         XCTAssertEqual(viewModel.budgetExceededCount, 1)
         XCTAssertEqual(viewModel.budgetProgressPercentText, "74%")
+        XCTAssertEqual(viewModel.budgetInsights.map(\.id), [
+            "overallMonthlyProgress",
+            "categoryApproachingLimit",
+            "categoryBudgetsExceeded"
+        ])
     }
 
     func testDashboardBudgetSummaryHandlesNoBudgets() async {
@@ -150,6 +156,7 @@ final class DashboardViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.budgetProgressPercentText, "0%")
         XCTAssertEqual(viewModel.budgetWarningCount, 0)
         XCTAssertEqual(viewModel.budgetExceededCount, 0)
+        XCTAssertTrue(viewModel.budgetInsights.isEmpty)
     }
 
     func testDashboardBudgetRefreshesOnlyForCurrentMonthExpenseChanges() {
@@ -173,8 +180,9 @@ final class DashboardViewModelTests: XCTestCase {
         ).date ?? Date()
     }
 
-    private func budget(amount: Decimal) throws -> Budget {
+    private func budget(categoryID: UUID? = nil, amount: Decimal) throws -> Budget {
         try Budget(
+            categoryID: categoryID,
             name: "Monthly",
             amount: amount,
             period: .monthly,
