@@ -1,6 +1,6 @@
 # DataModel.md
 
-# SpendMind v1.0 Data Model
+# Veyra v1.0 Data Model
 
 Version: 1.0  
 Platform: iOS 18+  
@@ -11,7 +11,7 @@ Architecture: Offline First
 
 # Overview
 
-SpendMind is designed to run **100% locally**.
+Veyra is designed to run **100% locally**.
 
 There is:
 
@@ -634,7 +634,7 @@ Benefits:
 Export format:
 
 ```
-SpendMind Backup/
+Veyra Backup/
 
     database.json
 
@@ -699,7 +699,7 @@ Refresh Dashboard
 
 # Migration Strategy
 
-SpendMind uses SwiftData migrations for persisted app data.
+Veyra uses SwiftData migrations for persisted app data.
 
 Rules:
 

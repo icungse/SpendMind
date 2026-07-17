@@ -1,6 +1,6 @@
 # FolderStructure.md
 
-# SpendMind iOS Folder Structure
+# Veyra iOS Folder Structure
 
 > Version: 1.0
 > Architecture: MVVM + Clean Architecture + Modular Feature Structure
@@ -26,7 +26,7 @@ This folder structure is designed to:
 # Root
 
 ```
-SpendMind/
+Veyra/
 │
 ├── App/
 ├── Core/
@@ -48,7 +48,7 @@ Contains application lifecycle.
 ```
 App/
 
-├── SpendMindApp.swift
+├── VeyraApp.swift
 ├── AppRouter.swift
 ├── AppEnvironment.swift
 ├── DependencyContainer.swift
@@ -662,14 +662,14 @@ Example future structure:
 ```
 Packages/
 
-├── SpendMindCore
-├── SpendMindAI
-├── SpendMindDesignSystem
-├── SpendMindTransactions
-├── SpendMindBudget
-├── SpendMindInsights
-├── SpendMindOCR
-└── SpendMindShared
+├── VeyraCore
+├── VeyraAI
+├── VeyraDesignSystem
+├── VeyraTransactions
+├── VeyraBudget
+├── VeyraInsights
+├── VeyraOCR
+└── VeyraShared
 ```
 
 ---

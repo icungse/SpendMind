@@ -1,6 +1,6 @@
 # DesignSystem.md
 
-**Project:** SpendMind iOS  
+**Project:** Veyra iOS  
 **Phase:** 2 - Design System  
 **Version:** 1.0
 
@@ -19,7 +19,7 @@ Use shared tokens and components before adding new styling or new components.
 The current design system lives in:
 
 ```text
-SpendMind/Shared/
+Veyra/Shared/
 ├── DesignSystem/
 │   ├── AppColor.swift
 │   ├── AppSpacing.swift

@@ -1,6 +1,6 @@
 # AIEngine.md
 
-# SpendMind AI Engine
+# Veyra AI Engine
 **Version:** 1.0  
 **Platform:** iOS (Swift 6+)  
 **Architecture:** On-Device AI Only  
@@ -87,7 +87,7 @@ Every time.
 
 # 3. AI Modules
 
-SpendMind AI is divided into multiple engines.
+Veyra AI is divided into multiple engines.
 
 ```
 AIEngine
