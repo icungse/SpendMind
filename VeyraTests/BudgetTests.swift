@@ -46,7 +46,7 @@ final class BudgetTests: XCTestCase {
     func testBudgetPeriodSupportsMonthlyOnly() {
         XCTAssertEqual(BudgetPeriod.allCases, [.monthly])
         XCTAssertEqual(BudgetPeriod.monthly.rawValue, "monthly")
-        XCTAssertEqual(String(localized: BudgetPeriod.monthly.localizedTitle), "budget.period.monthly")
+        XCTAssertEqual(String(localized: BudgetPeriod.monthly.localizedTitle), "Monthly")
     }
 
     func testRejectsInvalidAmounts() {

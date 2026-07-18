@@ -20,7 +20,7 @@ struct DefaultCalculateBudgetProgressUseCase: CalculateBudgetProgressUseCase {
 
     func execute(budget: Budget, expenses: [Expense]) throws -> BudgetProgress {
         guard let endDate = calendar.date(byAdding: .day, value: 1, to: budget.endDate) else {
-            throw AppError.validation("Invalid budget end date.")
+            throw AppError.validation(String(localized: "budget.validation.invalid_end_date"))
         }
 
         // budgets have no currency yet; sum stored amounts as-is until conversion exists.
@@ -70,7 +70,7 @@ struct DefaultPreviewBudgetImpactUseCase: PreviewBudgetImpactUseCase, @unchecked
             .filter { !$0.isDeleted && $0.id != editingExpenseID }
 
         guard let endDate = calendar.date(byAdding: .day, value: 1, to: budget.endDate) else {
-            throw AppError.validation("Invalid budget end date.")
+            throw AppError.validation(String(localized: "budget.validation.invalid_end_date"))
         }
 
         // inline draft sum avoids creating fake SwiftData models just to preview one amount.

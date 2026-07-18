@@ -113,14 +113,14 @@ private extension BudgetAlertEvent {
     var notificationTitle: String {
         switch self {
         case .thresholdReached:
-            "Budget warning"
+            String(localized: "budget.notifications.warning.title")
         case .budgetExceeded:
-            "Budget exceeded"
+            String(localized: "budget.notifications.exceeded.title")
         }
     }
 
     var notificationBody: String {
         // generic copy avoids leaking category or transaction details in lock-screen notifications.
-        "One of your budgets needs attention."
+        String(localized: "budget.notifications.body")
     }
 }

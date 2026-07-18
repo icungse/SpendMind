@@ -43,11 +43,11 @@ struct Budget: Equatable, Sendable {
         calendar: Calendar = .current
     ) throws {
         guard amount > 0 else {
-            throw AppError.validation("Budget amount must be greater than zero.")
+            throw AppError.validation(String(localized: "budget.validation.amount_greater_than_zero"))
         }
 
         guard alertThreshold >= 0, alertThreshold <= 1 else {
-            throw AppError.validation("Budget alert threshold must be between 0 and 1.")
+            throw AppError.validation(String(localized: "budget.validation.alert_threshold_range"))
         }
 
         self.id = id

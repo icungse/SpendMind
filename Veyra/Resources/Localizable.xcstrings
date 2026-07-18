@@ -1,0 +1,360 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "general.cancel" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel" } } }
+    },
+    "general.delete" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete" } } }
+    },
+    "general.done" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Done" } } }
+    },
+    "general.save" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Save" } } }
+    },
+    "budget.accessibility.amount" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget Amount" } } }
+    },
+    "budget.accessibility.card" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@, %@, budget %@, spent %@, remaining %@, %@ used, status %@" } } }
+    },
+    "budget.accessibility.category" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget Category" } } }
+    },
+    "budget.accessibility.current_month" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Current month, %@" } } }
+    },
+    "budget.accessibility.delete" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete Budget" } } }
+    },
+    "budget.accessibility.dismiss_keyboard" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Dismiss Keyboard" } } }
+    },
+    "budget.accessibility.edit" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Edit %@" } } }
+    },
+    "budget.accessibility.form.cancel" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel Budget Form" } } }
+    },
+    "budget.accessibility.form.save" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Save Budget" } } }
+    },
+    "budget.accessibility.month" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget Month" } } }
+    },
+    "budget.accessibility.name" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget Name" } } }
+    },
+    "budget.accessibility.progress" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@, %@ used, status %@" } } }
+    },
+    "budget.accessibility.summary.empty" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget Summary. No budgets yet. Create a budget to track monthly spending." } } }
+    },
+    "budget.accessibility.summary.loaded" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget Summary. Total budget %@. Total spent %@. Remaining %@. Overall progress %@. %@. %@." } } }
+    },
+    "budget.accessibility.summary.opens_list" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Opens budget list" } } }
+    },
+    "budget.accessibility.threshold" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget Alert Threshold" } } }
+    },
+    "budget.accessibility.type" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget Type" } } }
+    },
+    "budget.accessibility.validation_error" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Validation Error: %@" } } }
+    },
+    "budget.alert_settings" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Alert Settings" } } }
+    },
+    "budget.alert_threshold" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Alert Threshold" } } }
+    },
+    "budget.alert_threshold.label" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Alert at %lld%%" } } }
+    },
+    "budget.alert_state.persistence.fetch_failed" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to fetch budget alert state: %@" } } }
+    },
+    "budget.alert_state.persistence.save_failed" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to %@ budget alert state: %@" } } }
+    },
+    "budget.already_budgeted" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Already budgeted" } } }
+    },
+    "budget.amount" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Amount" } } }
+    },
+    "budget.category" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Category Budget" } } }
+    },
+    "budget.category_budgets" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Category Budgets" } } }
+    },
+    "budget.confirm_delete" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Confirm delete before continuing." } } }
+    },
+    "budget.create" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Create Budget" } } }
+    },
+    "budget.delete" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete Budget" } } }
+    },
+    "budget.delete.confirmation.message" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Your expenses will not be deleted." } } }
+    },
+    "budget.delete.confirmation.title" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete this budget?" } } }
+    },
+    "budget.details" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget Details" } } }
+    },
+    "budget.edit" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Edit Budget" } } }
+    },
+    "budget.empty.create_first.message" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Set a monthly spending limit and track your progress throughout the month." } } }
+    },
+    "budget.empty.create_first.title" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Create your first budget" } } }
+    },
+    "budget.empty.insights.message" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Create a budget or add expenses this month to see insights." } } }
+    },
+    "budget.empty.insights.title" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "No budget insights yet" } } }
+    },
+    "budget.empty.summary.message" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Create a budget to track monthly spending." } } }
+    },
+    "budget.exceeded" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Exceeded" } } }
+    },
+    "budget.form.type.category" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Specific category" } } }
+    },
+    "budget.form.type.total" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Total Spending" } } }
+    },
+    "budget.insight.category_approaching_limit" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Your %@ budget is close to its limit." } } }
+    },
+    "budget.insight.category_budgets_exceeded" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : { "stringUnit" : { "state" : "translated", "value" : "You have exceeded %lld category budget this month." } },
+              "other" : { "stringUnit" : { "state" : "translated", "value" : "You have exceeded %lld category budgets this month." } }
+            }
+          }
+        }
+      }
+    },
+    "budget.insight.overall_monthly_progress" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "You have used %lld%% of your monthly budget with %lld days remaining." } } }
+    },
+    "budget.insights" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget Insights" } } }
+    },
+    "budget.load.failed" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Could not load budgets" } } }
+    },
+    "budget.loading" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Loading Budgets..." } } }
+    },
+    "budget.monthly" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Monthly Budget" } } }
+    },
+    "budget.name" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Name" } } }
+    },
+    "budget.notifications" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget Notifications" } } }
+    },
+    "budget.notifications.body" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "One of your budgets needs attention." } } }
+    },
+    "budget.notifications.exceeded.title" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget exceeded" } } }
+    },
+    "budget.notifications.warning.title" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget warning" } } }
+    },
+    "budget.over_budget" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ over budget" } } }
+    },
+    "budget.period.monthly" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Monthly" } } }
+    },
+    "budget.persistence.action.fetch_active_budgets" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "fetch active budgets" } } }
+    },
+    "budget.persistence.action.fetch_budgets_by_date_range" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "fetch budgets by date range" } } }
+    },
+    "budget.persistence.action_failed" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to %@: %@" } } }
+    },
+    "budget.persistence.category_fetch_failed" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to fetch budget category: %@" } } }
+    },
+    "budget.persistence.fetch_failed" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to fetch budget: %@" } } }
+    },
+    "budget.persistence.load_failed" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to load budget: %@" } } }
+    },
+    "budget.persistence.save_failed" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to %@ budget: %@" } } }
+    },
+    "budget.persistence.uniqueness_failed" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to validate budget uniqueness: %@" } } }
+    },
+    "budget.remaining" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Remaining" } } }
+    },
+    "budget.remaining.left" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ left" } } }
+    },
+    "budget.safe" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Safe" } } }
+    },
+    "budget.select_category" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Select Category" } } }
+    },
+    "budget.spent" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Spent" } } }
+    },
+    "budget.spent.value" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ spent" } } }
+    },
+    "budget.summary" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget Summary" } } }
+    },
+    "budget.summary.current_month" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Current month" } } }
+    },
+    "budget.summary.exceeded_count" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : { "stringUnit" : { "state" : "translated", "value" : "%lld budget exceeded" } },
+              "other" : { "stringUnit" : { "state" : "translated", "value" : "%lld budgets exceeded" } }
+            }
+          }
+        }
+      }
+    },
+    "budget.summary.no_budgets_yet" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "No budgets yet" } } }
+    },
+    "budget.summary.total_budget" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Total budget" } } }
+    },
+    "budget.summary.total_spent" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Total spent" } } }
+    },
+    "budget.summary.warning_count" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : { "stringUnit" : { "state" : "translated", "value" : "%lld budget in warning" } },
+              "other" : { "stringUnit" : { "state" : "translated", "value" : "%lld budgets in warning" } }
+            }
+          }
+        }
+      }
+    },
+    "budget.title" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget" } } }
+    },
+    "budget.title_plural" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budgets" } } }
+    },
+    "budget.total_monthly" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Total Monthly Budget" } } }
+    },
+    "budget.total_spending" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Total Spending" } } }
+    },
+    "budget.total.active_budgets" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "All active budgets" } } }
+    },
+    "budget.try_again" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Try again." } } }
+    },
+    "budget.type" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget Type" } } }
+    },
+    "budget.update" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Update Budget" } } }
+    },
+    "budget.used" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ used" } } }
+    },
+    "budget.validation.active_duplicate" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "An active budget already exists for this category and period." } } }
+    },
+    "budget.validation.alert_threshold_range" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget alert threshold must be between 0 and 1." } } }
+    },
+    "budget.validation.alert_threshold_valid" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Alert threshold must be valid." } } }
+    },
+    "budget.validation.amount_greater_than_zero" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget amount must be greater than zero." } } }
+    },
+    "budget.validation.amount_greater_than_zero_short" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Amount must be greater than zero." } } }
+    },
+    "budget.validation.amount_required" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Amount is required." } } }
+    },
+    "budget.validation.amount_valid_number" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Amount must be a valid number." } } }
+    },
+    "budget.validation.category_active_duplicate" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Category already has an active budget for this month." } } }
+    },
+    "budget.validation.category_required" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Category is required." } } }
+    },
+    "budget.validation.invalid_month" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Invalid budget month." } } }
+    },
+    "budget.validation.invalid_date_range" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Invalid budget date range." } } }
+    },
+    "budget.validation.invalid_end_date" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Invalid budget end date." } } }
+    },
+    "budget.validation.name_required" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget name is required." } } }
+    },
+    "budget.validation.not_found" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget not found." } } }
+    },
+    "budget.warning" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Warning" } } }
+    },
+    "budget.warning.exceeded_message" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ is exceeded by %@." } } }
+    },
+    "budget.warning.monthly_exceeded" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Monthly budget is exceeded by %@." } } }
+    },
+    "budget.warning.monthly_near_limit" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Monthly budget is near its limit. %@ remains." } } }
+    },
+    "budget.warning.threshold_message" : {
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "You've used %@ of %@. %@ remains." } } }
+    }
+  },
+  "version" : "1.0"
+}

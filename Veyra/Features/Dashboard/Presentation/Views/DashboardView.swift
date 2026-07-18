@@ -61,7 +61,7 @@ struct DashboardView: View {
                 Menu {
                     Button(action: toggleBudgetNotifications) {
                         Label(
-                            "Budget Notifications",
+                            "budget.notifications",
                             systemImage: settings.isBudgetNotificationsEnabled ? "checkmark" : ""
                         )
                     }
@@ -196,8 +196,10 @@ struct DashboardView: View {
                 VStack(alignment: .leading, spacing: AppSpacing.md) {
                     HStack(alignment: .top) {
                         SectionHeader(
-                            title: "Budget Summary",
-                            subtitle: viewModel.hasBudgets ? "Current month" : "No budgets yet"
+                            title: "budget.summary",
+                            subtitle: LocalizedStringKey(
+                                viewModel.hasBudgets ? "budget.summary.current_month" : "budget.summary.no_budgets_yet"
+                            )
                         )
 
                         Spacer()
@@ -211,7 +213,7 @@ struct DashboardView: View {
                     if viewModel.hasBudgets {
                         budgetSummaryContent
                     } else {
-                        Text("Create a budget to track monthly spending.")
+                        Text("budget.empty.summary.message")
                             .appFont(.footnote)
                             .foregroundStyle(AppColor.textSecondary)
                     }
@@ -221,7 +223,7 @@ struct DashboardView: View {
         .buttonStyle(.plain)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(budgetSummaryAccessibilityLabel)
-        .accessibilityHint("Opens budget list")
+        .accessibilityHint("budget.accessibility.summary.opens_list")
     }
 
     private var budgetSummaryContent: some View {
@@ -243,24 +245,30 @@ struct DashboardView: View {
                 .frame(height: 8)
 
                 HStack {
-                    Text("\(viewModel.budgetProgressPercentText) spent")
+                    Text(String.localizedStringWithFormat(
+                        String(localized: "budget.spent.value"),
+                        viewModel.budgetProgressPercentText
+                    ))
                         .appFont(.caption2)
                         .foregroundStyle(viewModel.budgetStatus == .safe ? AppColor.textSecondary : AppColor.error)
 
                     Spacer()
 
-                    Text("\(viewModel.budgetRemaining.formattedCurrency(code: viewModel.currencyCode)) left")
+                    Text(String.localizedStringWithFormat(
+                        String(localized: "budget.remaining.left"),
+                        viewModel.budgetRemaining.formattedCurrency(code: viewModel.currencyCode)
+                    ))
                         .appFont(.caption2)
                         .foregroundStyle(AppColor.textSecondary)
                 }
             }
 
             VStack(spacing: AppSpacing.xs) {
-                budgetSummaryRow("Total budget", viewModel.budgetLimit.formattedCurrency(code: viewModel.currencyCode))
-                budgetSummaryRow("Total spent", viewModel.budgetSpent.formattedCurrency(code: viewModel.currencyCode))
-                budgetSummaryRow("Remaining", viewModel.budgetRemaining.formattedCurrency(code: viewModel.currencyCode))
-                budgetSummaryRow("Warning", "\(viewModel.budgetWarningCount)")
-                budgetSummaryRow("Exceeded", "\(viewModel.budgetExceededCount)")
+                budgetSummaryRow("budget.summary.total_budget", viewModel.budgetLimit.formattedCurrency(code: viewModel.currencyCode))
+                budgetSummaryRow("budget.summary.total_spent", viewModel.budgetSpent.formattedCurrency(code: viewModel.currencyCode))
+                budgetSummaryRow("budget.remaining", viewModel.budgetRemaining.formattedCurrency(code: viewModel.currencyCode))
+                budgetSummaryRow("budget.warning", "\(viewModel.budgetWarningCount)")
+                budgetSummaryRow("budget.exceeded", "\(viewModel.budgetExceededCount)")
             }
 
             if let budgetWarningMessage = viewModel.budgetWarningMessage {
@@ -286,10 +294,32 @@ struct DashboardView: View {
 
     private var budgetSummaryAccessibilityLabel: String {
         guard viewModel.hasBudgets else {
-            return "Budget Summary. No budgets yet. Create a budget to track monthly spending."
+            return String(localized: "budget.accessibility.summary.empty")
         }
 
-        return "Budget Summary. Total budget \(viewModel.budgetLimit.formattedCurrency(code: viewModel.currencyCode)). Total spent \(viewModel.budgetSpent.formattedCurrency(code: viewModel.currencyCode)). Remaining \(viewModel.budgetRemaining.formattedCurrency(code: viewModel.currencyCode)). Overall progress \(viewModel.budgetProgressPercentText). \(viewModel.budgetWarningCount) budgets in warning. \(viewModel.budgetExceededCount) budgets exceeded."
+        return String.localizedStringWithFormat(
+            String(localized: "budget.accessibility.summary.loaded"),
+            viewModel.budgetLimit.formattedCurrency(code: viewModel.currencyCode),
+            viewModel.budgetSpent.formattedCurrency(code: viewModel.currencyCode),
+            viewModel.budgetRemaining.formattedCurrency(code: viewModel.currencyCode),
+            viewModel.budgetProgressPercentText,
+            budgetWarningCountText,
+            budgetExceededCountText
+        )
+    }
+
+    private var budgetWarningCountText: String {
+        String.localizedStringWithFormat(
+            String(localized: "budget.summary.warning_count"),
+            viewModel.budgetWarningCount
+        )
+    }
+
+    private var budgetExceededCountText: String {
+        String.localizedStringWithFormat(
+            String(localized: "budget.summary.exceeded_count"),
+            viewModel.budgetExceededCount
+        )
     }
 
     private var categorySpendingSection: some View {
@@ -349,13 +379,13 @@ struct DashboardView: View {
                     .foregroundStyle(AppColor.primary)
                     .accessibilityHidden(true)
 
-                SectionHeader(title: "Budget Insights")
+                SectionHeader(title: "budget.insights")
             }
 
             if viewModel.budgetInsights.isEmpty {
                 EmptyState(
-                    title: "No budget insights yet",
-                    message: "Create a budget or add expenses this month to see insights."
+                    title: "budget.empty.insights.title",
+                    message: "budget.empty.insights.message"
                 )
             } else {
                 VStack(spacing: AppSpacing.sm) {

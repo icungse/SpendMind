@@ -21,11 +21,11 @@ struct DefaultDeleteBudgetUseCase: DeleteBudgetUseCase {
     func execute(id: UUID, isConfirmed: Bool) async throws {
         // UI owns the alert; the use case only enforces the confirmed result.
         guard isConfirmed else {
-            throw AppError.validation("Confirm delete before continuing.")
+            throw AppError.validation(String(localized: "budget.confirm_delete"))
         }
 
         guard try await repository.budget(id: id) != nil else {
-            throw AppError.persistence("Budget not found.")
+            throw AppError.persistence(String(localized: "budget.validation.not_found"))
         }
 
         try await repository.delete(id: id)

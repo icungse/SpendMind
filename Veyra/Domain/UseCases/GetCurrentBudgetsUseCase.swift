@@ -31,7 +31,7 @@ struct DefaultGetCurrentBudgetsUseCase: GetCurrentBudgetsUseCase {
 
     func execute(referenceDate: Date) async throws -> [BudgetProgress] {
         guard let month = calendar.dateInterval(of: .month, for: referenceDate) else {
-            throw AppError.validation("Invalid budget month.")
+            throw AppError.validation(String(localized: "budget.validation.invalid_month"))
         }
 
         let budgets = try await budgetRepository.activeBudgets(for: referenceDate)

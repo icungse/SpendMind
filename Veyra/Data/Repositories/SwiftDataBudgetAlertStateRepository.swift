@@ -40,7 +40,10 @@ actor SwiftDataBudgetAlertStateRepository: BudgetAlertStateRepository {
         do {
             return try modelContext.fetch(descriptor).first
         } catch {
-            throw AppError.persistence("Failed to fetch budget alert state: \(error.localizedDescription)")
+            throw AppError.persistence(String.localizedStringWithFormat(
+                String(localized: "budget.alert_state.persistence.fetch_failed"),
+                error.localizedDescription
+            ))
         }
     }
 
@@ -48,7 +51,11 @@ actor SwiftDataBudgetAlertStateRepository: BudgetAlertStateRepository {
         do {
             try modelContext.save()
         } catch {
-            throw AppError.persistence("Failed to \(action) budget alert state: \(error.localizedDescription)")
+            throw AppError.persistence(String.localizedStringWithFormat(
+                String(localized: "budget.alert_state.persistence.save_failed"),
+                action,
+                error.localizedDescription
+            ))
         }
     }
 }
