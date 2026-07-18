@@ -10,7 +10,7 @@ The foundation phase focuses on establishing the application's core layers, depe
 
 # Architecture Principles
 
-SpendMind follows the following principles:
+Veyra follows the following principles:
 
 * Feature-first modular architecture
 * Clean Architecture
@@ -158,10 +158,10 @@ Examples:
 # Folder Structure
 
 ```
-SpendMind/
+Veyra/
 
 ├── App/
-│   ├── SpendMindApp.swift
+│   ├── VeyraApp.swift
 │   ├── AppCoordinator.swift
 │   ├── AppEnvironment.swift
 │   └── DependencyContainer.swift

@@ -21,7 +21,7 @@ let packageSettings = PackageSettings(
 #endif
 
 let package = Package(
-    name: "SpendMindDependencies",
+    name: "VeyraDependencies",
     platforms: [.iOS(.v18)],
     dependencies: [
         .package(url: "https://github.com/apple/swift-collections.git", from: "1.6.0"),

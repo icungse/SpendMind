@@ -1,9 +1,9 @@
-# SpendMind
+# Veyra
 
-[![CI](https://github.com/icungse/SpendMind/actions/workflows/ci.yml/badge.svg)](https://github.com/icungse/SpendMind/actions/workflows/ci.yml)
+[![CI](https://github.com/icungse/Veyra/actions/workflows/ci.yml/badge.svg)](https://github.com/icungse/Veyra/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-SpendMind is a privacy-first iOS expense tracker built with SwiftUI, SwiftData, and an on-device AI-ready architecture. It is local-first: no login, no backend, no cloud sync, and no analytics collection.
+Veyra is a privacy-first iOS expense tracker built with SwiftUI, SwiftData, and an on-device AI-ready architecture. It is local-first: no login, no backend, no cloud sync, and no analytics collection.
 
 ## Setup
 
@@ -22,8 +22,8 @@ tuist generate
 ## Build
 
 ```sh
-tuist build SpendMind
-tuist test SpendMind
+tuist build Veyra
+tuist test Veyra
 swiftlint lint
 ```
 
@@ -43,10 +43,10 @@ CI runs install, lint, build, and tests for pull requests targeting `main` and `
 ## Folder Structure
 
 ```text
-SpendMind/
+Veyra/
 |-- Project.swift
 |-- Tuist/
-|-- SpendMind/
+|-- Veyra/
 |   |-- App/
 |   |-- Core/
 |   |-- Features/
@@ -54,8 +54,8 @@ SpendMind/
 |   |   |-- Splash/
 |   |-- Resources/
 |   |-- Shared/
-|-- SpendMindTests/
-|-- SpendMindUITests/
+|-- VeyraTests/
+|-- VeyraUITests/
 |-- docs/
 |-- .github/workflows/ci.yml
 ```
@@ -71,4 +71,4 @@ SpendMind/
 
 ## License
 
-SpendMind is available under the MIT License. See `LICENSE`.
+Veyra is available under the MIT License. See `LICENSE`.

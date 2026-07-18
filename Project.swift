@@ -1,7 +1,7 @@
 import ProjectDescription
 
 let project = Project(
-    name: "SpendMind",
+    name: "Veyra",
     packages: [],
     settings: .settings(
         base: [
@@ -26,17 +26,15 @@ let project = Project(
     ),
     targets: [
         .target(
-            name: "SpendMind",
+            name: "Veyra",
             destinations: .iOS,
             product: .app,
-            bundleId: "dev.spendmind.app",
+            bundleId: "dev.veyra.app",
             deploymentTargets: .iOS("18.0"),
             infoPlist: .extendingDefault(with: [
                 "CFBundleShortVersionString": "$(MARKETING_VERSION)",
                 "CFBundleVersion": "$(CURRENT_PROJECT_VERSION)",
-                "UILaunchScreen": [
-                    "UIColorName": "LaunchBackground"
-                ],
+                "UILaunchScreen": [],
                 "UIAppFonts": [
                     "Poppins-Regular.ttf",
                     "Poppins-Medium.ttf",
@@ -45,10 +43,10 @@ let project = Project(
                     "Poppins-Black.ttf"
                 ]
             ]),
-            sources: ["SpendMind/**"],
+            sources: ["Veyra/**"],
             resources: [
-                "SpendMind/Resources/**",
-                "SpendMind/Shared/Fonts/**"
+                "Veyra/Resources/**",
+                "Veyra/Shared/Fonts/**"
             ],
             dependencies: [
                 .external(name: "Algorithms"),
@@ -56,46 +54,46 @@ let project = Project(
             ]
         ),
         .target(
-            name: "SpendMindTests",
+            name: "VeyraTests",
             destinations: .iOS,
             product: .unitTests,
-            bundleId: "dev.spendmind.tests",
+            bundleId: "dev.veyra.tests",
             deploymentTargets: .iOS("18.0"),
             infoPlist: .default,
-            sources: ["SpendMindTests/**"],
-            resources: ["SpendMindTests/__Snapshots__/**"],
-            dependencies: [.target(name: "SpendMind")]
+            sources: ["VeyraTests/**"],
+            resources: ["VeyraTests/__Snapshots__/**"],
+            dependencies: [.target(name: "Veyra")]
         ),
         .target(
-            name: "SpendMindUITests",
+            name: "VeyraUITests",
             destinations: .iOS,
             product: .uiTests,
-            bundleId: "dev.spendmind.uitests",
+            bundleId: "dev.veyra.uitests",
             deploymentTargets: .iOS("18.0"),
             infoPlist: .default,
-            sources: ["SpendMindUITests/**"],
-            dependencies: [.target(name: "SpendMind")]
+            sources: ["VeyraUITests/**"],
+            dependencies: [.target(name: "Veyra")]
         )
     ],
     schemes: [
         .scheme(
-            name: "SpendMind",
+            name: "Veyra",
             shared: true,
-            buildAction: .buildAction(targets: ["SpendMind"]),
+            buildAction: .buildAction(targets: ["Veyra"]),
             testAction: .targets(
                 [
-                    "SpendMindTests",
-                    "SpendMindUITests"
+                    "VeyraTests",
+                    "VeyraUITests"
                 ],
                 arguments: .arguments(environmentVariables: [
                     "PROJECT_DIR": "$(PROJECT_DIR)"
                 ]),
                 options: .options(
                     coverage: true,
-                    codeCoverageTargets: [.target("SpendMind")]
+                    codeCoverageTargets: [.target("Veyra")]
                 )
             ),
-            runAction: .runAction(executable: "SpendMind")
+            runAction: .runAction(executable: "Veyra")
         )
     ]
 )

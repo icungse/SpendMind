@@ -1,6 +1,6 @@
 # CodingGuidelines.md
 
-> **SpendMind v1.0**
+> **Veyra v1.0**
 > Phase 1 (Foundation)
 > Target Platform: iOS 18+
 > Language: Swift 6
@@ -13,7 +13,7 @@
 
 # Purpose
 
-This document defines coding standards for the entire SpendMind project.
+This document defines coding standards for the entire Veyra project.
 
 The goal is to make every piece of code:
 
@@ -864,7 +864,7 @@ Every source file should begin with:
 ```swift
 //
 //  FileName.swift
-//  SpendMind
+//  Veyra
 //
 //  Created by <Developer>
 //
@@ -910,7 +910,7 @@ A task is considered complete only when:
 
 # Rules for AI Agents (Codex / ChatGPT)
 
-When generating code for SpendMind, always follow these rules:
+When generating code for Veyra, always follow these rules:
 
 1. Never violate Clean Architecture boundaries.
 2. Never place business logic inside SwiftUI Views.
@@ -932,4 +932,4 @@ When generating code for SpendMind, always follow these rules:
 
 # Phase 1 Scope
 
-This Coding Guidelines document establishes the baseline engineering standards for SpendMind. All future phases, including AI insights, analytics, budgeting, widgets, Siri integration, and additional features, must comply with these conventions unless an Architecture Decision Record (ADR) explicitly approves an exception.
+This Coding Guidelines document establishes the baseline engineering standards for Veyra. All future phases, including AI insights, analytics, budgeting, widgets, Siri integration, and additional features, must comply with these conventions unless an Architecture Decision Record (ADR) explicitly approves an exception.

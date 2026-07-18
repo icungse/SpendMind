@@ -1,8 +1,8 @@
 # configure swiftlint to be clean and pragmatic
 included:
-  - SpendMind
-  - SpendMindTests
-  - SpendMindUITests
+  - Veyra
+  - VeyraTests
+  - VeyraUITests
 
 excluded:
   - Tuist

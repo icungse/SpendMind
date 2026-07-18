@@ -30,4 +30,4 @@ jobs:
         run: swiftlint lint
 
       - name: Build and Test
-        run: tuist test SpendMind
+        run: tuist test Veyra
