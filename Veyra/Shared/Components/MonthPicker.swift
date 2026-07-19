@@ -43,7 +43,7 @@ struct MonthPicker: View {
                     .tag(month)
             }
         }
-        .accessibilityLabel("Budget Month")
+        .accessibilityLabel("budget.accessibility.month")
     }
 
     nonisolated static func options(

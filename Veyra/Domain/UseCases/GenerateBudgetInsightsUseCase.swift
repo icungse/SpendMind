@@ -52,8 +52,10 @@ struct DefaultGenerateBudgetInsightsUseCase {
 
         return BudgetInsight(
             id: "overallMonthlyProgress",
-            message: String(
-                localized: "You have used \(Int(percent))% of your monthly budget with \(daysRemaining) days remaining."
+            message: String.localizedStringWithFormat(
+                String(localized: "budget.insight.overall_monthly_progress"),
+                Int(percent),
+                daysRemaining
             )
         )
     }
@@ -68,7 +70,10 @@ struct DefaultGenerateBudgetInsightsUseCase {
 
         return BudgetInsight(
             id: "categoryApproachingLimit",
-            message: String(localized: "Your \(category.budget.name) budget is close to its limit.")
+            message: String.localizedStringWithFormat(
+                String(localized: "budget.insight.category_approaching_limit"),
+                category.budget.name
+            )
         )
     }
 
@@ -76,11 +81,10 @@ struct DefaultGenerateBudgetInsightsUseCase {
         let count = progress.filter { $0.budget.isCategoryBudget && $0.status == .exceeded }.count
         guard count > 0 else { return nil }
 
-        let message = if count == 1 {
-            String(localized: "You have exceeded 1 category budget this month.")
-        } else {
-            String(localized: "You have exceeded \(count) category budgets this month.")
-        }
+        let message = String.localizedStringWithFormat(
+            String(localized: "budget.insight.category_budgets_exceeded"),
+            count
+        )
 
         return BudgetInsight(id: "categoryBudgetsExceeded", message: message)
     }
@@ -95,7 +99,7 @@ struct DefaultGenerateBudgetInsightsUseCase {
         let totalSpent = categoryProgress.reduce(Decimal.zero) { $0 + $1.spentAmount }
         let aggregateBudget = try? Budget(
             id: firstBudget.id,
-            name: "Monthly Budget",
+            name: String(localized: "budget.monthly"),
             amount: totalLimit,
             period: firstBudget.period,
             startDate: firstBudget.startDate,

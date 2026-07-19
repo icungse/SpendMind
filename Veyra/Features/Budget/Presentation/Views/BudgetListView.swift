@@ -37,7 +37,7 @@ struct BudgetListView: View {
         Group {
             switch viewModel.state {
             case .idle, .loading:
-                LoadingView(title: "Loading Budgets...")
+                LoadingView(title: "budget.loading")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             case .empty:
                 emptyState
@@ -48,16 +48,16 @@ struct BudgetListView: View {
             }
         }
         .background(AppColor.background)
-        .navigationTitle("Budgets")
+        .navigationTitle("budget.title_plural")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     showingCreateBudget = true
                 } label: {
-                    Label("Create Budget", systemImage: "plus")
+                    Label("budget.create", systemImage: "plus")
                 }
-                .accessibilityLabel("Create Budget")
+                .accessibilityLabel("budget.create")
             }
         }
         .sheet(isPresented: $showingCreateBudget) {
@@ -107,9 +107,9 @@ struct BudgetListView: View {
 
     private var emptyState: some View {
         EmptyState(
-            title: "Create your first budget",
-            message: "Set a monthly spending limit and track your progress throughout the month.",
-            actionTitle: "Create Budget"
+            title: "budget.empty.create_first.title",
+            message: "budget.empty.create_first.message",
+            actionTitle: "budget.create"
         ) {
             showingCreateBudget = true
         }
@@ -118,8 +118,8 @@ struct BudgetListView: View {
 
     private func errorState(_ error: BudgetError) -> some View {
         EmptyState(
-            title: "Could not load budgets",
-            message: LocalizedStringKey(error.errorDescription ?? "Try again."),
+            title: "budget.load.failed",
+            message: LocalizedStringKey(error.errorDescription ?? String(localized: "budget.try_again")),
             actionTitle: "Retry"
         ) {
             Task { await viewModel.retry() }
@@ -133,7 +133,10 @@ struct BudgetListView: View {
                 Text(viewModel.currentMonthLabel)
                     .appFont(.headline)
                     .foregroundStyle(AppColor.textSecondary)
-                    .accessibilityLabel("Current month, \(viewModel.currentMonthLabel)")
+                    .accessibilityLabel(String.localizedStringWithFormat(
+                        String(localized: "budget.accessibility.current_month"),
+                        viewModel.currentMonthLabel
+                    ))
 
                 monthlyTotalCard
 
@@ -144,11 +147,14 @@ struct BudgetListView: View {
                         BudgetProgressCardView(progress: totalBudget, viewModel: viewModel, isTotal: true)
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("Edit \(totalBudget.budget.name)")
+                    .accessibilityLabel(String.localizedStringWithFormat(
+                        String(localized: "budget.accessibility.edit"),
+                        totalBudget.budget.name
+                    ))
                 }
 
                 VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                    Text("Category Budgets")
+                    Text("budget.category_budgets")
                         .appFont(.headline)
                         .foregroundStyle(AppColor.textPrimary)
 
@@ -159,7 +165,10 @@ struct BudgetListView: View {
                             BudgetProgressCardView(progress: progress, viewModel: viewModel, isTotal: false)
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Edit \(progress.budget.name)")
+                        .accessibilityLabel(String.localizedStringWithFormat(
+                            String(localized: "budget.accessibility.edit"),
+                            progress.budget.name
+                        ))
                     }
                 }
             }
@@ -170,7 +179,7 @@ struct BudgetListView: View {
             await viewModel.refresh()
         }
         .safeAreaInset(edge: .bottom) {
-            PrimaryButton(title: "Create Budget") {
+            PrimaryButton(title: "budget.create") {
                 showingCreateBudget = true
             }
             .padding(AppSpacing.md)
@@ -181,8 +190,8 @@ struct BudgetListView: View {
     private var monthlyTotalCard: some View {
         Card {
             BudgetCardBodyView(
-                title: "Total Monthly Budget",
-                subtitle: "All active budgets",
+                title: String(localized: "budget.total_monthly"),
+                subtitle: String(localized: "budget.total.active_budgets"),
                 icon: "chart.pie.fill",
                 iconColor: AppColor.primary,
                 amount: viewModel.formattedTotalLimit,
@@ -192,7 +201,7 @@ struct BudgetListView: View {
                 status: totalStatus,
                 warningMessage: viewModel.warningMessage(
                     status: totalStatus,
-                    name: "Total Monthly Budget",
+                    name: String(localized: "budget.total_monthly"),
                     spent: viewModel.totalSpentAmount,
                     remaining: viewModel.totalRemainingAmount
                 ),
@@ -246,25 +255,25 @@ private struct BudgetFormView: View {
                     }
                 }
 
-                Section("Budget Type") {
-                    Picker("Type", selection: $viewModel.budgetType) {
-                        Text("Total spending").tag(BudgetFormViewModel.BudgetType.total)
-                        Text("Specific category").tag(BudgetFormViewModel.BudgetType.category)
+                Section("budget.type") {
+                    Picker("budget.type", selection: $viewModel.budgetType) {
+                        Text("budget.form.type.total").tag(BudgetFormViewModel.BudgetType.total)
+                        Text("budget.form.type.category").tag(BudgetFormViewModel.BudgetType.category)
                     }
                     .pickerStyle(.inline)
-                    .accessibilityLabel("Budget Type")
+                    .accessibilityLabel("budget.accessibility.type")
                 }
 
-                Section("Budget Details") {
-                    TextField("Name", text: $viewModel.name)
+                Section("budget.details") {
+                    TextField("budget.name", text: $viewModel.name)
                         .textInputAutocapitalization(.words)
                         .focused($focusedField, equals: .name)
-                        .accessibilityLabel("Budget Name")
+                        .accessibilityLabel("budget.accessibility.name")
                     validationText(viewModel.nameError)
 
                     if viewModel.budgetType == .category {
-                        Picker("Category", selection: $viewModel.selectedCategoryID) {
-                            Text("Select Category").tag(UUID?.none)
+                        Picker("budget.accessibility.category", selection: $viewModel.selectedCategoryID) {
+                            Text("budget.select_category").tag(UUID?.none)
                             ForEach(viewModel.categories, id: \.id) { category in
                                 CategoryPickerRow(
                                     category: category,
@@ -276,17 +285,17 @@ private struct BudgetFormView: View {
                                 .disabled(viewModel.isCategoryDisabled(category.id))
                             }
                         }
-                        .accessibilityLabel("Budget Category")
+                        .accessibilityLabel("budget.accessibility.category")
                         validationText(viewModel.categoryError)
                     }
 
-                    TextField("Amount", text: Binding(
+                    TextField("budget.amount", text: Binding(
                         get: { viewModel.amountText },
                         set: { viewModel.updateAmountText($0) }
                     ))
                     .keyboardType(.decimalPad)
                     .focused($focusedField, equals: .amount)
-                    .accessibilityLabel("Budget Amount")
+                    .accessibilityLabel("budget.accessibility.amount")
                     validationText(viewModel.amountError)
 
                     MonthPicker(
@@ -297,23 +306,23 @@ private struct BudgetFormView: View {
                     )
                 }
 
-                Section("Alert Settings") {
-                    Picker("Alert threshold", selection: $viewModel.alertThresholdPercent) {
+                Section("budget.alert_settings") {
+                    Picker("budget.alert_threshold", selection: $viewModel.alertThresholdPercent) {
                         ForEach(viewModel.alertThresholdOptions, id: \.self) { percent in
                             Text(viewModel.alertThresholdLabel(percent)).tag(percent)
                         }
                     }
                     .pickerStyle(.inline)
-                    .accessibilityLabel("Budget Alert Threshold")
+                    .accessibilityLabel("budget.accessibility.threshold")
                     validationText(viewModel.alertThresholdError)
                 }
 
                 if viewModel.isEditing {
                     Section {
-                        Button("Delete Budget", role: .destructive) {
+                        Button("budget.delete", role: .destructive) {
                             showingDeleteConfirmation = true
                         }
-                        .accessibilityLabel("Delete Budget")
+                        .accessibilityLabel("budget.accessibility.delete")
                     }
                 }
 
@@ -321,37 +330,40 @@ private struct BudgetFormView: View {
                     Text(message)
                         .appFont(.footnote)
                         .foregroundStyle(AppColor.error)
-                        .accessibilityLabel("Validation Error: \(message)")
+                        .accessibilityLabel(String.localizedStringWithFormat(
+                            String(localized: "budget.accessibility.validation_error"),
+                            message
+                        ))
                 }
             }
             .scrollDismissesKeyboard(.interactively)
             .scrollContentBackground(.hidden)
             .background(AppColor.background)
-            .navigationTitle(viewModel.isEditing ? "Edit Budget" : "Create Budget")
+            .navigationTitle(LocalizedStringKey(viewModel.isEditing ? "budget.edit" : "budget.create"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                        .accessibilityLabel("Cancel Budget Form")
+                    Button("general.cancel") { dismiss() }
+                        .accessibilityLabel("budget.accessibility.form.cancel")
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
+                    Button("general.save") {
                         Task { await save() }
                     }
                     .disabled(!viewModel.canSave)
-                    .accessibilityLabel("Save Budget")
+                    .accessibilityLabel("budget.accessibility.form.save")
                 }
 
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
-                    Button("Done") { focusedField = nil }
-                        .accessibilityLabel("Dismiss Keyboard")
+                    Button("general.done") { focusedField = nil }
+                        .accessibilityLabel("budget.accessibility.dismiss_keyboard")
                 }
             }
             .safeAreaInset(edge: .bottom) {
                 PrimaryButton(
-                    title: viewModel.isEditing ? "Update Budget" : "Save Budget",
+                    title: LocalizedStringKey(viewModel.isEditing ? "budget.update" : "general.save"),
                     isLoading: viewModel.isSaving,
                     isDisabled: !viewModel.canSave
                 ) {
@@ -367,17 +379,17 @@ private struct BudgetFormView: View {
                 Task { await viewModel.loadCategories() }
             }
             .confirmationDialog(
-                "Delete this budget?",
+                "budget.delete.confirmation.title",
                 isPresented: $showingDeleteConfirmation,
                 titleVisibility: .visible
             ) {
-                Button("Delete", role: .destructive) {
+                Button("general.delete", role: .destructive) {
                     Task { await deleteBudget() }
                 }
 
-                Button("Cancel", role: .cancel) { }
+                Button("general.cancel", role: .cancel) { }
             } message: {
-                Text("Your expenses will not be deleted.")
+                Text("budget.delete.confirmation.message")
             }
         }
     }
@@ -388,7 +400,10 @@ private struct BudgetFormView: View {
             Text(message)
                 .appFont(.footnote)
                 .foregroundStyle(AppColor.error)
-                .accessibilityLabel("Validation Error: \(message)")
+                .accessibilityLabel(String.localizedStringWithFormat(
+                    String(localized: "budget.accessibility.validation_error"),
+                    message
+                ))
         }
     }
 

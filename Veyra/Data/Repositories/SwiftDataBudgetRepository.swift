@@ -19,7 +19,7 @@ actor SwiftDataBudgetRepository: BudgetRepository {
 
     func update(_ budget: Budget) async throws {
         guard let persistentBudget = try persistentBudget(id: budget.id) else {
-            throw AppError.persistence("Budget not found.")
+            throw AppError.persistence(String(localized: "budget.validation.not_found"))
         }
 
         let category = try category(id: budget.categoryID)
@@ -38,7 +38,7 @@ actor SwiftDataBudgetRepository: BudgetRepository {
 
     func delete(id: UUID) async throws {
         guard let budget = try persistentBudget(id: id) else {
-            throw AppError.persistence("Budget not found.")
+            throw AppError.persistence(String(localized: "budget.validation.not_found"))
         }
 
         modelContext.delete(budget)
@@ -51,26 +51,26 @@ actor SwiftDataBudgetRepository: BudgetRepository {
 
     func activeBudgets(for date: Date) async throws -> [Budget] {
         guard let month = Calendar.current.dateInterval(of: .month, for: date) else {
-            throw AppError.persistence("Invalid budget month.")
+            throw AppError.persistence(String(localized: "budget.validation.invalid_month"))
         }
 
         let descriptor = FetchDescriptor<PersistentBudget>(predicate: #Predicate {
             $0.isActive && $0.startDate < month.end && $0.endDate >= month.start
         })
 
-        return try fetch(descriptor, action: "fetch active budgets")
+        return try fetch(descriptor, action: String(localized: "budget.persistence.action.fetch_active_budgets"))
     }
 
     func budgets(from startDate: Date, to endDate: Date) async throws -> [Budget] {
         guard startDate < endDate else {
-            throw AppError.persistence("Invalid budget date range.")
+            throw AppError.persistence(String(localized: "budget.validation.invalid_date_range"))
         }
 
         let descriptor = FetchDescriptor<PersistentBudget>(predicate: #Predicate {
             $0.startDate < endDate && $0.endDate >= startDate
         })
 
-        return try fetch(descriptor, action: "fetch budgets by date range")
+        return try fetch(descriptor, action: String(localized: "budget.persistence.action.fetch_budgets_by_date_range"))
     }
 
     private func persistentBudget(id: UUID) throws -> PersistentBudget? {
@@ -80,7 +80,10 @@ actor SwiftDataBudgetRepository: BudgetRepository {
         do {
             return try modelContext.fetch(descriptor).first
         } catch {
-            throw AppError.persistence("Failed to fetch budget: \(error.localizedDescription)")
+            throw AppError.persistence(String.localizedStringWithFormat(
+                String(localized: "budget.persistence.fetch_failed"),
+                error.localizedDescription
+            ))
         }
     }
 
@@ -99,7 +102,10 @@ actor SwiftDataBudgetRepository: BudgetRepository {
         } catch let error as AppError {
             throw error
         } catch {
-            throw AppError.persistence("Failed to fetch budget category: \(error.localizedDescription)")
+            throw AppError.persistence(String.localizedStringWithFormat(
+                String(localized: "budget.persistence.category_fetch_failed"),
+                error.localizedDescription
+            ))
         }
     }
 
@@ -116,12 +122,15 @@ actor SwiftDataBudgetRepository: BudgetRepository {
             }
 
             if duplicate {
-                throw AppError.validation("An active budget already exists for this category and period.")
+                throw AppError.validation(String(localized: "budget.validation.active_duplicate"))
             }
         } catch let error as AppError {
             throw error
         } catch {
-            throw AppError.persistence("Failed to validate budget uniqueness: \(error.localizedDescription)")
+            throw AppError.persistence(String.localizedStringWithFormat(
+                String(localized: "budget.persistence.uniqueness_failed"),
+                error.localizedDescription
+            ))
         }
     }
 
@@ -131,7 +140,11 @@ actor SwiftDataBudgetRepository: BudgetRepository {
         } catch let error as AppError {
             throw error
         } catch {
-            throw AppError.persistence("Failed to \(action): \(error.localizedDescription)")
+            throw AppError.persistence(String.localizedStringWithFormat(
+                String(localized: "budget.persistence.action_failed"),
+                action,
+                error.localizedDescription
+            ))
         }
     }
 
@@ -139,7 +152,11 @@ actor SwiftDataBudgetRepository: BudgetRepository {
         do {
             try modelContext.save()
         } catch {
-            throw AppError.persistence("Failed to \(action) budget: \(error.localizedDescription)")
+            throw AppError.persistence(String.localizedStringWithFormat(
+                String(localized: "budget.persistence.save_failed"),
+                action,
+                error.localizedDescription
+            ))
         }
     }
 }
@@ -178,7 +195,10 @@ private extension PersistentBudget {
                 updatedAt: updatedAt
             )
         } catch {
-            throw AppError.persistence("Failed to load budget: \(error.localizedDescription)")
+            throw AppError.persistence(String.localizedStringWithFormat(
+                String(localized: "budget.persistence.load_failed"),
+                error.localizedDescription
+            ))
         }
     }
 }

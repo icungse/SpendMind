@@ -54,9 +54,9 @@ struct BudgetCardBodyView: View {
             }
 
             VStack(spacing: AppSpacing.sm) {
-                amountRow(label: "Budget", value: amount)
-                amountRow(label: "Spent", value: spent)
-                amountRow(label: "Remaining", value: remaining)
+                amountRow(label: String(localized: "budget.title"), value: amount)
+                amountRow(label: String(localized: "budget.spent"), value: spent)
+                amountRow(label: String(localized: "budget.remaining"), value: remaining)
             }
 
             BudgetProgressIndicatorView(budgetName: title, progress: progress, status: status)
@@ -69,14 +69,23 @@ struct BudgetCardBodyView: View {
         .background(isTotal ? AppColor.surfaceAlt.opacity(0.35) : Color.clear)
         .clipShape(RoundedRectangle(cornerRadius: Radius.medium))
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(title), \(subtitle), budget \(amount), spent \(spent), remaining \(remaining), \(percentageText) used, status \(statusText)")
+        .accessibilityLabel(String.localizedStringWithFormat(
+            String(localized: "budget.accessibility.card"),
+            title,
+            subtitle,
+            amount,
+            spent,
+            remaining,
+            percentageText,
+            statusText
+        ))
     }
 
     private var statusText: String {
         switch status {
-        case .safe: "Safe"
-        case .warning: "Warning"
-        case .exceeded: "Exceeded"
+        case .safe: String(localized: "budget.safe")
+        case .warning: String(localized: "budget.warning")
+        case .exceeded: String(localized: "budget.exceeded")
         }
     }
 

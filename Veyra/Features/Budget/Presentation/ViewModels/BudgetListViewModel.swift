@@ -162,14 +162,18 @@ final class BudgetListViewModel {
     }
 
     func typeLabel(for progress: BudgetProgress) -> String {
-        progress.budget.isTotalBudget ? "Total Budget" : "Category Budget"
+        if progress.budget.isTotalBudget {
+            return String(localized: "budget.summary.total_budget")
+        }
+
+        return String(localized: "budget.category")
     }
 
     func statusLabel(for status: BudgetStatus) -> String {
         switch status {
-        case .safe: "Safe"
-        case .warning: "Warning"
-        case .exceeded: "Exceeded"
+        case .safe: String(localized: "budget.safe")
+        case .warning: String(localized: "budget.warning")
+        case .exceeded: String(localized: "budget.exceeded")
         }
     }
 
@@ -192,11 +196,18 @@ final class BudgetListViewModel {
         case .safe:
             return nil
         case .warning:
-            return String(
-                localized: "You've used \(formattedAmount(spent)) of \(name). \(formattedAmount(remaining)) remains."
+            return String.localizedStringWithFormat(
+                String(localized: "budget.warning.threshold_message"),
+                formattedAmount(spent),
+                name,
+                formattedAmount(remaining)
             )
         case .exceeded:
-            return String(localized: "\(name) is exceeded by \(formattedAmount(-remaining)).")
+            return String.localizedStringWithFormat(
+                String(localized: "budget.warning.exceeded_message"),
+                name,
+                formattedAmount(-remaining)
+            )
         }
     }
 

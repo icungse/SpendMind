@@ -33,16 +33,16 @@ struct DefaultCreateBudgetUseCase: CreateBudgetUseCase {
         let name = input.name.trimmingCharacters(in: .whitespacesAndNewlines)
 
         guard !name.isEmpty else {
-            throw AppError.validation("Budget name is required.")
+            throw AppError.validation(String(localized: "budget.validation.name_required"))
         }
 
         guard input.amount > 0 else {
-            throw AppError.validation("Budget amount must be greater than zero.")
+            throw AppError.validation(String(localized: "budget.validation.amount_greater_than_zero"))
         }
 
         guard let month = calendar.dateInterval(of: .month, for: input.month),
               let endDate = calendar.date(byAdding: .day, value: -1, to: month.end) else {
-            throw AppError.validation("Invalid budget month.")
+            throw AppError.validation(String(localized: "budget.validation.invalid_month"))
         }
 
         // active budgets are tiny; add a repository query only if this list grows enough to matter.
@@ -52,7 +52,7 @@ struct DefaultCreateBudgetUseCase: CreateBudgetUseCase {
         }
 
         guard !duplicate else {
-            throw AppError.validation("An active budget already exists for this category and period.")
+            throw AppError.validation(String(localized: "budget.validation.active_duplicate"))
         }
 
         let budget = try Budget(

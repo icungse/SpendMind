@@ -33,22 +33,22 @@ struct DefaultUpdateBudgetUseCase: UpdateBudgetUseCase {
     @discardableResult
     func execute(_ input: UpdateBudgetInput) async throws -> Budget {
         guard let existingBudget = try await repository.budget(id: input.id) else {
-            throw AppError.persistence("Budget not found.")
+            throw AppError.persistence(String(localized: "budget.validation.not_found"))
         }
 
         let name = input.name.trimmingCharacters(in: .whitespacesAndNewlines)
 
         guard !name.isEmpty else {
-            throw AppError.validation("Budget name is required.")
+            throw AppError.validation(String(localized: "budget.validation.name_required"))
         }
 
         guard input.amount > 0 else {
-            throw AppError.validation("Budget amount must be greater than zero.")
+            throw AppError.validation(String(localized: "budget.validation.amount_greater_than_zero"))
         }
 
         guard let month = calendar.dateInterval(of: .month, for: input.month),
               let endDate = calendar.date(byAdding: .day, value: -1, to: month.end) else {
-            throw AppError.validation("Invalid budget month.")
+            throw AppError.validation(String(localized: "budget.validation.invalid_month"))
         }
 
         if input.isActive {
@@ -58,7 +58,7 @@ struct DefaultUpdateBudgetUseCase: UpdateBudgetUseCase {
             }
 
             guard !duplicate else {
-                throw AppError.validation("An active budget already exists for this category and period.")
+                throw AppError.validation(String(localized: "budget.validation.active_duplicate"))
             }
         }
 

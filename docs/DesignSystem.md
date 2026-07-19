@@ -215,5 +215,3 @@ Not implemented yet:
 - Custom navigation bar
 - Theme layer
 - Animation tokens
-
-<!-- ponytail: this document describes current code, not a wishlist. Add sections when matching code exists. -->

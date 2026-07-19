@@ -23,7 +23,7 @@ struct BudgetProgressIndicatorView: View {
 
                 Spacer()
 
-                Text("\(percentageText) used")
+                Text(String.localizedStringWithFormat(String(localized: "budget.used"), percentageText))
                     .appFont(.caption)
                     .foregroundStyle(AppColor.textPrimary)
             }
@@ -47,13 +47,18 @@ struct BudgetProgressIndicatorView: View {
             .frame(height: AppSpacing.base)
 
             if progressValue > 1 {
-                Text("\(overBudgetText) over budget")
+                Text(String.localizedStringWithFormat(String(localized: "budget.over_budget"), overBudgetText))
                     .appFont(.caption2)
                     .foregroundStyle(statusColor)
             }
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(budgetName), \(percentageText) used, status \(statusText)")
+        .accessibilityLabel(String.localizedStringWithFormat(
+            String(localized: "budget.accessibility.progress"),
+            budgetName,
+            percentageText,
+            statusText
+        ))
     }
 
     private var progressValue: Double {
@@ -70,9 +75,9 @@ struct BudgetProgressIndicatorView: View {
 
     private var statusText: String {
         switch status {
-        case .safe: "Safe"
-        case .warning: "Warning"
-        case .exceeded: "Exceeded"
+        case .safe: String(localized: "budget.safe")
+        case .warning: String(localized: "budget.warning")
+        case .exceeded: String(localized: "budget.exceeded")
         }
     }
 
@@ -93,7 +98,7 @@ struct BudgetProgressIndicatorView: View {
     }
 }
 
-#Preview("Budget Progress States") {
+#Preview {
     VStack(spacing: AppSpacing.lg) {
         BudgetProgressIndicatorView(budgetName: "Groceries", progress: 0, status: .safe)
         BudgetProgressIndicatorView(budgetName: "Food", progress: 0.45, status: .safe)

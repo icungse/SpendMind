@@ -19,13 +19,13 @@ final class BudgetFormViewModel {
 
         var title: String {
             switch self {
-            case .total: "Total Monthly Budget"
-            case .category: "Category Budget"
+            case .total: String(localized: "budget.total_monthly")
+            case .category: String(localized: "budget.category")
             }
         }
     }
 
-    var name = "Monthly Budget"
+    var name = String(localized: "budget.monthly")
     var budgetType = BudgetType.total
     var selectedCategoryID: UUID?
     var amountText = ""
@@ -100,28 +100,38 @@ final class BudgetFormViewModel {
     }
 
     var nameError: String? {
-        name.trimmed.isEmpty ? "Budget name is required." : nil
+        guard name.trimmed.isEmpty else { return nil }
+        return String(localized: "budget.validation.name_required")
     }
 
     var amountError: String? {
-        guard !amountText.trimmed.isEmpty else { return "Amount is required." }
-        guard let amount else { return "Amount must be a valid number." }
-        guard amount > 0 else { return "Amount must be greater than zero." }
+        guard !amountText.trimmed.isEmpty else {
+            return String(localized: "budget.validation.amount_required")
+        }
+        guard let amount else {
+            return String(localized: "budget.validation.amount_valid_number")
+        }
+        guard amount > 0 else {
+            return String(localized: "budget.validation.amount_greater_than_zero_short")
+        }
         return nil
     }
 
     var categoryError: String? {
         guard budgetType == .category else { return nil }
-        guard let selectedCategoryID else { return "Category is required." }
+        guard let selectedCategoryID else {
+            return String(localized: "budget.validation.category_required")
+        }
         guard !isCategoryDisabled(selectedCategoryID) else {
-            return "Category already has an active budget for this month."
+            return String(localized: "budget.validation.category_active_duplicate")
         }
 
         return nil
     }
 
     var alertThresholdError: String? {
-        alertThresholdOptions.contains(alertThresholdPercent) ? nil : "Alert threshold must be valid."
+        guard !alertThresholdOptions.contains(alertThresholdPercent) else { return nil }
+        return String(localized: "budget.validation.alert_threshold_valid")
     }
 
     func updateAmountText(_ value: String) {
@@ -129,7 +139,7 @@ final class BudgetFormViewModel {
     }
 
     func alertThresholdLabel(_ percent: Int) -> String {
-        "Alert at \(percent)%"
+        String.localizedStringWithFormat(String(localized: "budget.alert_threshold.label"), percent)
     }
 
     func loadCategories() async {
@@ -156,7 +166,7 @@ final class BudgetFormViewModel {
     }
 
     func categorySubtitle(for category: Category) -> String? {
-        if isCategoryDisabled(category.id) { return "Already budgeted" }
+        if isCategoryDisabled(category.id) { return String(localized: "budget.already_budgeted") }
         if category.isArchived == true { return "Archived" }
         return nil
     }
@@ -208,7 +218,7 @@ final class BudgetFormViewModel {
 
     func delete(isConfirmed: Bool) async -> Bool {
         guard let budgetID else {
-            errorMessage = "Budget not found."
+            errorMessage = String(localized: "budget.validation.not_found")
             return false
         }
 

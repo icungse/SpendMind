@@ -169,11 +169,15 @@ final class DashboardViewModel {
         case .safe:
             return nil
         case .warning:
-            return String(
-                localized: "Monthly budget is near its limit. \(budgetRemaining.formattedCurrency(code: currencyCode)) remains."
+            return String.localizedStringWithFormat(
+                String(localized: "budget.warning.monthly_near_limit"),
+                budgetRemaining.formattedCurrency(code: currencyCode)
             )
         case .exceeded:
-            return String(localized: "Monthly budget is exceeded by \((-budgetRemaining).formattedCurrency(code: currencyCode)).")
+            return String.localizedStringWithFormat(
+                String(localized: "budget.warning.monthly_exceeded"),
+                (-budgetRemaining).formattedCurrency(code: currencyCode)
+            )
         }
     }
 
