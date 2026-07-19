@@ -2,358 +2,1802 @@
   "sourceLanguage" : "en",
   "strings" : {
     "general.cancel" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Batal"
+          }
+        }
+      }
     },
     "general.delete" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hapus"
+          }
+        }
+      }
     },
     "general.done" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Done" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selesai"
+          }
+        }
+      }
     },
     "general.save" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Save" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Simpan"
+          }
+        }
+      }
     },
     "budget.accessibility.amount" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget Amount" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Budget Amount"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jumlah Anggaran"
+          }
+        }
+      }
     },
     "budget.accessibility.card" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@, %@, budget %@, spent %@, remaining %@, %@ used, status %@" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, %@, budget %@, spent %@, remaining %@, %@ used, status %@"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, %@, anggaran %@, terpakai %@, tersisa %@, %@ digunakan, status %@"
+          }
+        }
+      }
     },
     "budget.accessibility.category" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget Category" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Budget Category"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kategori Anggaran"
+          }
+        }
+      }
     },
     "budget.accessibility.current_month" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Current month, %@" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Current month, %@"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bulan ini, %@"
+          }
+        }
+      }
     },
     "budget.accessibility.delete" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete Budget" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete Budget"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hapus Anggaran"
+          }
+        }
+      }
     },
     "budget.accessibility.dismiss_keyboard" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Dismiss Keyboard" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dismiss Keyboard"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tutup Keyboard"
+          }
+        }
+      }
     },
     "budget.accessibility.edit" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Edit %@" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit %@"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ubah %@"
+          }
+        }
+      }
     },
     "budget.accessibility.form.cancel" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel Budget Form" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel Budget Form"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Batalkan Form Anggaran"
+          }
+        }
+      }
     },
     "budget.accessibility.form.save" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Save Budget" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save Budget"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Simpan Anggaran"
+          }
+        }
+      }
     },
     "budget.accessibility.month" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget Month" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Budget Month"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bulan Anggaran"
+          }
+        }
+      }
     },
     "budget.accessibility.name" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget Name" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Budget Name"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nama Anggaran"
+          }
+        }
+      }
     },
     "budget.accessibility.progress" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@, %@ used, status %@" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, %@ used, status %@"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, %@ digunakan, status %@"
+          }
+        }
+      }
     },
     "budget.accessibility.summary.empty" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget Summary. No budgets yet. Create a budget to track monthly spending." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Budget Summary. No budgets yet. Create a budget to track monthly spending."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ringkasan Anggaran. Belum ada anggaran. Buat anggaran untuk melacak pengeluaran bulanan."
+          }
+        }
+      }
     },
     "budget.accessibility.summary.loaded" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget Summary. Total budget %@. Total spent %@. Remaining %@. Overall progress %@. %@. %@." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Budget Summary. Total budget %@. Total spent %@. Remaining %@. Overall progress %@. %@. %@."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ringkasan Anggaran. Total anggaran %@. Total terpakai %@. Tersisa %@. Progres keseluruhan %@. %@. %@."
+          }
+        }
+      }
     },
     "budget.accessibility.summary.opens_list" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Opens budget list" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens budget list"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Membuka daftar anggaran"
+          }
+        }
+      }
     },
     "budget.accessibility.threshold" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget Alert Threshold" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Budget Alert Threshold"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Batas Peringatan Anggaran"
+          }
+        }
+      }
     },
     "budget.accessibility.type" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget Type" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Budget Type"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jenis Anggaran"
+          }
+        }
+      }
     },
     "budget.accessibility.validation_error" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Validation Error: %@" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Validation Error : %@"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kesalahan Validasi : %@"
+          }
+        }
+      }
     },
     "budget.alert_settings" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Alert Settings" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alert Settings"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pengaturan Peringatan"
+          }
+        }
+      }
     },
     "budget.alert_threshold" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Alert Threshold" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alert Threshold"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Batas Peringatan"
+          }
+        }
+      }
     },
     "budget.alert_threshold.label" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Alert at %lld%%" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alert at %lld%%"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Peringatan pada %lld%%"
+          }
+        }
+      }
     },
     "budget.alert_state.persistence.fetch_failed" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to fetch budget alert state: %@" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to fetch budget alert state : %@"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gagal mengambil status peringatan anggaran : %@"
+          }
+        }
+      }
     },
     "budget.alert_state.persistence.save_failed" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to %@ budget alert state: %@" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to %@ budget alert state : %@"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gagal %@ status peringatan anggaran : %@"
+          }
+        }
+      }
     },
     "budget.already_budgeted" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Already budgeted" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Already budgeted"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sudah dianggarkan"
+          }
+        }
+      }
     },
     "budget.amount" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Amount" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Amount"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jumlah"
+          }
+        }
+      }
     },
     "budget.category" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Category Budget" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Category Budget"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anggaran Kategori"
+          }
+        }
+      }
     },
     "budget.category_budgets" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Category Budgets" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Category Budgets"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anggaran Kategori"
+          }
+        }
+      }
     },
     "budget.confirm_delete" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Confirm delete before continuing." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm delete before continuing."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konfirmasi penghapusan sebelum melanjutkan."
+          }
+        }
+      }
     },
     "budget.create" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Create Budget" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create Budget"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buat Anggaran"
+          }
+        }
+      }
     },
     "budget.delete" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete Budget" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete Budget"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hapus Anggaran"
+          }
+        }
+      }
     },
     "budget.delete.confirmation.message" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Your expenses will not be deleted." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your expenses will not be deleted."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pengeluaran Anda tidak akan dihapus."
+          }
+        }
+      }
     },
     "budget.delete.confirmation.title" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete this budget?" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete this budget?"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hapus anggaran ini?"
+          }
+        }
+      }
     },
     "budget.details" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget Details" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Budget Details"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detail Anggaran"
+          }
+        }
+      }
     },
     "budget.edit" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Edit Budget" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit Budget"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ubah Anggaran"
+          }
+        }
+      }
     },
     "budget.empty.create_first.message" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Set a monthly spending limit and track your progress throughout the month." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set a monthly spending limit and track your progress throughout the month."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tetapkan batas pengeluaran bulanan dan lacak progres sepanjang bulan."
+          }
+        }
+      }
     },
     "budget.empty.create_first.title" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Create your first budget" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create your first budget"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buat anggaran pertama Anda"
+          }
+        }
+      }
     },
     "budget.empty.insights.message" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Create a budget or add expenses this month to see insights." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create a budget or add expenses this month to see insights."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buat anggaran atau tambah pengeluaran bulan ini untuk melihat insight."
+          }
+        }
+      }
     },
     "budget.empty.insights.title" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "No budget insights yet" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No budget insights yet"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Belum ada insight anggaran"
+          }
+        }
+      }
     },
     "budget.empty.summary.message" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Create a budget to track monthly spending." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create a budget to track monthly spending."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buat anggaran untuk melacak pengeluaran bulanan."
+          }
+        }
+      }
     },
     "budget.exceeded" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Exceeded" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exceeded"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terlampaui"
+          }
+        }
+      }
     },
     "budget.form.type.category" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Specific category" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Specific category"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kategori tertentu"
+          }
+        }
+      }
     },
     "budget.form.type.total" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Total Spending" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total Spending"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total Pengeluaran"
+          }
+        }
+      }
     },
     "budget.insight.category_approaching_limit" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Your %@ budget is close to its limit." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your %@ budget is close to its limit."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anggaran %@ mendekati batasnya."
+          }
+        }
+      }
     },
     "budget.insight.category_budgets_exceeded" : {
       "localizations" : {
         "en" : {
           "variations" : {
             "plural" : {
-              "one" : { "stringUnit" : { "state" : "translated", "value" : "You have exceeded %lld category budget this month." } },
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "You have exceeded %lld category budgets this month." } }
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "You have exceeded %lld category budget this month."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "You have exceeded %lld category budgets this month."
+                }
+              }
+            }
+          }
+        },
+        "id" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld anggaran kategori terlampaui bulan ini."
+                }
+              }
             }
           }
         }
       }
     },
     "budget.insight.overall_monthly_progress" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "You have used %lld%% of your monthly budget with %lld days remaining." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You have used %lld%% of your monthly budget with %lld days remaining."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anda telah menggunakan %lld%% anggaran bulanan dengan %lld hari tersisa."
+          }
+        }
+      }
     },
     "budget.insights" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget Insights" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Budget Insights"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Insight Anggaran"
+          }
+        }
+      }
     },
     "budget.load.failed" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Could not load budgets" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not load budgets"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tidak dapat memuat anggaran"
+          }
+        }
+      }
     },
     "budget.loading" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Loading Budgets..." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading Budgets..."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memuat Anggaran..."
+          }
+        }
+      }
     },
     "budget.monthly" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Monthly Budget" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monthly Budget"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anggaran Bulanan"
+          }
+        }
+      }
     },
     "budget.name" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Name" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nama"
+          }
+        }
+      }
     },
     "budget.notifications" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget Notifications" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Budget Notifications"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifikasi Anggaran"
+          }
+        }
+      }
     },
     "budget.notifications.body" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "One of your budgets needs attention." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One of your budgets needs attention."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salah satu anggaran Anda perlu diperhatikan."
+          }
+        }
+      }
     },
     "budget.notifications.exceeded.title" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget exceeded" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Budget exceeded"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anggaran terlampaui"
+          }
+        }
+      }
     },
     "budget.notifications.warning.title" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget warning" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Budget warning"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Peringatan anggaran"
+          }
+        }
+      }
     },
     "budget.over_budget" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ over budget" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ over budget"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ melebihi anggaran"
+          }
+        }
+      }
     },
     "budget.period.monthly" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Monthly" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monthly"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bulanan"
+          }
+        }
+      }
     },
     "budget.persistence.action.fetch_active_budgets" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "fetch active budgets" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "fetch active budgets"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mengambil anggaran aktif"
+          }
+        }
+      }
     },
     "budget.persistence.action.fetch_budgets_by_date_range" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "fetch budgets by date range" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "fetch budgets by date range"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mengambil anggaran berdasarkan rentang tanggal"
+          }
+        }
+      }
     },
     "budget.persistence.action_failed" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to %@: %@" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to %@ : %@"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gagal %@ : %@"
+          }
+        }
+      }
     },
     "budget.persistence.category_fetch_failed" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to fetch budget category: %@" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to fetch budget category : %@"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gagal mengambil kategori anggaran : %@"
+          }
+        }
+      }
     },
     "budget.persistence.fetch_failed" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to fetch budget: %@" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to fetch budget : %@"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gagal mengambil anggaran : %@"
+          }
+        }
+      }
     },
     "budget.persistence.load_failed" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to load budget: %@" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to load budget : %@"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gagal memuat anggaran : %@"
+          }
+        }
+      }
     },
     "budget.persistence.save_failed" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to %@ budget: %@" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to %@ budget : %@"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gagal %@ anggaran : %@"
+          }
+        }
+      }
     },
     "budget.persistence.uniqueness_failed" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to validate budget uniqueness: %@" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to validate budget uniqueness : %@"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gagal memvalidasi keunikan anggaran : %@"
+          }
+        }
+      }
     },
     "budget.remaining" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Remaining" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remaining"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tersisa"
+          }
+        }
+      }
     },
     "budget.remaining.left" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ left" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ left"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ tersisa"
+          }
+        }
+      }
     },
     "budget.safe" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Safe" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Safe"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aman"
+          }
+        }
+      }
     },
     "budget.select_category" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Select Category" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select Category"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pilih Kategori"
+          }
+        }
+      }
     },
     "budget.spent" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Spent" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spent"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terpakai"
+          }
+        }
+      }
     },
     "budget.spent.value" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ spent" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ spent"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ terpakai"
+          }
+        }
+      }
     },
     "budget.summary" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget Summary" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Budget Summary"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ringkasan Anggaran"
+          }
+        }
+      }
     },
     "budget.summary.current_month" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Current month" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Current month"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bulan ini"
+          }
+        }
+      }
     },
     "budget.summary.exceeded_count" : {
       "localizations" : {
         "en" : {
           "variations" : {
             "plural" : {
-              "one" : { "stringUnit" : { "state" : "translated", "value" : "%lld budget exceeded" } },
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "%lld budgets exceeded" } }
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld budget exceeded"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld budgets exceeded"
+                }
+              }
+            }
+          }
+        },
+        "id" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld anggaran terlampaui"
+                }
+              }
             }
           }
         }
       }
     },
     "budget.summary.no_budgets_yet" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "No budgets yet" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No budgets yet"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Belum ada anggaran"
+          }
+        }
+      }
     },
     "budget.summary.total_budget" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Total budget" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total budget"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total anggaran"
+          }
+        }
+      }
     },
     "budget.summary.total_spent" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Total spent" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total spent"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total terpakai"
+          }
+        }
+      }
     },
     "budget.summary.warning_count" : {
       "localizations" : {
         "en" : {
           "variations" : {
             "plural" : {
-              "one" : { "stringUnit" : { "state" : "translated", "value" : "%lld budget in warning" } },
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "%lld budgets in warning" } }
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld budget in warning"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld budgets in warning"
+                }
+              }
+            }
+          }
+        },
+        "id" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld anggaran dalam peringatan"
+                }
+              }
             }
           }
         }
       }
     },
     "budget.title" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Budget"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anggaran"
+          }
+        }
+      }
     },
     "budget.title_plural" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budgets" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Budgets"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anggaran"
+          }
+        }
+      }
     },
     "budget.total_monthly" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Total Monthly Budget" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total Monthly Budget"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total Anggaran Bulanan"
+          }
+        }
+      }
     },
     "budget.total_spending" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Total Spending" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total Spending"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total Pengeluaran"
+          }
+        }
+      }
     },
     "budget.total.active_budgets" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "All active budgets" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All active budgets"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Semua anggaran aktif"
+          }
+        }
+      }
     },
     "budget.try_again" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Try again." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try again."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coba lagi."
+          }
+        }
+      }
     },
     "budget.type" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget Type" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Budget Type"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jenis Anggaran"
+          }
+        }
+      }
     },
     "budget.update" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Update Budget" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Update Budget"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perbarui Anggaran"
+          }
+        }
+      }
     },
     "budget.used" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ used" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ used"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ digunakan"
+          }
+        }
+      }
     },
     "budget.validation.active_duplicate" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "An active budget already exists for this category and period." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An active budget already exists for this category and period."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anggaran aktif sudah ada untuk kategori dan periode ini."
+          }
+        }
+      }
     },
     "budget.validation.alert_threshold_range" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget alert threshold must be between 0 and 1." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Budget alert threshold must be between 0 and 1."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Batas peringatan anggaran harus antara 0 dan 1."
+          }
+        }
+      }
     },
     "budget.validation.alert_threshold_valid" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Alert threshold must be valid." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alert threshold must be valid."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Batas peringatan harus valid."
+          }
+        }
+      }
     },
     "budget.validation.amount_greater_than_zero" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget amount must be greater than zero." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Budget amount must be greater than zero."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jumlah anggaran harus lebih dari nol."
+          }
+        }
+      }
     },
     "budget.validation.amount_greater_than_zero_short" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Amount must be greater than zero." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Amount must be greater than zero."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jumlah harus lebih dari nol."
+          }
+        }
+      }
     },
     "budget.validation.amount_required" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Amount is required." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Amount is required."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jumlah wajib diisi."
+          }
+        }
+      }
     },
     "budget.validation.amount_valid_number" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Amount must be a valid number." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Amount must be a valid number."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jumlah harus berupa angka yang valid."
+          }
+        }
+      }
     },
     "budget.validation.category_active_duplicate" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Category already has an active budget for this month." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Category already has an active budget for this month."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kategori sudah memiliki anggaran aktif untuk bulan ini."
+          }
+        }
+      }
     },
     "budget.validation.category_required" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Category is required." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Category is required."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kategori wajib dipilih."
+          }
+        }
+      }
     },
     "budget.validation.invalid_month" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Invalid budget month." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invalid budget month."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bulan anggaran tidak valid."
+          }
+        }
+      }
     },
     "budget.validation.invalid_date_range" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Invalid budget date range." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invalid budget date range."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rentang tanggal anggaran tidak valid."
+          }
+        }
+      }
     },
     "budget.validation.invalid_end_date" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Invalid budget end date." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invalid budget end date."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tanggal akhir anggaran tidak valid."
+          }
+        }
+      }
     },
     "budget.validation.name_required" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget name is required." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Budget name is required."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nama anggaran wajib diisi."
+          }
+        }
+      }
     },
     "budget.validation.not_found" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Budget not found." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Budget not found."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anggaran tidak ditemukan."
+          }
+        }
+      }
     },
     "budget.warning" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Warning" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Warning"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Peringatan"
+          }
+        }
+      }
     },
     "budget.warning.exceeded_message" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ is exceeded by %@." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ is exceeded by %@."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ terlampaui sebesar %@."
+          }
+        }
+      }
     },
     "budget.warning.monthly_exceeded" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Monthly budget is exceeded by %@." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monthly budget is exceeded by %@."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anggaran bulanan terlampaui sebesar %@."
+          }
+        }
+      }
     },
     "budget.warning.monthly_near_limit" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Monthly budget is near its limit. %@ remains." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monthly budget is near its limit. %@ remains."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anggaran bulanan mendekati batas. %@ tersisa."
+          }
+        }
+      }
     },
     "budget.warning.threshold_message" : {
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "You've used %@ of %@. %@ remains." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You've used %@ of %@. %@ remains."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anda telah menggunakan %@ dari %@. %@ tersisa."
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
